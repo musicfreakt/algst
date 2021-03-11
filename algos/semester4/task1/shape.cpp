@@ -23,6 +23,8 @@ class trapezium : public rotatable, public reflectable
 {
     trapezium(const trapezium&);
     trapezium(const trapezium&&);
+    // trapezium& operator=(const trapezium &) {}
+    // trapezium& operator=(trapezium &&) {}
 
     protected:
         point sw, nw, ne, se;
@@ -55,23 +57,52 @@ trapezium :: trapezium (point a, int lena, point b, int lenb)
     se.x = sw.x + lena; se.y = sw.y;
 }
 
+/*
+          nw-----n-----ne
+         /              \
+        /                \
+       w                  e
+      /                    \
+     /                      \
+    sw----------s-----------se
+*/
 void trapezium :: rotate_right()
 {
+    int x, y;
 
+    x = nw.x; y = nw.y;
+    nw.x = sw.x - sw.y + y;
+    nw.y = sw.y + sw.x - x;
+
+    x = ne.x; y = ne.y;
+    ne.x = sw.x - sw.y + y;
+    ne.y = sw.y + sw.x - x;
+
+    x = se.x; y = se.y;
+    se.x = sw.x - sw.y + y;
+    se.y = sw.y + sw.x - x;
 }
 
 void trapezium :: rotate_left()
 {
+    int x, y;
 
+    x = nw.x; y = nw.y;
+    nw.x = sw.x + sw.y - y;
+    nw.y = sw.y - sw.x + x;
+
+    x = ne.x; y = ne.y;
+    ne.x = sw.x + sw.y - y;
+    ne.y = sw.y - sw.x + x;
+
+    x = se.x; y = se.y;
+    se.x = sw.x + sw.y - y;
+    se.y = sw.y - sw.x + x;
 }
 
 void trapezium :: flip_horisontally()
 {
-    swap(sw.x, nw.x);
-    swap(sw.y, nw.y);
 
-    swap(se.x, ne.x);
-    swap(sw.y, nw.y);
 }
 
 void trapezium :: flip_vertically()
@@ -118,6 +149,8 @@ class cross : public rectangle
 {
     cross(const cross&);
     cross(const cross&&);
+    // cross& operator=(const cross &) {}
+    // cross& operator=(cross &&) {}
 
     public:
         cross(point a, point b) : rectangle (a,b) {}
@@ -126,10 +159,9 @@ class cross : public rectangle
 
 void cross :: draw()
 {
-    put_line(swest(), neast());
-    put_line(nwest(), seast());
+    put_line(rectangle::swest(), rectangle::neast());
+    put_line(rectangle::nwest(), rectangle::seast());
 }
-
 
 // Трапеция с косым крестом
 
@@ -170,8 +202,8 @@ void crossed_trapezium::resize(int d)
 
 void crossed_trapezium::draw()
 {
-    trapezium::draw();
     cross::draw();
+    trapezium::draw();
 }
 
 void down(shape& p, const shape& q)
@@ -217,18 +249,17 @@ class face: public rectangle
         face(point, point);
         void draw();
         void move(int, int);
-        void resize(int) {}
+        void resize(int) {};
 };
 
 face :: face (point a, point b):
     rectangle(a, b),
     w(neast().x - swest().x + 1),
-    h(neast().y - swest().y + 1),
-    l_eye(point(swest( ).x + 2, swest( ).y + h * 3 / 4), 2),
-    r_eye(point(swest( ).x + w - 4, swest( ).y + h * 3 / 4), 2),
-    mouth(point(swest( ).x + 2, swest( ).y + h / 4), w - 4)
+	h(neast().y - swest().y + 1),
+    l_eye(point(swest().x + 2, swest().y + h * 3 / 4), 2),
+    r_eye(point(swest().x + w - 4, swest().y + h * 3 / 4), 2),
+    mouth(point(swest().x + 2, swest().y + h / 4), w - 4)
 {}
-
 
 void face :: draw()
 {
@@ -246,23 +277,47 @@ void face :: move(int a, int b)
     mouth.move(a, b);
 }
 
-
 int main()
 {
     screen_init();
-    // объявление набора фигур
 
-    face f(point(1, 1), point(20, 20));
-
-    // trapezium cs(point(1, 1), 10, point(4, 4), 5);
-    // cs.resize(8);
-    // cs.flip_horisontally();
-
+    trapezium left_horn(point(30, 30), 10, point(30, 33), 5);
     shape_refresh();
-    // подготовка к сборке
-
-    // сборка изображения
-
+    std::cin.get();
+    left_horn.rotate_right();
+    shape_refresh();
+    std::cin.get();
+    left_horn.flip_horisontally();
+    shape_refresh();
     screen_destroy();
+
+    // объявление набора фигур
+    // face f(point(49, 1), point(71, 16));
+    // line brim(point(55, 18), 17);
+    // rectangle hat(point(55, 20), point(69, 25));
+    //
+    // // crossed_trapezium left_horn(point(0, 30), 10, point(0, 33), 5);
+    // // crossed_trapezium right_horn();
+    // // crossed_trapezium shishak();
+    //
+    // shape_refresh();
+    // std::cout << "=== Generated... ===\n";
+    // std::cin.get();	//Смотреть исходный набор
+    //
+    // // подготовка к сборке
+    // hat.rotate_right();
+    // hat.resize(2);
+    // brim.resize(3);
+    // shape_refresh();
+    // std::cout << "=== Prepared... ===\n";
+    // std::cin.get();	//Смотреть результат поворотов/отражений
+    //
+    // // сборка изображения
+    // up(brim, f);
+    // up(hat, brim);
+    // shape_refresh();
+    // std::cout << "=== Ready! ===\n";
+    // std::cin.get();	//Смотреть результат
+    // screen_destroy();
     return 0;
 }
