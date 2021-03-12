@@ -57,30 +57,21 @@ trapezium :: trapezium (point a, int lena, point b, int lenb)
     se.x = sw.x + lena; se.y = sw.y;
 }
 
-/*
-          nw-----n-----ne
-         /              \
-        /                \
-       w                  e
-      /                    \
-     /                      \
-    sw----------s-----------se
-*/
 void trapezium :: rotate_right()
 {
     int x, y;
 
     x = nw.x; y = nw.y;
-    nw.x = sw.x - sw.y + y;
-    nw.y = sw.y + sw.x - x;
+    nw.x = se.x + (y - se.y)*2;
+    nw.y = se.y + (se.x - x)/2;
 
     x = ne.x; y = ne.y;
-    ne.x = sw.x - sw.y + y;
-    ne.y = sw.y + sw.x - x;
+    ne.x = se.x + (y - se.y)*2;
+    ne.y = se.y + (se.x - x)/2;
 
-    x = se.x; y = se.y;
-    se.x = sw.x - sw.y + y;
-    se.y = sw.y + sw.x - x;
+    x = sw.x; y = sw.y;
+    sw.x = se.x + (y - se.y)*2;
+    sw.y = se.y + (se.x - x)/2;
 }
 
 void trapezium :: rotate_left()
@@ -88,16 +79,16 @@ void trapezium :: rotate_left()
     int x, y;
 
     x = nw.x; y = nw.y;
-    nw.x = sw.x + sw.y - y;
-    nw.y = sw.y - sw.x + x;
+    nw.x = sw.x + (sw.y - y)*2;
+    nw.y = sw.y + (x - sw.x)/2;
 
     x = ne.x; y = ne.y;
-    ne.x = sw.x + sw.y - y;
-    ne.y = sw.y - sw.x + x;
+    ne.x = sw.x + (sw.y - y)*2;
+    ne.y = sw.y + (x - sw.x)/2;
 
     x = se.x; y = se.y;
-    se.x = sw.x + sw.y - y;
-    se.y = sw.y - sw.x + x;
+    se.x = sw.x + (sw.y - y)*2;
+    se.y = sw.y + (x - sw.x)/2;
 }
 
 void trapezium :: flip_horisontally()
@@ -183,10 +174,24 @@ class crossed_trapezium : public trapezium, public cross
         point nwest() const{ return trapezium::nwest(); } // северо-запад
         point swest() const{ return trapezium::swest(); } // северо-восток
 
+        void rotate_left();
+        void rotate_right();
         void move(int, int);
         void resize(int);
         void draw();
 };
+
+void crossed_trapezium::rotate_left()
+{
+    trapezium::rotate_left();
+    cross::rotate_left();
+}
+
+void crossed_trapezium::rotate_right()
+{
+    trapezium::rotate_right();
+    cross::rotate_right();
+}
 
 void crossed_trapezium::move(int a, int b)
 {
@@ -281,13 +286,20 @@ int main()
 {
     screen_init();
 
-    trapezium left_horn(point(30, 30), 10, point(30, 33), 5);
+    crossed_trapezium left_horn(point(30, 20), 10, point(30, 23), 5);
+    left_horn.resize(3);
     shape_refresh();
     std::cin.get();
     left_horn.rotate_right();
     shape_refresh();
     std::cin.get();
-    left_horn.flip_horisontally();
+    left_horn.rotate_right();
+    shape_refresh();
+    std::cin.get();
+    left_horn.rotate_right();
+    shape_refresh();
+    std::cin.get();
+    left_horn.rotate_right();
     shape_refresh();
     screen_destroy();
 
