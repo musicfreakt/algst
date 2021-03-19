@@ -9,7 +9,9 @@ function polynom = newton(x, y)
 
 n = length(x);
 d = zeros(n-1, n-1);
+a = zeros(n-1);
 polynom = zeros(size(x));
+
 % разделенная разность для двух переменных
 for k = 1 : n - 1
    d(k, 1) = (y(k+1) - y(k))/(x(k+1) - x(k));
