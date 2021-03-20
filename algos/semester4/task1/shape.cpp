@@ -10,7 +10,7 @@ using namespace std;
 
 // Трапеция
 
-class trapezium : public rotatable, public reflectable
+class trapezoid : public rotatable, public reflectable
 /*
           nw-----n-----ne
          /              \
@@ -21,20 +21,20 @@ class trapezium : public rotatable, public reflectable
     sw----------s-----------se
 */
 {
-    trapezium(const trapezium&);
-    trapezium(const trapezium&&);
-    // trapezium& operator=(const trapezium &) {}
-    // trapezium& operator=(trapezium &&) {}
+    trapezoid(const trapezoid&);
+    trapezoid(const trapezoid&&);
+    // trapezoid& operator=(const trapezoid &) {}
+    // trapezoid& operator=(trapezoid &&) {}
 
     protected:
         point sw, nw, ne, se;
     public:
-        trapezium(point, int, point, int);
+        trapezoid(point, int, point, int);
 
-        point north() const { return point((sw.x + ne.x) / 2, ne.y); }
-        point south() const { return point((sw.x + se.x) / 2, sw.y); }
-        point east() const { return point((ne.x + se.x) / 2, (ne.y + se.y) / 2); }
-        point west() const { return point((nw.x + sw.x) / 2, (nw.y + sw.y) / 2); }
+        point north() const { return point((nw.x + ne.x) / 2, (nw.y + ne.y) / 2); }
+        point south() const { return point((sw.x + se.x) / 2, (sw.y + se.y) / 2); }
+        point east() const { return point(min(ne.x, se.x), (ne.y + se.y) / 2); }
+        point west() const { return point(min(nw.x, sw.x), (nw.y + sw.y) / 2); }
         point neast() const { return ne; }
         point seast() const { return se; }
         point nwest() const { return nw; }
@@ -49,7 +49,13 @@ class trapezium : public rotatable, public reflectable
         void draw();
 };
 
-trapezium :: trapezium (point a, int lena, point b, int lenb)
+trapezoid :: trapezoid (point a, int lena, point b, int lenb)
+/*
+    Конструктор принимает точку sw и длину основания,
+    точку nw и длину основания. Этот набор данных может
+    задавать трапецию любого вида.
+    Для хранения вычисляются координаты 4 точек.
+*/
 {
     sw = a;
     nw = b;
@@ -57,51 +63,63 @@ trapezium :: trapezium (point a, int lena, point b, int lenb)
     se.x = sw.x + lena; se.y = sw.y;
 }
 
-void trapezium :: rotate_right()
+void trapezoid :: rotate_right()
 {
+    int x0 = (sw.x + nw.x + ne.x + se.x)/4;
+    int y0 = (sw.y + nw.y + ne.y + se.y)/4;
     int x, y;
 
     x = nw.x; y = nw.y;
-    nw.x = se.x + (y - se.y)*2;
-    nw.y = se.y + (se.x - x)/2;
+    nw.x = x0 + (y - y0)*2;
+    nw.y = y0 - (x - x0)/2;
 
     x = ne.x; y = ne.y;
-    ne.x = se.x + (y - se.y)*2;
-    ne.y = se.y + (se.x - x)/2;
-
-    x = sw.x; y = sw.y;
-    sw.x = se.x + (y - se.y)*2;
-    sw.y = se.y + (se.x - x)/2;
-}
-
-void trapezium :: rotate_left()
-{
-    int x, y;
-
-    x = nw.x; y = nw.y;
-    nw.x = sw.x + (sw.y - y)*2;
-    nw.y = sw.y + (x - sw.x)/2;
-
-    x = ne.x; y = ne.y;
-    ne.x = sw.x + (sw.y - y)*2;
-    ne.y = sw.y + (x - sw.x)/2;
+    ne.x = x0 + (y - y0)*2;
+    ne.y = y0 - (x - x0)/2;
 
     x = se.x; y = se.y;
-    se.x = sw.x + (sw.y - y)*2;
-    se.y = sw.y + (x - sw.x)/2;
+    se.x = x0 + (y - y0)*2;
+    se.y = y0 - (x - x0)/2;
+
+    x = sw.x; y = sw.y;
+    sw.x = x0 + (y - y0)*2;
+    sw.y = y0 - (x - x0)/2;
 }
 
-void trapezium :: flip_horisontally()
+void trapezoid :: rotate_left()
+{
+    int x0 = (sw.x + nw.x + ne.x + se.x)/4;
+    int y0 = (sw.y + nw.y + ne.y + se.y)/4;
+    int x, y;
+
+    x = nw.x; y = nw.y;
+    nw.x = x0 - (y - y0)*2;
+    nw.y = y0 + (x - x0)/2;
+
+    x = ne.x; y = ne.y;
+    ne.x = x0 - (y - y0)*2;
+    ne.y = y0 + (x - x0)/2;
+
+    x = se.x; y = se.y;
+    se.x = x0 - (y - y0)*2;
+    se.y = y0 + (x - x0)/2;
+
+    x = sw.x; y = sw.y;
+    sw.x = x0 - (y - y0)*2;
+    sw.y = y0 + (x - x0)/2;
+}
+
+void trapezoid :: flip_horisontally()
 {
 
 }
 
-void trapezium :: flip_vertically()
+void trapezoid :: flip_vertically()
 {
 
 }
 
-void trapezium :: move(int a, int b)
+void trapezoid :: move(int a, int b)
 {
     sw.x += a; sw.y += b;
     nw.x += a; nw.y += b;
@@ -109,7 +127,7 @@ void trapezium :: move(int a, int b)
     se.x += a; se.y += b;
 }
 
-void trapezium :: resize(int d)
+void trapezoid :: resize(int d)
 {
     nw.y += (nw.y - sw.y) * (d - 1);
     se.x += (se.x - sw.x) * (d - 1);
@@ -117,7 +135,7 @@ void trapezium :: resize(int d)
     ne.y += (ne.y - se.y) * (d - 1);
 }
 
-void trapezium :: draw()
+void trapezoid :: draw()
 {
 	put_line(nw, ne);
 	put_line(ne, se);
@@ -156,23 +174,23 @@ void cross :: draw()
 
 // Трапеция с косым крестом
 
-class crossed_trapezium : public trapezium, public cross
+class crossed_trapezoid : public trapezoid, public cross
 {
-    crossed_trapezium(const cross&);
-    crossed_trapezium(const cross&&);
+    crossed_trapezoid(const crossed_trapezoid&);
+    crossed_trapezoid(const crossed_trapezoid&&);
 
     public:
-        crossed_trapezium(point a, int lena, point b, int lenb):
-        trapezium(a, lena, b, lenb), cross(a, point(a.x + lena, b.y)) {}
+        crossed_trapezoid(point a, int lena, point b, int lenb):
+        trapezoid(a, lena, b, lenb), cross(a, point(a.x + lena, b.y)) {}
 
-        point north() const{ return trapezium::north(); } // север
-        point south() const{ return trapezium::south(); } // юг
-        point east() const{ return trapezium::east(); } // восток
-        point west() const{ return trapezium::west(); } // запад
-        point neast() const{ return trapezium::neast(); } // северо-восток
-        point seast() const{ return trapezium::seast(); } // юго-восток
-        point nwest() const{ return trapezium::nwest(); } // северо-запад
-        point swest() const{ return trapezium::swest(); } // северо-восток
+        point north() const{ return cross::north(); } // север
+        point south() const{ return cross::south(); } // юг
+        point east() const{ return cross::east(); } // восток
+        point west() const{ return cross::west(); } // запад
+        point neast() const{ return cross::neast(); } // северо-восток
+        point seast() const{ return cross::seast(); } // юго-восток
+        point nwest() const{ return cross::nwest(); } // северо-запад
+        point swest() const{ return cross::swest(); } // северо-восток
 
         void rotate_left();
         void rotate_right();
@@ -181,34 +199,35 @@ class crossed_trapezium : public trapezium, public cross
         void draw();
 };
 
-void crossed_trapezium::rotate_left()
+void crossed_trapezoid::rotate_left()
 {
-    trapezium::rotate_left();
+    trapezoid::rotate_left();
     cross::rotate_left();
 }
 
-void crossed_trapezium::rotate_right()
+void crossed_trapezoid::rotate_right()
 {
-    trapezium::rotate_right();
+    trapezoid::rotate_right();
     cross::rotate_right();
+    trapezoid::move(swest().x - trapezoid::swest().x, nwest().y - trapezoid::nwest().y);
 }
 
-void crossed_trapezium::move(int a, int b)
+void crossed_trapezoid::move(int a, int b)
 {
-    trapezium::move(a, b);
+    trapezoid::move(a, b);
     cross::move(a, b);
 }
 
-void crossed_trapezium::resize(int d)
+void crossed_trapezoid::resize(int d)
 {
-    trapezium::resize(d);
+    trapezoid::resize(d);
     cross::resize(d);
 }
 
-void crossed_trapezium::draw()
+void crossed_trapezoid::draw()
 {
     cross::draw();
-    trapezium::draw();
+    trapezoid::draw();
 }
 
 void down(shape& p, const shape& q)
@@ -286,20 +305,19 @@ int main()
 {
     screen_init();
 
-    crossed_trapezium left_horn(point(30, 20), 10, point(30, 23), 5);
-    left_horn.resize(3);
+    crossed_trapezoid right_horn(point(30, 20), 10, point(30, 24), 6);
+    line brim(point(55, 18), 17);
+    brim.resize(3);
+    right_horn.resize(2);
     shape_refresh();
     std::cin.get();
-    left_horn.rotate_right();
+    right_horn.rotate_right();
+    right_horn.rotate_right();
+    // right_horn.rotate_right();
+    // right_horn.rotate_right();
     shape_refresh();
     std::cin.get();
-    left_horn.rotate_right();
-    shape_refresh();
-    std::cin.get();
-    left_horn.rotate_right();
-    shape_refresh();
-    std::cin.get();
-    left_horn.rotate_right();
+    right_up(right_horn, brim);
     shape_refresh();
     screen_destroy();
 
@@ -308,9 +326,9 @@ int main()
     // line brim(point(55, 18), 17);
     // rectangle hat(point(55, 20), point(69, 25));
     //
-    // // crossed_trapezium left_horn(point(0, 30), 10, point(0, 33), 5);
-    // // crossed_trapezium right_horn();
-    // // crossed_trapezium shishak();
+    // // crossed_trapezoid left_horn(point(0, 30), 10, point(0, 33), 5);
+    // // crossed_trapezoid right_horn();
+    // // crossed_trapezoid shishak();
     //
     // shape_refresh();
     // std::cout << "=== Generated... ===\n";

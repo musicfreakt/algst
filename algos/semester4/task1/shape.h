@@ -212,13 +212,13 @@ void rectangle::move(int a, int b)
 void rectangle::rotate_right()
 {
     int w = ne.x - sw.x, h = ne.y - sw.y;
-    sw.x = ne.x + h * 2;
+    sw.x = ne.x - h * 2;
     ne.y = sw.y + w / 2;
 }
 
 void rectangle::rotate_left()
 {
-    int w = ne.x - sw.x, h = sw.y - ne.y;
+    int w = ne.x - sw.x, h = ne.y - sw.y;
     ne.x = sw.x + h * 2;
     ne.y = sw.y + w / 2;
 }
