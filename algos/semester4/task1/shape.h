@@ -128,6 +128,8 @@ class line : public shape
         line(point a, point b) :w(a), e(b) {}
     	line(point a, int l) :w(a), e(point(a.x + l - 1, a.y)) {}
 
+        // Небольшое улучшение поиска точек привязки
+
     	point north() const { return point((w.x + e.x) / 2, e.y < w.y ? w.y : e.y); }
     	point south() const { return point((w.x + e.x) / 2, e.y < w.y ? e.y : w.y); }
     	point east() const { return e; }
@@ -136,6 +138,8 @@ class line : public shape
     	point seast() const { return e; }
     	point nwest() const { return w; }
     	point swest() const { return w; }
+
+        // было 
 
         // point north() const { return point((w.x+e.x)/2, e.y<w.y? w.y : e.y); }
         // point south() const { return point((w.x+e.x)/2, e.y<w.y? e.y : w.y); }
