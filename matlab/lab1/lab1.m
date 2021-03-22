@@ -2,7 +2,7 @@ clear;
 clc;
 
 DOTS = 5; % количество узлов интерполяции
-A = 1; % левая граница 
+A = 1; % левая граница
 B = 6; % правая граница
 
 x = A:(B-A)/(DOTS-1):B; % равностоящие узлы интерполяции
@@ -29,7 +29,7 @@ end
 
 omega = 1;
 for i = 1 : DOTS
-    omega = omega * (random_x - x(i)); 
+    omega = omega * (random_x - x(i));
 end
 
 % Вычисление производной
@@ -70,7 +70,7 @@ real_error
 
 % Построение графиков
 f = figure('Color','w');
-set(f, 'Position', [200, 100, 1000, 495]) 
+set(f, 'Position', [200, 100, 1000, 495])
 % вывод графика sin(x)
 subplot(1,2,1)
 fplot(@interpfunc,[A-1 B+1])
