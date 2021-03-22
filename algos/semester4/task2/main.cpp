@@ -10,13 +10,72 @@ int main()
     screen_init();
 
     // объявление набора фигур
-    face f(point(49, 1), point(71, 16));
-    line brim(point(5, 18), 17);
-    rectangle hat(point(55, 20), point(69, 25));
 
-    crossed_trapezoid right_horn(point(10, 25), 10, point(10, 28), 6);
-    crossed_trapezoid left_horn(point(10, 5), 10, point(10, 8), 6);
-    crossed_trapezoid_comb shishak(point(80, 5), 16, point(85, 10), 6);
+    shape *f;
+    try
+    {
+        f = new face(point(49, 1), point(71, 16));
+    }
+    catch(bad_init &e)
+    {
+        // cout << e.what <<
+        f = new error_figure(e.center, e.what);
+    }
+
+    shape *brim;
+    try
+    {
+        brim = new line(point(5, 18), 17);
+    }
+    catch (bad_init &e)
+    {
+        // cout
+        brim = new error_figure(e.center, e.what);
+    }
+
+    shape *hat;
+    try
+    {
+        hat = new rectangle(point(55, 20), point(69, 25));
+    }
+    catch (bad_init &e)
+    {
+        // cout
+        hat = new error_figure(e.center, e.what);
+    }
+
+    shape *right_horn;
+    try
+    {
+        right_horn = new crossed_trapezoid(point(10, 25), 10, point(10, 28), 6);
+    }
+    catch (bad_init &e)
+    {
+        // cout
+        right_horn = new error_figure(e.center, e.what);
+    }
+
+    shape *left_horn;
+    try
+    {
+        left_horn = new crossed_trapezoid(point(10, 5), 10, point(10, 8), 6);
+    }
+    catch (bad_init &e)
+    {
+        // cout
+        left_horn = new error_figure(e.center, e.what);
+    }
+
+    shape *shishak;
+    try
+    {
+        shishak = new crossed_trapezoid_comb(point(80, 5), 16, point(85, 10), 6);
+    }
+    catch (bad_init &e)
+    {
+        // cout
+        shishak = new error_figure(e.center, e.what);
+    }
 
     shape_refresh();
     std::cout << "=== Generated... ===\n";
@@ -49,6 +108,8 @@ int main()
     shape_refresh();
     std::cout << "=== Ready! ===\n";
     std::cin.get();	//Смотреть результат
+
+    cout << "\nScreen contains " << shape::shapes.size() << " elements (nose is not an element!)";
     screen_destroy();
     return 0;
 }

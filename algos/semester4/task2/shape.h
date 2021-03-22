@@ -8,6 +8,7 @@ using namespace std;
 
 char screen[YMAX][XMAX];
 enum color { black = '*', white = '.', error = '!'};
+bool create_error = false;
 
 void screen_init()
 {
@@ -23,7 +24,8 @@ void screen_destroy()
             x = black;
 }
 
-bool on_screen(int a, int b) // проверка попадания точки на экран
+bool on_screen(int a, int b)
+// проверка попадания точки на экран
 {
     return 0 <= a && a < XMAX && 0 <= b && b < YMAX;
 }
@@ -412,10 +414,10 @@ class trapezoid : public rotatable, public reflectable
     sw                      se
 */
 {
-    trapezoid(const trapezoid&);
-    trapezoid(const trapezoid&&);
-    trapezoid& operator=(const trapezoid &) = delete;
-    trapezoid& operator=(trapezoid &&) = delete;
+    // trapezoid(const trapezoid&);
+    // trapezoid(const trapezoid&&);
+    // trapezoid& operator=(const trapezoid &) = delete;
+    // trapezoid& operator=(trapezoid &&) = delete;
 
     protected:
         point a, b, c, d;
@@ -559,10 +561,10 @@ class cross : public rectangle
     sw     s     se
 */
 {
-    cross(const cross&);
-    cross(const cross&&);
-    cross& operator=(const cross &) = delete;
-    cross& operator=(cross &&) = delete;
+    // cross(const cross&);
+    // cross(const cross&&);
+    // cross& operator=(const cross &) = delete;
+    // cross& operator=(cross &&) = delete;
 
     public:
         cross(point a, point b) : rectangle (a,b) {}
@@ -580,10 +582,10 @@ void cross :: draw()
 */
 class crossed_trapezoid_comb : public trapezoid, public cross
 {
-    crossed_trapezoid_comb(const crossed_trapezoid_comb&);
-    crossed_trapezoid_comb(const crossed_trapezoid_comb&&);
-    crossed_trapezoid_comb& operator=(const crossed_trapezoid_comb &) = delete;
-    crossed_trapezoid_comb& operator=(crossed_trapezoid_comb &&) = delete;
+    // crossed_trapezoid_comb(const crossed_trapezoid_comb&);
+    // crossed_trapezoid_comb(const crossed_trapezoid_comb&&);
+    // crossed_trapezoid_comb& operator=(const crossed_trapezoid_comb &) = delete;
+    // crossed_trapezoid_comb& operator=(crossed_trapezoid_comb &&) = delete;
 
     public:
         crossed_trapezoid_comb(point a, int lena, point b, int lenb):
@@ -642,10 +644,10 @@ void crossed_trapezoid_comb::draw()
 
 class crossed_trapezoid : public rotatable, public reflectable
 {
-    crossed_trapezoid(const crossed_trapezoid&);
-    crossed_trapezoid(const crossed_trapezoid&&);
-    crossed_trapezoid& operator=(const crossed_trapezoid &) = delete;
-    crossed_trapezoid& operator=(crossed_trapezoid &&) = delete;
+    // crossed_trapezoid(const crossed_trapezoid&);
+    // crossed_trapezoid(const crossed_trapezoid&&);
+    // crossed_trapezoid& operator=(const crossed_trapezoid &) = delete;
+    // crossed_trapezoid& operator=(crossed_trapezoid &&) = delete;
 
     protected:
         point a, b, c, d;
