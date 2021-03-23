@@ -14,33 +14,31 @@ int main()
     // shape *f;
     // try
     // {
-    //     f = new face(point(49, 1), point(71, 16));
+    //     f = new face(point(49, 0), point(71, 16));
     // }
     // catch(bad_init &e)
     // {
-    //     // cout << e.what <<
-    //     // f = new error_figure(e.center);
+    //     f = new error_figure(e.center);
     // }
 
-    shape *brim;
-    try
-    {
-        brim = new line(point(5, 18), 3);
-    }
-    catch (bad_init &e)
-    {
-        brim = new error_figure(e.center);
-    }
+    // shape *brim;
+    // try
+    // {
+    //     brim = new line(point(5, 18), 10);
+    // }
+    // catch (bad_init &e)
+    // {
+    //     brim = new error_figure(e.center);
+    // }
 
-    // shape *hat;
+    // rotatable *hat;
     // try
     // {
     //     hat = new rectangle(point(55, 20), point(69, 25));
     // }
     // catch (bad_init &e)
     // {
-    //     // cout
-    //     // hat = new error_figure(e.center);
+    //     hat = new error_figure(e.center);
     // }
 
     shape_refresh();
@@ -51,7 +49,7 @@ int main()
     // hat->rotate_right();
     // hat->resize(2);
     //
-    // brim->move(100,100);
+    // brim->resize(2);
     //
     // right_horn->resize(2);
     // right_horn->rotate_left();
@@ -71,7 +69,7 @@ int main()
     // right_up(right_horn, brim);
     // left_up(left_horn, brim);
     // up(shishak, hat);
-    // shape_refresh();
+    shape_refresh();
     std::cout << "=== Ready! ===\n";
     std::cin.get();	//Смотреть результат
 

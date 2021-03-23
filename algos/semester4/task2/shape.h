@@ -33,9 +33,11 @@ bool on_screen(int a, int b)
 void put_point(int a, int b)
 {
     if(create_error)
-        screen[abs(a) % XMAX][abs(b) % YMAX] = err;
+        screen[abs(b) % YMAX][abs(a) % XMAX] = err;
     else if (on_screen(a, b))
-        screen[a][b] = black;
+    {
+        screen[b][a] = black;
+    }
     else
     {
         out_of_screen e;
@@ -109,16 +111,16 @@ int shape::id = 0;
 list <shape*> shape::shapes; // Размещение списка фигур
 
 class rotatable : virtual public shape
+//Фигуры, пригодные к повороту
 {
-    //Фигуры, пригодные к повороту
     public:
         virtual void rotate_left() = 0;
         virtual void rotate_right() = 0;
 };
 
 class reflectable : virtual public shape
+//Фигуры пригодные к зеркальному отражению
 {
-    //Фигуры пригодные к зеркальному отражению
     public:
         virtual void flip_horisontally() = 0;
         virtual void flip_vertically() = 0;
@@ -129,7 +131,7 @@ class reflectable : virtual public shape
     Специальная фигура - знак ошибки
 */
 
-class error_figure : public shape
+class error_figure : public rotatable, public reflectable
 {
     point s;
     public:
@@ -146,7 +148,16 @@ class error_figure : public shape
 
         void move(int, int);
         void draw();
-        void resize(int){}
+
+        /*
+            При использовании методов изменения фигуры выводим сообщение о том,
+            что данное действие над испорченной фигурой совершить невозможно
+        */
+        void resize(int){std::cout << "\nerror figure сan't be resized\n";}
+        void rotate_left(){std::cout << "\nerror figure сan't be rotated\n";}
+        void rotate_right(){std::cout << "\nerror figure сan't be rotated\n";}
+        void flip_vertically(){std::cout << "\nerror figure сan't be flipped\n";}
+        void flip_horisontally(){std::cout << "\nerror figure сan't be flipped\n";}
 
         ~error_figure(){shape::shapes.remove(this);}
 };
@@ -511,13 +522,23 @@ void crossed_trapezoid :: resize(int r)
 
 void crossed_trapezoid :: draw()
 {
-	put_line(a, b);
-	put_line(b, c);
-	put_line(c, d);
-	put_line(a, d);
+    try
+    {
+    	put_line(a, b);
+    	put_line(b, c);
+    	put_line(c, d);
+    	put_line(a, d);
 
-    put_line(swest(), neast());
-    put_line(nwest(), seast());
+        put_line(swest(), neast());
+        put_line(nwest(), seast());
+    }
+    catch(out_of_screen &e)
+    {
+        // e.what = name;
+        e.s = point(10, 10); // todo: ПОМЕНЯТЬ !!
+        this->~crossed_trapezoid();
+        throw e; // кидаем его выше в цикл
+    }
 }
 
 class face: public rectangle
@@ -570,7 +591,7 @@ void down(shape* p, const shape* q)
     catch(out_of_screen &e)
     {
         // cout << ""
-        shape *s = new error_figure("");
+        shape *s = new error_figure(e.s);
         shape::shapes.remove(p);
     }
 }
@@ -585,7 +606,7 @@ void left_up(shape* p, const shape* q)
     catch(out_of_screen &e)
     {
         // cout << ""
-        shape *s = new error_figure("");
+        shape *s = new error_figure(e.s);
         shape::shapes.remove(p);
     }
 }
@@ -600,7 +621,7 @@ void right_up(shape* p, const shape* q)
     catch(out_of_screen &e)
     {
         // cout << ""
-        shape *s = new error_figure("");
+        shape *s = new error_figure(e.s);
         shape::shapes.remove(p);
     }
 }
@@ -615,7 +636,7 @@ void right_down(shape* p, const shape* q)
     catch(out_of_screen &e)
     {
         // cout << ""
-        shape *s = new error_figure("");
+        shape *s = new error_figure(e.s);
         shape::shapes.remove(p);
     }
 }
@@ -630,7 +651,7 @@ void left_down(shape* p, const shape* q)
     catch(out_of_screen &e)
     {
         // cout << ""
-        shape *s = new error_figure("");
+        shape *s = new error_figure(e.s);
         shape::shapes.remove(p);
     }
 }
@@ -644,7 +665,7 @@ void up(shape* p, const shape* q)
     catch(out_of_screen &e)
     {
         // cout << ""
-        shape *s = new error_figure("");
+        shape *s = new error_figure(e.s);
         shape::shapes.remove(p);
     }
 }
