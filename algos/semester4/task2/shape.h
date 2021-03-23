@@ -7,7 +7,7 @@
 using namespace std;
 
 char screen[YMAX][XMAX];
-enum color { black = '*', white = '.', error = '!'};
+enum color { black = '*', white = '.', err = '!'};
 bool create_error = false;
 
 void screen_init()
@@ -32,10 +32,9 @@ bool on_screen(int a, int b)
 
 void put_point(int a, int b)
 {
-    // if(create_error)
-    //     screen[(abs(a) % XMAX)][(abs(b) % YMAX)] = error;
-    // else
-    if (on_screen(a, b))
+    if(create_error)
+        screen[abs(a) % XMAX][abs(b) % YMAX] = err;
+    else if (on_screen(a, b))
         screen[a][b] = black;
     else
     {
@@ -71,7 +70,7 @@ void put_line(int x0, int y0, int x1, int y1)
     }
     catch(out_of_screen &e)
     {
-        // ничего не можем сделать, передаем исколчение в draw
+        // ничего не можем сделать, передаем исключение в draw
         throw e;
     }
 }
@@ -108,33 +107,6 @@ struct shape
 
 int shape::id = 0;
 list <shape*> shape::shapes; // Размещение списка фигур
-void shape_refresh() // Перерисовка всех фигур на экране
-{
-    screen_clear();
-    for (auto p : shape::shapes)
-        p->draw();
-    screen_refresh();
-}
-
-void shape_refresh()
-{
-    screen_clear();
-    for(auto p : shape::shapes)
-    {
-        try
-        {
-            p.front()->draw();
-        }
-        catch(out_of_screen &e)
-        {
-            cout << endl << e.what << " went out of screen when was initialized. Garbage was created\n";
-            shape *s = new garbage(e.s);
-            shape::shapes.remove(p.front());
-        }
-    }
-    screen_refresh();
-}
-
 
 class rotatable : virtual public shape
 {
@@ -157,10 +129,12 @@ class reflectable : virtual public shape
     Специальная фигура - знак ошибки
 */
 
-class error_figure : virtual public shape
+class error_figure : public shape
 {
     point s;
     public:
+        // error_figure(point a, string n = "garbage"): s(a){ name = n;  };
+        error_figure(point a): s(a) {}
         point north() const{ return point(s.x, s.y+1); }
         point south() const{ return point(s.x, s.y - 1); }
         point east() const{ return point (s.x+1, s.y); }
@@ -172,6 +146,9 @@ class error_figure : virtual public shape
 
         void move(int, int);
         void draw();
+        void resize(int){}
+
+        ~error_figure(){shape::shapes.remove(this);}
 };
 
 
@@ -189,6 +166,25 @@ void error_figure::draw()
     put_line(seast(), swest());
     put_line(swest(), nwest());
     create_error = false;
+}
+
+void shape_refresh()
+{
+    screen_clear();
+    for(auto p : shape::shapes)
+    {
+        try
+        {
+            p->draw();
+        }
+        catch(out_of_screen &e)
+        {
+            cout << endl << " went out of screen when was initialized. Garbage was created\n";
+            shape *s = new error_figure(e.s);
+            shape::shapes.remove(p);
+        }
+    }
+    screen_refresh();
 }
 
 // Линия
@@ -228,7 +224,7 @@ line::line (point a, point b) : w(a), e(b)
     {
         bad_init i;
         // i.what = name;
-        i.center = point((west().x - east().x)/2, (north().y - south().y)/2);
+        i.center = point(10, 10); // todo: поменять ?!?!
         this->~line();
         throw i;
     }
@@ -240,7 +236,7 @@ line::line(point a, int l): w(point(a.x + l - 1, a.y)), e(a)
     {
         bad_init i;
         // i.what = name;
-        i.center = point((west().x - east().x)/2, (north().y - south().y)/2);
+        i.center = point(10, 10); // todo: поменять ?!?!
         this->~line();
         throw i;
     }
@@ -251,18 +247,27 @@ void line::move(int dx, int dy)
     w.x += dx; w.y += dy; e.x += dx; e.y += dy;
     if(!on_screen(w.x, w.y) || !on_screen(e.x, e.y))
     {
-        out_of_screen e;
+        out_of_screen i;
         // e.what = name;
-        e.s = point(0,0);
+        i.s = point(10,10);
         this->~line();
-        throw e;
+        throw i;
     }
 }
 
-void resize(int d)
+void line::resize(int d)
 {
     e.x += (e.x - w.x) * (d - 1);
     e.y += (e.y - w.y) * (d - 1);
+
+    if (!on_screen(w.x, w.y) || !on_screen(e.x, e.y))
+    {
+        out_of_screen i;
+        // e.what = name;
+        i.s = point(10,10);
+        this->~line();
+        throw i;
+    }
 }
 
 // Прямоугольник
@@ -326,7 +331,7 @@ rectangle::rectangle(point a, point b)
     {
         bad_init i;
         // i.what = name;
-        i.center = point(west().y, north().x);
+        i.center = point(west().y, north().x); // todo: ПОМЕНЯТЬ !!
         this->~rectangle();
         throw i;
     }
@@ -346,7 +351,7 @@ void rectangle::draw()
     catch(out_of_screen &e)
     {
         // e.what = name;
-        e.s = point((sw.x+ne.x)/2, (sw.y+ne.y)/2);
+        e.s = point(10, 10); // todo: ПОМЕНЯТЬ !!
         this->~rectangle();
         throw e; // кидаем его выше в цикл
     }
@@ -379,264 +384,6 @@ void rectangle::rotate_left()
     ne.x = sw.x + h * 2;
     ne.y = sw.y + w / 2;
 }
-
-/*
-    Пополнение и использование библиотеки фигур
-
-    Добавленные фигуры:
-    - trapezoid: трапеция
-    - cross: косой крест
-    - crossed_trapezoid_comb: трапеция с косым крестом, реализованная наследованием
-    предыдущих фигур
-    - crossed_trapezoid: трапеция с косым крестом
-
-    Добавленные функции размещения:
-    - down(p, q): поместить p над q
-    - left_up(p, q): поместить p слева над q
-    - right_up(p, q): поместить p справа над q
-    - right_down(p, q): поместить p справа под q
-    - left_down(p, q): поместить p справа под q
-*/
-
-/*
-    Реализация фигуры трапеция
-*/
-
-class trapezoid : public rotatable, public reflectable
-/*
-    nw    b------n------c   ne
-         /              \
-        /                \
-    w  /                  \  e
-      /                    \
-     /                      \
-    a-----------s------------d
-    sw                      se
-*/
-{
-    // trapezoid(const trapezoid&);
-    // trapezoid(const trapezoid&&);
-    // trapezoid& operator=(const trapezoid &) = delete;
-    // trapezoid& operator=(trapezoid &&) = delete;
-
-    protected:
-        point a, b, c, d;
-    public:
-        trapezoid(point, int, point, int);
-
-        point north() const { return point((swest().x + seast().x) / 2, nwest().y); }
-        point south() const { return point((swest().x + seast().x) / 2, swest().y); }
-        point east() const { return point(seast().x, (neast().y + seast().y) / 2); }
-        point west() const { return point(swest().x, (swest().y + nwest().y) / 2); }
-        point neast() const { return point(max(a.x, max(b.x, max(c.x, d.x))), max(a.y, max(b.y, max(c.y, d.y)))); }
-        point seast() const { return point(max(a.x, max(b.x, max(c.x, d.x))), min(a.y, min(b.y, min(c.y, d.y)))); }
-        point nwest() const { return point(min(a.x, min(b.x, min(c.x, d.x))), max(a.y, max(b.y, max(c.y, d.y))));}
-        point swest() const { return point(min(a.x, min(b.x, min(c.x, d.x))), min(a.y, min(b.y, min(c.y, d.y)))); }
-
-        void rotate_left();
-        void rotate_right();
-        void flip_horisontally();
-        void flip_vertically();
-        void move(int, int);
-        void resize(int);
-        void draw();
-};
-
-trapezoid :: trapezoid (point a_, int lena, point b_, int lenb)
-/*
-    Конструктор принимает точку sw и длину основания,
-    точку nw и длину основания. Этот набор данных может
-    задавать трапецию любого вида.
-    Для хранения вычисляются координаты 4 точек.
-*/
-{
-    a = a_;
-    b = b_;
-    c.x = b.x + lenb; c.y = b.y;
-    d.x = a.x + lena; d.y = a.y;
-}
-
-void trapezoid::rotate_right()
-{
-    int x0 = (neast().x + seast().x + nwest().x + swest().x)/4;
-    int y0 = (neast().y + seast().y + nwest().y + swest().y)/4;
-    int x, y;
-
-    x = a.x; y = a.y;
-    a.x = x0 + (y - y0)*2;
-    a.y = y0 - (x - x0)/2;
-
-    x = b.x; y = b.y;
-    b.x = x0 + (y - y0)*2;
-    b.y = y0 - (x - x0)/2;
-
-    x = c.x; y = c.y;
-    c.x = x0 + (y - y0)*2;
-    c.y = y0 - (x - x0)/2;
-
-    x = d.x; y = d.y;
-    d.x = x0 + (y - y0)*2;
-    d.y = y0 - (x - x0)/2;
-}
-
-void trapezoid::rotate_left()
-{
-    int x0 = (neast().x + seast().x + nwest().x + swest().x)/4;
-    int y0 = (neast().y + seast().y + nwest().y + swest().y)/4;
-    int x, y;
-
-    x = a.x; y = a.y;
-    a.x = x0 - (y - y0)*2;
-    a.y = y0 + (x - x0)/2;
-
-    x = b.x; y = b.y;
-    b.x = x0 - (y - y0)*2;
-    b.y = y0 + (x - x0)/2;
-
-    x = c.x; y = c.y;
-    c.x = x0 - (y - y0)*2;
-    c.y = y0 + (x - x0)/2;
-
-    x = d.x; y = d.y;
-    d.x = x0 - (y - y0)*2;
-    d.y = y0 + (x - x0)/2;
-}
-
-void trapezoid :: flip_horisontally()
-{
-    int dx1 = abs(b.x - nwest().x),
-    dx2 = abs(c.x - nwest().x),
-    dx3 = abs(a.x - swest().x),
-    dx4 = abs(d.x - swest().x);
-
-    a.x = swest().x + dx1;
-    b.x = nwest().x + dx3;
-    c.x = nwest().x + dx4;
-    d.x = swest().x + dx2;
-}
-
-void trapezoid :: flip_vertically()
-{
-    rotate_right();
-    rotate_right();
-    flip_horisontally();
-}
-
-void trapezoid :: move(int dx, int dy)
-{
-    a.x += dx; a.y += dy;
-    b.x += dx; b.y += dy;
-    c.x += dx; c.y += dy;
-    d.x += dx; d.y += dy;
-}
-
-void trapezoid :: resize(int scale)
-{
-    b.y += (b.y - a.y) * (scale - 1);
-    d.x += (d.x - a.x) * (scale - 1);
-    c.x += (c.x - b.x) * (scale - 1);
-    c.y += (c.y - d.y) * (scale - 1);
-}
-
-void trapezoid :: draw()
-{
-	put_line(a, b);
-	put_line(b, c);
-	put_line(c, d);
-	put_line(a, d);
-}
-
-/*
-    Реализация фигуры косой крест
-*/
-
-class cross : public rectangle
-/*
-    nw     n     ne
-      \        /
-        \     /
-    w      c      e
-        /     \
-      /         \
-    sw     s     se
-*/
-{
-    // cross(const cross&);
-    // cross(const cross&&);
-    // cross& operator=(const cross &) = delete;
-    // cross& operator=(cross &&) = delete;
-
-    public:
-        cross(point a, point b) : rectangle (a,b) {}
-        void draw();
-};
-
-void cross :: draw()
-{
-    put_line(rectangle::swest(), rectangle::neast());
-    put_line(rectangle::nwest(), rectangle::seast());
-}
-
-/*
-    Реализация трапеции с косым крестом наследованием двух фигур (трапеции и креста)
-*/
-class crossed_trapezoid_comb : public trapezoid, public cross
-{
-    // crossed_trapezoid_comb(const crossed_trapezoid_comb&);
-    // crossed_trapezoid_comb(const crossed_trapezoid_comb&&);
-    // crossed_trapezoid_comb& operator=(const crossed_trapezoid_comb &) = delete;
-    // crossed_trapezoid_comb& operator=(crossed_trapezoid_comb &&) = delete;
-
-    public:
-        crossed_trapezoid_comb(point a, int lena, point b, int lenb):
-        trapezoid(a, lena, b, lenb), cross(a, point(a.x + lena, b.y)) {}
-
-        point north() const{ return cross::north(); } // север
-        point south() const{ return cross::south(); } // юг
-        point east() const{ return cross::east(); } // восток
-        point west() const{ return cross::west(); } // запад
-        point neast() const{ return cross::neast(); } // северо-восток
-        point seast() const{ return cross::seast(); } // юго-восток
-        point nwest() const{ return cross::nwest(); } // северо-запад
-        point swest() const{ return cross::swest(); } // северо-восток
-
-        void rotate_left();
-        void rotate_right();
-        void move(int, int);
-        void resize(int);
-        void draw();
-};
-
-void crossed_trapezoid_comb::rotate_left()
-{
-    trapezoid::rotate_left();
-    cross::rotate_left();
-}
-
-void crossed_trapezoid_comb::rotate_right()
-{
-    trapezoid::rotate_right();
-    cross::rotate_right();
-}
-
-void crossed_trapezoid_comb::move(int dx, int dy)
-{
-    trapezoid::move(dx, dy);
-    cross::move(dx, dy);
-}
-
-void crossed_trapezoid_comb::resize(int scale)
-{
-    trapezoid::resize(scale);
-    cross::resize(scale);
-}
-
-void crossed_trapezoid_comb::draw()
-{
-    cross::draw();
-    trapezoid::draw();
-}
-
 
 /*
     Реализация трапеции с косым крестом без наследования от отдельных фигур
@@ -735,22 +482,14 @@ void crossed_trapezoid::rotate_left()
 
 void crossed_trapezoid :: flip_horisontally()
 {
-    int dx1 = abs(b.x - nwest().x),
-    dx2 = abs(c.x - nwest().x),
-    dx3 = abs(a.x - swest().x),
-    dx4 = abs(d.x - swest().x);
-
-    a.x = swest().x + dx1;
-    b.x = nwest().x + dx3;
-    c.x = nwest().x + dx4;
-    d.x = swest().x + dx2;
+    swap(a.y, d.y);
+    swap(d.y, c.y);
 }
 
 void crossed_trapezoid :: flip_vertically()
 {
-    rotate_right();
-    rotate_right();
-    flip_horisontally();
+    swap(a.x, b.x);
+    swap(c.x, d.x);
 }
 
 void crossed_trapezoid :: move(int dx, int dy)
@@ -763,10 +502,11 @@ void crossed_trapezoid :: move(int dx, int dy)
 
 void crossed_trapezoid :: resize(int r)
 {
+    b.x += (b.x - a.x) * (r - 1);
     b.y += (b.y - a.y) * (r - 1);
-    d.x += (d.x - a.x) * (r - 1);
     c.x += (c.x - b.x) * (r - 1);
     c.y += (c.y - d.y) * (r - 1);
+    d.x += (d.x - a.x) * (r - 1);
 }
 
 void crossed_trapezoid :: draw()
@@ -820,41 +560,93 @@ void face :: move(int a, int b)
     Функции размещения фигур относительно друг друга
 */
 
-void down(shape& p, const shape& q)
+void down(shape* p, const shape* q)
 // Поместить p над q
 {
-	p.move(q.south().x - p.north().x, q.south().y - p.north().y - 1);
+    try
+    {
+        p->move(q->south().x - p->north().x, q->south().y - p->north().y - 1);
+    }
+    catch(out_of_screen &e)
+    {
+        // cout << ""
+        shape *s = new error_figure("");
+        shape::shapes.remove(p);
+    }
 }
 
-void left_up(shape& p, const shape& q)
+void left_up(shape* p, const shape* q)
 // Поместить p слева над q
 {
-	p.move(q.nwest().x - p.swest().x, q.nwest().y - p.swest().y + 1);
+    try
+    {
+        p->move(q->nwest().x - p->swest().x, q->nwest().y - p->swest().y + 1);
+    }
+    catch(out_of_screen &e)
+    {
+        // cout << ""
+        shape *s = new error_figure("");
+        shape::shapes.remove(p);
+    }
 }
 
-void right_up(shape& p, const shape& q)
+void right_up(shape* p, const shape* q)
 // Поместить p справа над q
 {
-	p.move(q.neast().x - p.seast().x, q.nwest().y - p.swest().y + 1);
+    try
+    {
+        p->move(q->neast().x - p->seast().x, q->nwest().y - p->swest().y + 1);
+    }
+    catch(out_of_screen &e)
+    {
+        // cout << ""
+        shape *s = new error_figure("");
+        shape::shapes.remove(p);
+    }
 }
 
-void right_down(shape& p, const shape& q)
+void right_down(shape* p, const shape* q)
 // Поместить p справа под q
 {
-	p.move(q.east().x - p.west().x, q.swest().y - p.nwest().y);
+    try
+    {
+        p->move(q->east().x - p->west().x, q->swest().y - p->nwest().y);
+    }
+    catch(out_of_screen &e)
+    {
+        // cout << ""
+        shape *s = new error_figure("");
+        shape::shapes.remove(p);
+    }
 }
 
-void left_down(shape& p, const shape& q)
+void left_down(shape* p, const shape* q)
 // Поместить p справа под q
 {
-	p.move(q.west().x - p.east().x, q.swest().y - p.nwest().y);
+    try
+    {
+        p->move(q->west().x - p->east().x, q->swest().y - p->nwest().y);
+    }
+    catch(out_of_screen &e)
+    {
+        // cout << ""
+        shape *s = new error_figure("");
+        shape::shapes.remove(p);
+    }
 }
 
-void up(shape& p, const shape& q)
+void up(shape* p, const shape* q)
 {
-	point n = q.north();
-	point s = p.south();
-	p.move(n.x - s.x, n.y - s.y + 1);
+    try
+    {
+    	p->move(q->north().x - p->south().x, q->north().y - p->south().y + 1);
+    }
+    catch(out_of_screen &e)
+    {
+        // cout << ""
+        shape *s = new error_figure("");
+        shape::shapes.remove(p);
+    }
 }
 
 #endif
