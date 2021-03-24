@@ -36,7 +36,7 @@ int main()
     rotatable *hat;
     try
     {
-        hat = new rectangle(point(-10, 20), point(69, 25));
+        hat = new rectangle(point(55, 20), point(69, 25));
     }
     catch (bad_init &e)
     {
@@ -50,7 +50,7 @@ int main()
 
     // подготовка к сборке
     hat->rotate_right();
-    hat->resize(2);
+    hat->resize(100);
     //
     brim->resize(2);
     //

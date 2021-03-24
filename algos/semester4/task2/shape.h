@@ -179,19 +179,20 @@ void error_figure::draw()
 void shape_refresh()
 {
     screen_clear();
-    for(auto p : shape::shapes)
+    for(list <shape*> p = shape::shapes; !p.empty(); p.pop_front())
     {
         try
         {
-            p->draw();
+            p.front()->draw();
         }
         catch(out_of_screen &e)
         {
             // если изменения параметров фигур в draw не помогли решить проблему,
             // заменяем эту фигуру на фигуру ошибки
-            cout << p->id << e.what() << "Error figure was created. \n";
+            cout << p.front()->id << e.what() << "Error figure was created. \n";
             shape *s = new error_figure(point(3,3)); // todo: переделать расположение фигуры
-            shape::shapes.remove(p);
+            s->draw();
+            shape::shapes.remove(p.front());
         }
     }
     screen_refresh();
@@ -254,13 +255,21 @@ void line::draw()
     {
         put_line(w, e);
     }
-    catch(out_of_screen &e)
+    catch(out_of_screen &err)
     {
-
         // пробуем изменить размер фигуры
         // resize();
         // пробуем подвинуть фигуру в более "безопасное место"
         // move();
+        // пробуем отрисовать фигуру еще раз
+        try
+        {
+            put_line(w, e);
+        }
+        catch(out_of_screen &err)
+        {
+            throw; // если изменение параметров не помогло, передаем ошибку выше
+        }
     }
 
 }
@@ -315,20 +324,24 @@ class rectangle: public rotatable
 rectangle::rectangle(point a, point b)
 {
     if (a.x <= b.x)
-		if (a.y <= b.y) {
+		if (a.y <= b.y)
+        {
 			sw = a;
 			ne = b;
 		}
-		else {
+		else
+        {
 			sw = point(a.x, b.y);
 			ne = point(b.x, a.y);
 		}
 	else
-		if (a.y <= b.y) {
+		if (a.y <= b.y)
+        {
 			sw = point(b.x, a.y);
 			ne = point(a.x, b.y);
 		}
-		else {
+		else
+        {
 			sw = b;
 			ne = a;
 		}
@@ -355,10 +368,25 @@ void rectangle::draw()
     }
     catch(out_of_screen &e)
     {
+        std::cout << id << e.what() << "\n";
         // пробуем изменить размер фигуры
-        // resize();
+        // resize(-100);
         // пробуем подвинуть фигуру в более "безопасное место"
         // move();
+        // пробуем отрисовать фигуру еще раз
+        try
+        {
+            point nw(sw.x, ne.y);
+        	point se(ne.x, sw.y);
+        	put_line(nw, ne);
+        	put_line(ne, se);
+        	put_line(se, sw);
+        	put_line(sw, nw);
+        }
+        catch(out_of_screen &e)
+        {
+            throw; // если изменение параметров не помогло, передаем ошибку выше
+        }
     }
 }
 
@@ -434,6 +462,7 @@ crossed_trapezoid :: crossed_trapezoid (point a_, int lena, point b_, int lenb)
     Для хранения вычисляются координаты 4 точек.
 */
 {
+    // todo: проверки
     a = a_;
     b = b_;
     c.x = b.x + lenb; c.y = b.y;
@@ -541,6 +570,21 @@ void crossed_trapezoid :: draw()
         // resize();
         // пробуем подвинуть фигуру в более "безопасное место"
         // move();
+        // пробуем отрисовать фигуру еще раз
+        try
+        {
+            put_line(a, b);
+        	put_line(b, c);
+        	put_line(c, d);
+        	put_line(a, d);
+
+            put_line(swest(), neast());
+            put_line(nwest(), seast());
+        }
+        catch(out_of_screen &e)
+        {
+            throw; // если изменение параметров не помогло, передаем ошибку выше
+        }
     }
 }
 
