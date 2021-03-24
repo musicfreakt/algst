@@ -103,7 +103,7 @@ struct shape
     virtual void draw() = 0; //Рисование
     virtual void move(int, int) = 0; //Перемещение
     virtual void resize(int) = 0; //Изменение размера
-    // virtual ~shape() = 0;
+    virtual ~shape() {};
 };
 
 int shape::id = 0; // установка счетчика фигур в 0
@@ -525,7 +525,7 @@ void crossed_trapezoid::rotate_left()
 
 void crossed_trapezoid :: flip_horisontally()
 {
-    swap(a.y, d.y);
+    swap(a.y, b.y);
     swap(d.y, c.y);
 }
 
