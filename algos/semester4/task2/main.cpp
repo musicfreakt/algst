@@ -11,45 +11,48 @@ int main()
 
     // объявление набора фигур
 
-    // shape *f;
+    // rotatable *f;
     // try
     // {
-    //     f = new face(point(49, 0), point(71, 16));
+    //     f = new face(point(-10, 0), point(71, 16));
     // }
     // catch(bad_init &e)
     // {
+    //     std::cout << e.id << e.what() << "\n";
     //     f = new error_figure(e.center);
     // }
 
-    // shape *brim;
-    // try
-    // {
-    //     brim = new line(point(5, 18), 10);
-    // }
-    // catch (bad_init &e)
-    // {
-    //     brim = new error_figure(e.center);
-    // }
+    shape *brim;
+    try
+    {
+        brim = new line(point(5, 18), 200);
+    }
+    catch (bad_init &e)
+    {
+        std::cout << e.id << e.what() << "\n";
+        brim = new error_figure(e.center);
+    }
 
-    // rotatable *hat;
-    // try
-    // {
-    //     hat = new rectangle(point(55, 20), point(69, 25));
-    // }
-    // catch (bad_init &e)
-    // {
-    //     hat = new error_figure(e.center);
-    // }
+    rotatable *hat;
+    try
+    {
+        hat = new rectangle(point(-10, 20), point(69, 25));
+    }
+    catch (bad_init &e)
+    {
+        std::cout << e.id << e.what() << "\n";
+        hat = new error_figure(e.center);
+    }
 
     shape_refresh();
     std::cout << "=== Generated... ===\n";
     std::cin.get();	//Смотреть исходный набор
 
     // подготовка к сборке
-    // hat->rotate_right();
-    // hat->resize(2);
+    hat->rotate_right();
+    hat->resize(2);
     //
-    // brim->resize(2);
+    brim->resize(2);
     //
     // right_horn->resize(2);
     // right_horn->rotate_left();

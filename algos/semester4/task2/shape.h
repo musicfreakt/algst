@@ -35,14 +35,12 @@ void put_point(int a, int b)
     if(create_error)
         screen[abs(b) % YMAX][abs(a) % XMAX] = err;
     else if (on_screen(a, b))
-    {
         screen[b][a] = black;
-    }
-    else
-    {
-        out_of_screen e;
-        throw e; // бросаем исключение в put_line
-    }
+    // else
+    // {
+    //     out_of_screen e("figure out of screen when was transformed. Error figure was created.");
+    //     throw e; // бросаем исключение в put_line
+    // }
 }
 
 void put_line(int x0, int y0, int x1, int y1)
@@ -52,8 +50,8 @@ void put_line(int x0, int y0, int x1, int y1)
 Минимизируется величина abs(eps), где eps = 2*(b(x-x0)) + a(y-y0).
 */
 {
-    try
-    {
+    // try
+    // {
         int dx = 1;
         int a = x1 - x0; if (a < 0) dx = -1, a = -a;
         int dy = 1;
@@ -69,12 +67,12 @@ void put_line(int x0, int y0, int x1, int y1)
             if (eps <= xcrit) x0 += dx, eps += two_b;
             if (eps >= a || a < b) y0 += dy, eps -= two_a;
         }
-    }
-    catch(out_of_screen &e)
-    {
-        // ничего не можем сделать, передаем исключение в draw
-        throw e;
-    }
+    // }
+    // catch(out_of_screen &e)
+    // {
+    //     // ничего не можем сделать, передаем исключение в draw
+    //     throw e;
+    // }
 }
 
 void screen_clear(){ screen_init(); } //Очистка экрана
@@ -91,9 +89,10 @@ void screen_refresh() // Обновление экрана
 
 struct shape
 {
-    static int id; // уникальный идентификатор фигуры
+    static int id; // идентификатор фигуры
     static list<shape*> shapes; // Список фигур (один на все фигуры!)
-    shape() {shapes.push_back(this); ++id;} //Фигура присоединяется к списку
+    // Фигура присоединяется к списку и устанавливается идентификатор
+    shape() {shapes.push_back(this); ++id;}
     virtual point north() const = 0; //Точки для привязки
     virtual point south() const = 0;
     virtual point east() const = 0;
@@ -105,6 +104,7 @@ struct shape
     virtual void draw() = 0; //Рисование
     virtual void move(int, int) = 0; //Перемещение
     virtual void resize(int) = 0; //Изменение размера
+    // virtual ~shape() = 0;
 };
 
 int shape::id = 0;
@@ -126,7 +126,6 @@ class reflectable : virtual public shape
         virtual void flip_vertically() = 0;
 };
 
-
 /*
     Специальная фигура - знак ошибки
 */
@@ -135,7 +134,6 @@ class error_figure : public rotatable, public reflectable
 {
     point s;
     public:
-        // error_figure(point a, string n = "garbage"): s(a){ name = n;  };
         error_figure(point a): s(a) {}
         point north() const{ return point(s.x, s.y+1); }
         point south() const{ return point(s.x, s.y - 1); }
@@ -184,16 +182,17 @@ void shape_refresh()
     screen_clear();
     for(auto p : shape::shapes)
     {
-        try
-        {
+        // try
+        // {
             p->draw();
-        }
-        catch(out_of_screen &e)
-        {
-            cout << endl << " went out of screen when was initialized. Garbage was created\n";
-            shape *s = new error_figure(e.s);
-            shape::shapes.remove(p);
-        }
+        // }
+        // catch(out_of_screen &e)
+        // {
+        //     // cout << p.name << e.what() << "\n";
+        //     cout << e.what() << "\n";
+        //     shape *s = new error_figure(e.s);
+        //     shape::shapes.remove(p);
+        // }
     }
     screen_refresh();
 }
@@ -233,9 +232,7 @@ line::line (point a, point b) : w(a), e(b)
 {
     if((!on_screen(w.x, w.y)) || (!on_screen(e.x,e.y)))
     {
-        bad_init i;
-        // i.what = name;
-        i.center = point(10, 10); // todo: поменять ?!?!
+        bad_init i(id, point(10, 10));
         this->~line();
         throw i;
     }
@@ -245,9 +242,7 @@ line::line(point a, int l): w(point(a.x + l - 1, a.y)), e(a)
 {
     if((!on_screen(w.x, w.y)) || (!on_screen(e.x,e.y)))
     {
-        bad_init i;
-        // i.what = name;
-        i.center = point(10, 10); // todo: поменять ?!?!
+        bad_init i(id, point(10, 10));
         this->~line();
         throw i;
     }
@@ -255,30 +250,29 @@ line::line(point a, int l): w(point(a.x + l - 1, a.y)), e(a)
 
 void line::move(int dx, int dy)
 {
-    w.x += dx; w.y += dy; e.x += dx; e.y += dy;
-    if(!on_screen(w.x, w.y) || !on_screen(e.x, e.y))
-    {
-        out_of_screen i;
-        // e.what = name;
-        i.s = point(10,10);
-        this->~line();
-        throw i;
-    }
+    // w.x += dx; w.y += dy; e.x += dx; e.y += dy;
+    // if(!on_screen(w.x, w.y) || !on_screen(e.x, e.y))
+    // {
+    //     out_of_screen i;
+    //     i.s = point(10,10);
+    //     this->~line();
+    //     throw i;
+    // }
 }
 
 void line::resize(int d)
 {
-    e.x += (e.x - w.x) * (d - 1);
-    e.y += (e.y - w.y) * (d - 1);
-
-    if (!on_screen(w.x, w.y) || !on_screen(e.x, e.y))
-    {
-        out_of_screen i;
-        // e.what = name;
-        i.s = point(10,10);
-        this->~line();
-        throw i;
-    }
+    // e.x += (e.x - w.x) * (d - 1);
+    // e.y += (e.y - w.y) * (d - 1);
+    //
+    // if (!on_screen(w.x, w.y) || !on_screen(e.x, e.y))
+    // {
+    //     out_of_screen i;
+    //     // e.what = name;
+    //     i.s = point(10,10);
+    //     this->~line();
+    //     throw i;
+    // }
 }
 
 // Прямоугольник
@@ -340,9 +334,8 @@ rectangle::rectangle(point a, point b)
 
     if((!on_screen(sw.x, sw.y)) || (!on_screen(ne.x,ne.y)))
     {
-        bad_init i;
-        // i.what = name;
-        i.center = point(west().y, north().x); // todo: ПОМЕНЯТЬ !!
+        bad_init i(id, point(10, 10));
+        // i.center = point(west().y, north().x); // todo: ПОМЕНЯТЬ !!
         this->~rectangle();
         throw i;
     }
@@ -350,22 +343,22 @@ rectangle::rectangle(point a, point b)
 
 void rectangle::draw()
 {
-    try
-    {
-    	point nw(sw.x, ne.y);
-    	point se(ne.x, sw.y);
-    	put_line(nw, ne);
-    	put_line(ne, se);
-    	put_line(se, sw);
-    	put_line(sw, nw);
-    }
-    catch(out_of_screen &e)
-    {
-        // e.what = name;
-        e.s = point(10, 10); // todo: ПОМЕНЯТЬ !!
-        this->~rectangle();
-        throw e; // кидаем его выше в цикл
-    }
+    // try
+    // {
+    // 	point nw(sw.x, ne.y);
+    // 	point se(ne.x, sw.y);
+    // 	put_line(nw, ne);
+    // 	put_line(ne, se);
+    // 	put_line(se, sw);
+    // 	put_line(sw, nw);
+    // }
+    // catch(out_of_screen &e)
+    // {
+    //     // e.what = name;
+    //     e.s = point(10, 10); // todo: ПОМЕНЯТЬ !!
+    //     this->~rectangle();
+    //     throw e; // кидаем его выше в цикл
+    // }
 }
 
 void rectangle::resize(int d)
@@ -428,6 +421,8 @@ class crossed_trapezoid : public rotatable, public reflectable
         void move(int, int);
         void resize(int);
         void draw();
+
+        ~crossed_trapezoid(){shape::shapes.remove(this);}
 };
 
 crossed_trapezoid :: crossed_trapezoid (point a_, int lena, point b_, int lenb)
@@ -442,6 +437,13 @@ crossed_trapezoid :: crossed_trapezoid (point a_, int lena, point b_, int lenb)
     b = b_;
     c.x = b.x + lenb; c.y = b.y;
     d.x = a.x + lena; d.y = a.y;
+
+    if((!on_screen(a.x, a.y)) || (!on_screen(b.x, b.y)) || (!on_screen(c.x,c.y)) || (!on_screen(d.x, d.y)))
+    {
+        bad_init i(id, point(10, 10));
+        this->~crossed_trapezoid();
+        throw i;
+    }
 }
 
 void crossed_trapezoid::rotate_right()
@@ -522,23 +524,23 @@ void crossed_trapezoid :: resize(int r)
 
 void crossed_trapezoid :: draw()
 {
-    try
-    {
-    	put_line(a, b);
-    	put_line(b, c);
-    	put_line(c, d);
-    	put_line(a, d);
-
-        put_line(swest(), neast());
-        put_line(nwest(), seast());
-    }
-    catch(out_of_screen &e)
-    {
-        // e.what = name;
-        e.s = point(10, 10); // todo: ПОМЕНЯТЬ !!
-        this->~crossed_trapezoid();
-        throw e; // кидаем его выше в цикл
-    }
+    // try
+    // {
+    // 	put_line(a, b);
+    // 	put_line(b, c);
+    // 	put_line(c, d);
+    // 	put_line(a, d);
+    //
+    //     put_line(swest(), neast());
+    //     put_line(nwest(), seast());
+    // }
+    // catch(out_of_screen &e)
+    // {
+    //     // e.what = name;
+    //     e.s = point(10, 10); // todo: ПОМЕНЯТЬ !!
+    //     this->~crossed_trapezoid();
+    //     throw e; // кидаем его выше в цикл
+    // }
 }
 
 class face: public rectangle
@@ -584,90 +586,90 @@ void face :: move(int a, int b)
 void down(shape* p, const shape* q)
 // Поместить p над q
 {
-    try
-    {
-        p->move(q->south().x - p->north().x, q->south().y - p->north().y - 1);
-    }
-    catch(out_of_screen &e)
-    {
-        // cout << ""
-        shape *s = new error_figure(e.s);
-        shape::shapes.remove(p);
-    }
+    // try
+    // {
+    //     p->move(q->south().x - p->north().x, q->south().y - p->north().y - 1);
+    // }
+    // catch(out_of_screen &e)
+    // {
+    //     // cout << ""
+    //     shape *s = new error_figure(e.s);
+    //     shape::shapes.remove(p);
+    // }
 }
 
 void left_up(shape* p, const shape* q)
 // Поместить p слева над q
 {
-    try
-    {
-        p->move(q->nwest().x - p->swest().x, q->nwest().y - p->swest().y + 1);
-    }
-    catch(out_of_screen &e)
-    {
-        // cout << ""
-        shape *s = new error_figure(e.s);
-        shape::shapes.remove(p);
-    }
+    // try
+    // {
+    //     p->move(q->nwest().x - p->swest().x, q->nwest().y - p->swest().y + 1);
+    // }
+    // catch(out_of_screen &e)
+    // {
+    //     // cout << ""
+    //     shape *s = new error_figure(e.s);
+    //     shape::shapes.remove(p);
+    // }
 }
 
 void right_up(shape* p, const shape* q)
 // Поместить p справа над q
 {
-    try
-    {
-        p->move(q->neast().x - p->seast().x, q->nwest().y - p->swest().y + 1);
-    }
-    catch(out_of_screen &e)
-    {
-        // cout << ""
-        shape *s = new error_figure(e.s);
-        shape::shapes.remove(p);
-    }
+    // try
+    // {
+    //     p->move(q->neast().x - p->seast().x, q->nwest().y - p->swest().y + 1);
+    // }
+    // catch(out_of_screen &e)
+    // {
+    //     // cout << ""
+    //     shape *s = new error_figure(e.s);
+    //     shape::shapes.remove(p);
+    // }
 }
 
 void right_down(shape* p, const shape* q)
 // Поместить p справа под q
 {
-    try
-    {
-        p->move(q->east().x - p->west().x, q->swest().y - p->nwest().y);
-    }
-    catch(out_of_screen &e)
-    {
-        // cout << ""
-        shape *s = new error_figure(e.s);
-        shape::shapes.remove(p);
-    }
+    // try
+    // {
+    //     p->move(q->east().x - p->west().x, q->swest().y - p->nwest().y);
+    // }
+    // catch(out_of_screen &e)
+    // {
+    //     // cout << ""
+    //     shape *s = new error_figure(e.s);
+    //     shape::shapes.remove(p);
+    // }
 }
 
 void left_down(shape* p, const shape* q)
 // Поместить p справа под q
 {
-    try
-    {
-        p->move(q->west().x - p->east().x, q->swest().y - p->nwest().y);
-    }
-    catch(out_of_screen &e)
-    {
-        // cout << ""
-        shape *s = new error_figure(e.s);
-        shape::shapes.remove(p);
-    }
+    // try
+    // {
+    //     p->move(q->west().x - p->east().x, q->swest().y - p->nwest().y);
+    // }
+    // catch(out_of_screen &e)
+    // {
+    //     // cout << ""
+    //     shape *s = new error_figure(e.s);
+    //     shape::shapes.remove(p);
+    // }
 }
 
 void up(shape* p, const shape* q)
 {
-    try
-    {
-    	p->move(q->north().x - p->south().x, q->north().y - p->south().y + 1);
-    }
-    catch(out_of_screen &e)
-    {
-        // cout << ""
-        shape *s = new error_figure(e.s);
-        shape::shapes.remove(p);
-    }
+    // try
+    // {
+    // 	p->move(q->north().x - p->south().x, q->north().y - p->south().y + 1);
+    // }
+    // catch(out_of_screen &e)
+    // {
+    //     // cout << ""
+    //     shape *s = new error_figure(e.s);
+    //     shape::shapes.remove(p);
+    // }
 }
 
 #endif
