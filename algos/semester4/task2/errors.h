@@ -1,14 +1,18 @@
 struct bad_init : public std::exception
+/*
+    Класс ошибки создания фигуры
+*/
 {
     int id;
     point center;
     bad_init(int id, point center) noexcept : id(id), center(center){}
-    const char* what() const noexcept {return " figure out of screen when was initialized. Error figure was created."; }
+    const char* what() const noexcept {return " figure out of screen when was initialized. Error figure was created.\0"; }
 };
 
-// class out_of_screen : public std::exception
-// {
-//     public:
-//         const char* what() const noexcept { return ""; }
-//         point s;
-// };
+struct out_of_screen : public std::exception
+/*
+    Класс ошибки перемещения фигуры
+*/
+{
+    const char* what() const noexcept {return " figure out of screen when was transformed.\0"; }
+};

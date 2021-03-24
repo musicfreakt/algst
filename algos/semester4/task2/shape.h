@@ -36,11 +36,11 @@ void put_point(int a, int b)
         screen[abs(b) % YMAX][abs(a) % XMAX] = err;
     else if (on_screen(a, b))
         screen[b][a] = black;
-    // else
-    // {
-    //     out_of_screen e("figure out of screen when was transformed. Error figure was created.");
-    //     throw e; // бросаем исключение в put_line
-    // }
+    else
+    {
+        out_of_screen e;
+        throw e; // бросаем исключение в put_line
+    }
 }
 
 void put_line(int x0, int y0, int x1, int y1)
@@ -50,8 +50,8 @@ void put_line(int x0, int y0, int x1, int y1)
 Минимизируется величина abs(eps), где eps = 2*(b(x-x0)) + a(y-y0).
 */
 {
-    // try
-    // {
+    try
+    {
         int dx = 1;
         int a = x1 - x0; if (a < 0) dx = -1, a = -a;
         int dy = 1;
@@ -67,12 +67,11 @@ void put_line(int x0, int y0, int x1, int y1)
             if (eps <= xcrit) x0 += dx, eps += two_b;
             if (eps >= a || a < b) y0 += dy, eps -= two_a;
         }
-    // }
-    // catch(out_of_screen &e)
-    // {
-    //     // ничего не можем сделать, передаем исключение в draw
-    //     throw e;
-    // }
+    }
+    catch(out_of_screen &e)
+    {
+        throw; // ничего не можем сделать, передаем исключение в draw
+    }
 }
 
 void screen_clear(){ screen_init(); } //Очистка экрана
@@ -107,7 +106,7 @@ struct shape
     // virtual ~shape() = 0;
 };
 
-int shape::id = 0;
+int shape::id = 0; // установка счетчика фигур в 0
 list <shape*> shape::shapes; // Размещение списка фигур
 
 class rotatable : virtual public shape
@@ -182,17 +181,18 @@ void shape_refresh()
     screen_clear();
     for(auto p : shape::shapes)
     {
-        // try
-        // {
+        try
+        {
             p->draw();
-        // }
-        // catch(out_of_screen &e)
-        // {
-        //     // cout << p.name << e.what() << "\n";
-        //     cout << e.what() << "\n";
-        //     shape *s = new error_figure(e.s);
-        //     shape::shapes.remove(p);
-        // }
+        }
+        catch(out_of_screen &e)
+        {
+            // если изменения параметров фигур в draw не помогли решить проблему,
+            // заменяем эту фигуру на фигуру ошибки
+            cout << p->id << e.what() << "Error figure was created. \n";
+            shape *s = new error_figure(point(3,3)); // todo: переделать расположение фигуры
+            shape::shapes.remove(p);
+        }
     }
     screen_refresh();
 }
@@ -222,7 +222,7 @@ class line : public shape
     	point swest() const { return w; }
 
     	void move(int, int);
-    	void draw(){put_line(w, e);}
+    	void draw();
         void resize(int);
 
         ~line(){shape::shapes.remove(this);}
@@ -248,31 +248,32 @@ line::line(point a, int l): w(point(a.x + l - 1, a.y)), e(a)
     }
 };
 
+void line::draw()
+{
+    try
+    {
+        put_line(w, e);
+    }
+    catch(out_of_screen &e)
+    {
+
+        // пробуем изменить размер фигуры
+        // resize();
+        // пробуем подвинуть фигуру в более "безопасное место"
+        // move();
+    }
+
+}
+
 void line::move(int dx, int dy)
 {
-    // w.x += dx; w.y += dy; e.x += dx; e.y += dy;
-    // if(!on_screen(w.x, w.y) || !on_screen(e.x, e.y))
-    // {
-    //     out_of_screen i;
-    //     i.s = point(10,10);
-    //     this->~line();
-    //     throw i;
-    // }
+    w.x += dx; w.y += dy; e.x += dx; e.y += dy;
 }
 
 void line::resize(int d)
 {
-    // e.x += (e.x - w.x) * (d - 1);
-    // e.y += (e.y - w.y) * (d - 1);
-    //
-    // if (!on_screen(w.x, w.y) || !on_screen(e.x, e.y))
-    // {
-    //     out_of_screen i;
-    //     // e.what = name;
-    //     i.s = point(10,10);
-    //     this->~line();
-    //     throw i;
-    // }
+    e.x += (e.x - w.x) * (d - 1);
+    e.y += (e.y - w.y) * (d - 1);
 }
 
 // Прямоугольник
@@ -343,22 +344,22 @@ rectangle::rectangle(point a, point b)
 
 void rectangle::draw()
 {
-    // try
-    // {
-    // 	point nw(sw.x, ne.y);
-    // 	point se(ne.x, sw.y);
-    // 	put_line(nw, ne);
-    // 	put_line(ne, se);
-    // 	put_line(se, sw);
-    // 	put_line(sw, nw);
-    // }
-    // catch(out_of_screen &e)
-    // {
-    //     // e.what = name;
-    //     e.s = point(10, 10); // todo: ПОМЕНЯТЬ !!
-    //     this->~rectangle();
-    //     throw e; // кидаем его выше в цикл
-    // }
+    try
+    {
+    	point nw(sw.x, ne.y);
+    	point se(ne.x, sw.y);
+    	put_line(nw, ne);
+    	put_line(ne, se);
+    	put_line(se, sw);
+    	put_line(sw, nw);
+    }
+    catch(out_of_screen &e)
+    {
+        // пробуем изменить размер фигуры
+        // resize();
+        // пробуем подвинуть фигуру в более "безопасное место"
+        // move();
+    }
 }
 
 void rectangle::resize(int d)
@@ -524,23 +525,23 @@ void crossed_trapezoid :: resize(int r)
 
 void crossed_trapezoid :: draw()
 {
-    // try
-    // {
-    // 	put_line(a, b);
-    // 	put_line(b, c);
-    // 	put_line(c, d);
-    // 	put_line(a, d);
-    //
-    //     put_line(swest(), neast());
-    //     put_line(nwest(), seast());
-    // }
-    // catch(out_of_screen &e)
-    // {
-    //     // e.what = name;
-    //     e.s = point(10, 10); // todo: ПОМЕНЯТЬ !!
-    //     this->~crossed_trapezoid();
-    //     throw e; // кидаем его выше в цикл
-    // }
+    try
+    {
+    	put_line(a, b);
+    	put_line(b, c);
+    	put_line(c, d);
+    	put_line(a, d);
+
+        put_line(swest(), neast());
+        put_line(nwest(), seast());
+    }
+    catch(out_of_screen &e)
+    {
+        // пробуем изменить размер фигуры
+        // resize();
+        // пробуем подвинуть фигуру в более "безопасное место"
+        // move();
+    }
 }
 
 class face: public rectangle
@@ -586,90 +587,36 @@ void face :: move(int a, int b)
 void down(shape* p, const shape* q)
 // Поместить p над q
 {
-    // try
-    // {
-    //     p->move(q->south().x - p->north().x, q->south().y - p->north().y - 1);
-    // }
-    // catch(out_of_screen &e)
-    // {
-    //     // cout << ""
-    //     shape *s = new error_figure(e.s);
-    //     shape::shapes.remove(p);
-    // }
+    p->move(q->south().x - p->north().x, q->south().y - p->north().y - 1);
 }
 
 void left_up(shape* p, const shape* q)
 // Поместить p слева над q
 {
-    // try
-    // {
-    //     p->move(q->nwest().x - p->swest().x, q->nwest().y - p->swest().y + 1);
-    // }
-    // catch(out_of_screen &e)
-    // {
-    //     // cout << ""
-    //     shape *s = new error_figure(e.s);
-    //     shape::shapes.remove(p);
-    // }
+    p->move(q->nwest().x - p->swest().x, q->nwest().y - p->swest().y + 1);
 }
 
 void right_up(shape* p, const shape* q)
 // Поместить p справа над q
 {
-    // try
-    // {
-    //     p->move(q->neast().x - p->seast().x, q->nwest().y - p->swest().y + 1);
-    // }
-    // catch(out_of_screen &e)
-    // {
-    //     // cout << ""
-    //     shape *s = new error_figure(e.s);
-    //     shape::shapes.remove(p);
-    // }
+    p->move(q->neast().x - p->seast().x, q->nwest().y - p->swest().y + 1);
 }
 
 void right_down(shape* p, const shape* q)
 // Поместить p справа под q
 {
-    // try
-    // {
-    //     p->move(q->east().x - p->west().x, q->swest().y - p->nwest().y);
-    // }
-    // catch(out_of_screen &e)
-    // {
-    //     // cout << ""
-    //     shape *s = new error_figure(e.s);
-    //     shape::shapes.remove(p);
-    // }
+    p->move(q->east().x - p->west().x, q->swest().y - p->nwest().y);
 }
 
 void left_down(shape* p, const shape* q)
 // Поместить p справа под q
 {
-    // try
-    // {
-    //     p->move(q->west().x - p->east().x, q->swest().y - p->nwest().y);
-    // }
-    // catch(out_of_screen &e)
-    // {
-    //     // cout << ""
-    //     shape *s = new error_figure(e.s);
-    //     shape::shapes.remove(p);
-    // }
+    p->move(q->west().x - p->east().x, q->swest().y - p->nwest().y);
 }
 
 void up(shape* p, const shape* q)
 {
-    // try
-    // {
-    // 	p->move(q->north().x - p->south().x, q->north().y - p->south().y + 1);
-    // }
-    // catch(out_of_screen &e)
-    // {
-    //     // cout << ""
-    //     shape *s = new error_figure(e.s);
-    //     shape::shapes.remove(p);
-    // }
+    p->move(q->north().x - p->south().x, q->north().y - p->south().y + 1);
 }
 
 #endif
