@@ -294,8 +294,16 @@ void line::move(int dx, int dy)
 
 void line::resize(int r)
 {
-    e.x += (e.x - w.x) * (r - 1);
-    e.y += (e.y - w.y) * (r - 1);
+    if (r > 1)
+    {
+        e.x += (e.x - w.x) * (r - 1);
+        e.y += (e.y - w.y) * (r - 1);
+    }
+    else if (r < 0)
+    {
+        e.x = w.x + (e.x - w.x) / (- r);
+        e.y = w.y + (e.y - w.y) / (- r);
+    }
 }
 
 // Прямоугольник
@@ -407,8 +415,16 @@ void rectangle::draw()
 
 void rectangle::resize(int r)
 {
-    ne.x += (ne.x - sw.x) * (r - 1);
-    ne.y += (ne.y - sw.y) * (r - 1);
+    if (r > 1)
+    {
+        ne.x += (ne.x - sw.x) * (r - 1);
+        ne.y += (ne.y - sw.y) * (r - 1);
+    }
+    else if (r < 0)
+    {
+        ne.x = sw.x + (ne.x - sw.x) / (- r);
+        ne.y = sw.y + (ne.y - sw.y) / (- r);
+    }
 }
 
 void rectangle::move(int dx, int dy)
@@ -560,11 +576,22 @@ void crossed_trapezoid :: move(int dx, int dy)
 
 void crossed_trapezoid :: resize(int r)
 {
-    b.x += (b.x - a.x) * (r - 1);
-    b.y += (b.y - a.y) * (r - 1);
-    c.x += (c.x - b.x) * (r - 1);
-    c.y += (c.y - d.y) * (r - 1);
-    d.x += (d.x - a.x) * (r - 1);
+    if (r > 1)
+    {
+        b.x += (b.x - a.x) * (r - 1);
+        b.y += (b.y - a.y) * (r - 1);
+        c.x += (c.x - a.x) * (r - 1);
+        c.y += (c.y - a.y) * (r - 1);
+        d.x += (d.x - a.x) * (r - 1);
+    }
+    else if (r < 0)
+    {
+        b.x = a.x + (b.x - a.x) / (- r);
+        b.y = a.y + (b.y - a.y) / (- r);
+        c.x = a.x + (c.x - a.x) / (- r);
+        c.y = a.y + (c.y - a.y) / (- r);
+        d.x = a.x + (d.x - a.x) / (- r);
+    }
 }
 
 void crossed_trapezoid :: draw()
