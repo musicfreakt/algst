@@ -103,7 +103,7 @@ struct shape
     virtual void draw() = 0; //Рисование
     virtual void move(int, int) = 0; //Перемещение
     virtual void resize(int) = 0; //Изменение размера
-    virtual ~shape() {};
+    virtual ~shape() = default;
 };
 
 int shape::id = 0; // установка счетчика фигур в 0
@@ -150,11 +150,11 @@ class error_figure : public rotatable, public reflectable
             При использовании методов изменения фигуры выводим сообщение о том,
             что данное действие над испорченной фигурой совершить невозможно
         */
-        void resize(int){std::cout << "\nerror figure сan't be resized\n";}
-        void rotate_left(){std::cout << "\nerror figure сan't be rotated\n";}
-        void rotate_right(){std::cout << "\nerror figure сan't be rotated\n";}
-        void flip_vertically(){std::cout << "\nerror figure сan't be flipped\n";}
-        void flip_horisontally(){std::cout << "\nerror figure сan't be flipped\n";}
+        void resize(int){cout << "\nerror figure сan't be resized\n";}
+        void rotate_left(){cout << "\nerror figure сan't be rotated\n";}
+        void rotate_right(){cout << "\nerror figure сan't be rotated\n";}
+        void flip_vertically(){cout << "\nerror figure сan't be flipped\n";}
+        void flip_horisontally(){cout << "\nerror figure сan't be flipped\n";}
 
         ~error_figure(){shape::shapes.remove(this);}
 };
@@ -239,7 +239,7 @@ line::line (point a, point b) : w(a), e(b)
     }
 };
 
-line::line(point a, int l): w(point(a.x + l - 1, a.y)), e(a)
+line::line(point a, int l): w(a), e(point(a.x + l - 1, a.y))
 {
     if((!on_screen(w.x, w.y)) || (!on_screen(e.x,e.y)))
     {
@@ -257,10 +257,23 @@ void line::draw()
     }
     catch(out_of_screen &err)
     {
-        // пробуем изменить размер фигуры
-        // resize();
-        // пробуем подвинуть фигуру в более "безопасное место"
-        // move();
+        // сообщаем об ошибке
+        cout << id << err.what() << "\n";
+        // пробуем немного изменить фигуру
+
+        if ((!on_screen(w.x, w.y)) && (!on_screen(e.x, e.y)))
+        {
+            // если полностью за экраном
+            w.x %= XMAX;
+            w.y %= YMAX;
+            e.x %= XMAX;
+            e.y %= YMAX;
+        }
+        else
+        {
+
+        }
+
         // пробуем отрисовать фигуру еще раз
         try
         {
@@ -279,10 +292,10 @@ void line::move(int dx, int dy)
     w.x += dx; w.y += dy; e.x += dx; e.y += dy;
 }
 
-void line::resize(int d)
+void line::resize(int r)
 {
-    e.x += (e.x - w.x) * (d - 1);
-    e.y += (e.y - w.y) * (d - 1);
+    e.x += (e.x - w.x) * (r - 1);
+    e.y += (e.y - w.y) * (r - 1);
 }
 
 // Прямоугольник
@@ -368,7 +381,8 @@ void rectangle::draw()
     }
     catch(out_of_screen &e)
     {
-        std::cout << id << e.what() << "\n";
+        // сообщаем об ошибке
+        cout << id << e.what() << "\n";
         // пробуем изменить размер фигуры
         // resize(-100);
         // пробуем подвинуть фигуру в более "безопасное место"
@@ -376,6 +390,7 @@ void rectangle::draw()
         // пробуем отрисовать фигуру еще раз
         try
         {
+
             point nw(sw.x, ne.y);
         	point se(ne.x, sw.y);
         	put_line(nw, ne);
@@ -390,18 +405,18 @@ void rectangle::draw()
     }
 }
 
-void rectangle::resize(int d)
+void rectangle::resize(int r)
 {
-    ne.x += (ne.x - sw.x) * (d - 1);
-    ne.y += (ne.y - sw.y) * (d - 1);
+    ne.x += (ne.x - sw.x) * (r - 1);
+    ne.y += (ne.y - sw.y) * (r - 1);
 }
 
-void rectangle::move(int a, int b)
+void rectangle::move(int dx, int dy)
 {
-    sw.x += a;
-    sw.y += b;
-    ne.x += a;
-    ne.y += b;
+    sw.x += dx;
+    sw.y += dy;
+    ne.x += dx;
+    ne.y += dy;
 }
 
 void rectangle::rotate_right()
@@ -566,6 +581,8 @@ void crossed_trapezoid :: draw()
     }
     catch(out_of_screen &e)
     {
+        // сообщаем об ошибке
+        cout << id << e.what() << "\n";
         // пробуем изменить размер фигуры
         // resize();
         // пробуем подвинуть фигуру в более "безопасное место"
