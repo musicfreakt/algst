@@ -104,7 +104,7 @@ int main()
 
     // фигура, испорченная трансформированием, но пригодная для изменения
     shishak->flip_horisontally();
-    shishak->move(0, 40);
+    shishak->move(0, -7);
     shape_refresh();
     std::cout << "=== Prepared... ===\n";
     std::cin.get();	//Смотреть результат поворотов/отражений

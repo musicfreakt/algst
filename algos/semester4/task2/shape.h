@@ -212,6 +212,11 @@ class line : public shape
     как самая его северная точка", и т.п.
 */
 {
+    line(const line&);
+    line(const line&&);
+    line& operator=(const line&);
+    line& operator=(line&&);
+
     protected:
         point w, e;
     public:
@@ -313,6 +318,11 @@ class rectangle: public rotatable
     sw-----s-----se
 */
 {
+    rectangle(const rectangle&);
+    rectangle(const rectangle&&);
+    rectangle& operator=(const rectangle &);
+    rectangle& operator=(rectangle &&);
+
     protected:
         point sw, ne;
     public:
@@ -445,10 +455,10 @@ void rectangle::rotate_left()
 
 class crossed_trapezoid : public rotatable, public reflectable
 {
-    // crossed_trapezoid(const crossed_trapezoid&);
-    // crossed_trapezoid(const crossed_trapezoid&&);
-    // crossed_trapezoid& operator=(const crossed_trapezoid &);
-    // crossed_trapezoid& operator=(crossed_trapezoid &&);
+    crossed_trapezoid(const crossed_trapezoid&);
+    crossed_trapezoid(const crossed_trapezoid&&);
+    crossed_trapezoid& operator=(const crossed_trapezoid &);
+    crossed_trapezoid& operator=(crossed_trapezoid &&);
 
     protected:
         point a, b, c, d;
