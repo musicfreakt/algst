@@ -1,14 +1,14 @@
-#ifndef SHAPE_H
-#define SHAPE_H
-
 #include <list>
 #include <iostream>
+
+#define UNXERR catch(...){cout << "\nUNEXPECTED ERROR\n"; cin.get(); throw;}
 
 using namespace std;
 
 char screen[YMAX][XMAX];
 enum color { black = '*', white = '.', err = '!'};
 bool create_error = false;
+bool is_error = false;
 
 void screen_init()
 {
@@ -37,10 +37,8 @@ void put_point(int a, int b)
     else if (on_screen(a, b))
         screen[b][a] = black;
     else
-    {
-        out_of_screen e;
-        throw e; // бросаем исключение в put_line
-    }
+        // бросаем исключение в put_line
+        throw out_of_screen();
 }
 
 void put_line(int x0, int y0, int x1, int y1)
@@ -68,10 +66,10 @@ void put_line(int x0, int y0, int x1, int y1)
             if (eps >= a || a < b) y0 += dy, eps -= two_a;
         }
     }
-    catch(out_of_screen &e)
+    catch(out_of_screen)
     {
         throw; // ничего не можем сделать, передаем исключение в draw
-    }
+    } UNXERR
 }
 
 void screen_clear(){ screen_init(); } //Очистка экрана
@@ -88,10 +86,11 @@ void screen_refresh() // Обновление экрана
 
 struct shape
 {
-    static int id; // идентификатор фигуры
-    static list<shape*> shapes; // Список фигур (один на все фигуры!)
-    // Фигура присоединяется к списку и устанавливается идентификатор
-    shape() {shapes.push_back(this); ++id;}
+    char id; // имя фигуры
+    static int count; // счетчик фигур
+    static list<shape*> shapes; // список фигур (один на все фигуры!)
+    // Фигура присоединяется к списку
+    shape() {shapes.push_back(this); id = 'A' + count; ++count;}
     virtual point north() const = 0; //Точки для привязки
     virtual point south() const = 0;
     virtual point east() const = 0;
@@ -106,7 +105,7 @@ struct shape
     virtual ~shape() = default;
 };
 
-int shape::id = 0; // установка счетчика фигур в 0
+int shape::count = 0; // установка счетчика фигур в 0
 list <shape*> shape::shapes; // Размещение списка фигур
 
 class rotatable : virtual public shape
@@ -134,10 +133,10 @@ class error_figure : public rotatable, public reflectable
     point s;
     public:
         error_figure(point a): s(a) {}
-        point north() const{ return point(s.x, s.y+1); }
+        point north() const{ return point(s.x, s.y + 1); }
         point south() const{ return point(s.x, s.y - 1); }
-        point east() const{ return point (s.x+1, s.y); }
-        point west() const{ return point(s.x-1, s.y); }
+        point east() const{ return point (s.x + 1, s.y); }
+        point west() const{ return point(s.x - 1, s.y); }
         point neast() const{ return point(s.x + 1, s.y + 1); }
         point seast() const{ return point(s.x + 1, s.y - 1); }
         point nwest() const{ return point(s.x - 1, s.y + 1); }
@@ -150,13 +149,13 @@ class error_figure : public rotatable, public reflectable
             При использовании методов изменения фигуры выводим сообщение о том,
             что данное действие над испорченной фигурой совершить невозможно
         */
-        void resize(int){cout << "\nerror figure сan't be resized\n";}
-        void rotate_left(){cout << "\nerror figure сan't be rotated\n";}
-        void rotate_right(){cout << "\nerror figure сan't be rotated\n";}
-        void flip_vertically(){cout << "\nerror figure сan't be flipped\n";}
-        void flip_horisontally(){cout << "\nerror figure сan't be flipped\n";}
+        void resize(int){cout << id << " figure сan't be resized\n";}
+        void rotate_left(){cout << id << " figure сan't be rotated\n";}
+        void rotate_right(){cout <<  id << " figure сan't be rotated\n";}
+        void flip_vertically(){cout << id << " figure сan't be flipped\n";}
+        void flip_horisontally(){cout << id << " figure сan't be flipped\n";}
 
-        ~error_figure(){shape::shapes.remove(this);}
+        ~error_figure(){shapes.remove(this); --count;}
 };
 
 
@@ -185,15 +184,21 @@ void shape_refresh()
         {
             p.front()->draw();
         }
-        catch(out_of_screen &e)
+        catch(out_of_screen)
         {
             // если изменения параметров фигур в draw не помогли решить проблему,
-            // заменяем эту фигуру на фигуру ошибки
-            cout << p.front()->id << e.what() << "Error figure was created. \n";
-            shape *s = new error_figure(point(3,3)); // todo: переделать расположение фигуры
-            s->draw();
+            // удаляем эту фигуру и выводим знак ошибки
+            cout << p.front()->id << " figure can't be fixed. It was deleted. \n";
             shape::shapes.remove(p.front());
-        }
+            is_error = true;
+        }  UNXERR
+    }
+
+    // если есть удаленная фигура, появляется специальный знак
+    if (is_error)
+    {
+        error_figure s = error_figure(point(XMAX - 3, 2));
+        s.draw();
     }
     screen_refresh();
 }
@@ -226,7 +231,7 @@ class line : public shape
     	void draw();
         void resize(int);
 
-        ~line(){shape::shapes.remove(this);}
+        ~line(){shapes.remove(this); --count;}
 };
 
 line::line (point a, point b) : w(a), e(b)
@@ -261,29 +266,18 @@ void line::draw()
         cout << id << err.what() << "\n";
         // пробуем немного изменить фигуру
 
-        if ((!on_screen(w.x, w.y)) && (!on_screen(e.x, e.y)))
-        {
-            // если полностью за экраном
-            w.x %= XMAX;
-            w.y %= YMAX;
-            e.x %= XMAX;
-            e.y %= YMAX;
-        }
-        else
-        {
-
-        }
+        resize(-2); // todo: переделать изменение размера
 
         // пробуем отрисовать фигуру еще раз
         try
         {
             put_line(w, e);
         }
-        catch(out_of_screen &err)
+        catch(out_of_screen)
         {
             throw; // если изменение параметров не помогло, передаем ошибку выше
         }
-    }
+    }  UNXERR
 
 }
 
@@ -339,7 +333,7 @@ class rectangle: public rotatable
         void resize(int);
     	void draw();
 
-        ~rectangle(){shape::shapes.remove(this);}
+        ~rectangle(){shapes.remove(this); --count;}
 };
 
 rectangle::rectangle(point a, point b)
@@ -370,7 +364,6 @@ rectangle::rectangle(point a, point b)
     if((!on_screen(sw.x, sw.y)) || (!on_screen(ne.x,ne.y)))
     {
         bad_init i(id, point(10, 10));
-        // i.center = point(west().y, north().x); // todo: ПОМЕНЯТЬ !!
         this->~rectangle();
         throw i;
     }
@@ -389,13 +382,10 @@ void rectangle::draw()
     }
     catch(out_of_screen &e)
     {
-        // сообщаем об ошибке
         cout << id << e.what() << "\n";
-        // пробуем изменить размер фигуры
-        // resize(-100);
-        // пробуем подвинуть фигуру в более "безопасное место"
-        // move();
-        // пробуем отрисовать фигуру еще раз
+
+        resize(-2);
+
         try
         {
 
@@ -406,11 +396,11 @@ void rectangle::draw()
         	put_line(se, sw);
         	put_line(sw, nw);
         }
-        catch(out_of_screen &e)
+        catch(out_of_screen)
         {
             throw; // если изменение параметров не помогло, передаем ошибку выше
         }
-    }
+    } UNXERR
 }
 
 void rectangle::resize(int r)
@@ -457,8 +447,8 @@ class crossed_trapezoid : public rotatable, public reflectable
 {
     // crossed_trapezoid(const crossed_trapezoid&);
     // crossed_trapezoid(const crossed_trapezoid&&);
-    // crossed_trapezoid& operator=(const crossed_trapezoid &) = delete;
-    // crossed_trapezoid& operator=(crossed_trapezoid &&) = delete;
+    // crossed_trapezoid& operator=(const crossed_trapezoid &);
+    // crossed_trapezoid& operator=(crossed_trapezoid &&);
 
     protected:
         point a, b, c, d;
@@ -482,7 +472,7 @@ class crossed_trapezoid : public rotatable, public reflectable
         void resize(int);
         void draw();
 
-        ~crossed_trapezoid(){shape::shapes.remove(this);}
+        ~crossed_trapezoid(){shapes.remove(this); --count;}
 };
 
 crossed_trapezoid :: crossed_trapezoid (point a_, int lena, point b_, int lenb)
@@ -610,11 +600,9 @@ void crossed_trapezoid :: draw()
     {
         // сообщаем об ошибке
         cout << id << e.what() << "\n";
-        // пробуем изменить размер фигуры
-        // resize();
-        // пробуем подвинуть фигуру в более "безопасное место"
-        // move();
-        // пробуем отрисовать фигуру еще раз
+
+        resize(-2);
+
         try
         {
             put_line(a, b);
@@ -625,11 +613,11 @@ void crossed_trapezoid :: draw()
             put_line(swest(), neast());
             put_line(nwest(), seast());
         }
-        catch(out_of_screen &e)
+        catch(out_of_screen)
         {
             throw; // если изменение параметров не помогло, передаем ошибку выше
         }
-    }
+    } UNXERR
 }
 
 class face: public rectangle
@@ -706,5 +694,3 @@ void up(shape* p, const shape* q)
 {
     p->move(q->north().x - p->south().x, q->north().y - p->south().y + 1);
 }
-
-#endif
