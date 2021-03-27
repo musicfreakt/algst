@@ -161,8 +161,8 @@ class error_figure : public rotatable, public reflectable
 
 void error_figure::move(int dx, int dy)
 {
-    s.x += dx;
-    s.y += dy;
+        s.x += dx;
+        s.y += dy;
 }
 
 void error_figure::draw()
@@ -271,7 +271,7 @@ void line::draw()
         cout << id << err.what() << "\n";
         // пробуем немного изменить фигуру
 
-        resize(-2); // todo: переделать изменение размера
+        resize(-2);
 
         // пробуем отрисовать фигуру еще раз
         try
@@ -493,7 +493,6 @@ crossed_trapezoid :: crossed_trapezoid (point a_, int lena, point b_, int lenb)
     Для хранения вычисляются координаты 4 точек.
 */
 {
-    // todo: проверки
     a = a_;
     b = b_;
     c.x = b.x + lenb; c.y = b.y;

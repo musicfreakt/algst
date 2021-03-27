@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <exception>
-// #include <memory> todo: попробовать использовать уникальные указатели
 #include "screen.h"
 #include "errors.h"
 #include "shape.h"
