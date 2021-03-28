@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <exception>
-#include <stdexcept>
 #include "screen.h"
 #include "errors.h"
 #include "shape.h"
