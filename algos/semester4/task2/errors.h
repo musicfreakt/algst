@@ -1,18 +1,11 @@
-struct bad_init : public std::exception
+class out_of_screen : public std::exception
 /*
-    Класс ошибки создания фигуры
+    Класс ошибки непопадания фигуры на экран
 */
 {
-    char id;
-    point center;
-    bad_init(int id, point center) noexcept : id(id), center(center){}
-    const char* what() const noexcept {return " figure out of screen when was initialized. Error figure was created.\0"; }
-};
+    std::string what_str;
 
-struct out_of_screen : public std::exception
-/*
-    Класс ошибки перемещения фигуры
-*/
-{
-    const char* what() const noexcept {return " figure out of screen when was transformed.\0"; }
+    public:
+        out_of_screen(const std::string &what_str) noexcept : what_str(what_str) {}
+        const char* what() const noexcept {return what_str.c_str();}
 };

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <exception>
-// #include <memory> todo: попробовать использовать уникальные указатели
+#include <stdexcept>
 #include "screen.h"
 #include "errors.h"
 #include "shape.h"
@@ -18,11 +18,11 @@ int main()
         brim = new line(point(5, 18), 17);
         std::cout << "Figure " << brim->id << " created successfully \n";
     }
-    catch (bad_init &e)
+    catch (std::exception &e)
     {
-        std::cout << e.id << e.what() << "\n";
-        brim = new error_figure(e.center);
-    } UNXERR
+        std::cout << e.what() << "\n";
+        brim = new error_figure;
+    }
 
     rotatable *hat;
     try
@@ -30,11 +30,11 @@ int main()
         hat = new rectangle(point(-10, -10), point(69, 25)); // Изначально испорченная фигура
         std::cout << "Figure " << hat->id << " created successfully \n";
     }
-    catch (bad_init &e)
+    catch (std::exception &e)
     {
-        std::cout << e.id << e.what() << "\n";
-        hat = new error_figure(e.center);
-    } UNXERR
+        std::cout << e.what() << "\n";
+        hat = new error_figure;
+    }
 
     rotatable *right_horn;
     try
@@ -42,11 +42,11 @@ int main()
         right_horn = new crossed_trapezoid(point(10, 25), 10, point(10, 28), 6);
         std::cout << "Figure " << right_horn->id << " created successfully \n";
     }
-    catch (bad_init &e)
+    catch (std::exception &e)
     {
-        std::cout << e.id << e.what() << "\n";
-        right_horn = new error_figure(e.center);
-    } UNXERR
+        std::cout << e.what() << "\n";
+        right_horn = new error_figure;
+    }
 
     rotatable *left_horn;
     try
@@ -54,11 +54,11 @@ int main()
         left_horn = new crossed_trapezoid(point(10, 5), 10, point(14, 8), 6);
         std::cout << "Figure " << left_horn->id << " created successfully \n";
     }
-    catch (bad_init &e)
+    catch (std::exception &e)
     {
-        std::cout << e.id << e.what() << "\n";
-        left_horn = new error_figure(e.center);
-    } UNXERR
+        std::cout << e.what() << "\n";
+        left_horn = new error_figure;
+    }
 
     reflectable *shishak;
     try
@@ -66,11 +66,11 @@ int main()
         shishak = new crossed_trapezoid(point(80, 5), 16, point(85, 10), 6);
         std::cout << "Figure " << shishak->id << " created successfully \n";
     }
-    catch (bad_init &e)
+    catch (std::exception &e)
     {
-        std::cout << e.id << e.what() << "\n";
-        shishak = new error_figure(e.center);
-    } UNXERR
+        std::cout << e.what() << "\n";
+        shishak = new error_figure;
+    }
 
     rotatable *f;
     try
@@ -78,11 +78,11 @@ int main()
         f = new face(point(49, 1), point(71, 16));
         std::cout << "Figure " << f->id << " created successfully \n";
     }
-    catch(bad_init &e)
+    catch(std::exception &e)
     {
-        std::cout << e.id << e.what() << "\n";
-        f = new error_figure(e.center);
-    } UNXERR
+        std::cout << e.what() << "\n";
+        f = new error_figure;
+    }
 
     shape_refresh();
     std::cout << "=== Generated... ===\n";
