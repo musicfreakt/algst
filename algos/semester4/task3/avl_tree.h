@@ -129,6 +129,7 @@ class tree
         pair<myiter, bool> remove(int);
         int size(){return count;}
         myiter find(int) const;
+        bool empty() { return(root == nullptr); }
 
         tree & operator= (const tree & other)
         {
