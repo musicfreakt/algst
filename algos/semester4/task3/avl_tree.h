@@ -7,7 +7,8 @@
 
 using namespace std;
 
-struct node // Структура узла дерева
+// УЗЕЛ ДЕРЕВА
+struct node
 {
     char delta; // баланс (разность поддеревьев узла)
     int key; // ключ узла
@@ -36,6 +37,35 @@ struct myiter: public std::iterator<std::forward_iterator_tag, int>
     pointer operator->() { return &ptr->key; } //Разыменование косвенное
     reference operator*(){ return ptr->key; } //Разыменование прямое
 };
+
+myiter& myiter::operator++()
+{
+    if (!ptr)
+        return *this;
+
+    if (ptr->nodes[1])
+    {
+        st.push(make_pair(ptr, 1));
+        ptr = ptr->nodes[1];
+        while (ptr->nodes[0])
+        {
+            st.push(make_pair(ptr, 0));
+            ptr = ptr->nodes[0];
+        }
+        // for(;ptr->nodes[0];ptr = ptr->nodes[0]) st.push(make_pair(ptr, 0));
+    }
+    else
+    {
+        pair <node*, int> pp(ptr, 1);
+        while (!st.empty() && pp.second) {pp = st.top(); st.pop();}
+        if (pp.second)
+            ptr = nullptr;
+        else
+            ptr = pp.first;
+    }
+
+    return *this;
+}
 
 //ИТЕРАТОР ВСТАВКИ
 template<typename Container, typename Iter = myiter>
@@ -68,6 +98,7 @@ inline outiter<Container, Iter> outinserter(Container& c, Iter It)
     return outiter<Container, Iter>(c, it);
 }
 
+// АВЛ ДЕРЕВО
 class tree
 {
     static size_t tags;
@@ -116,13 +147,30 @@ class tree
         tree operator- (const tree & other) const {tree res(*this); return (res -= other);}
         tree & operator^= (const tree &);
         tree operator^ (const tree & other) const {tree res(*this); return (res ^= other);}
-        
+
         tree(): tag('A' + tags++), root(nullptr), h(0), n(0) {}
         template<typename it>
         tree(it, it); // формирование ддп из отрезка
         tree(const tree &other): tree() {for(auto x = other.begin(); x != other.end(); ++x) insert(*x);}
         tree(tree && other): tree() {swap(other);}
         ~tree(){delete root;}
+}
+
+myiter tree::begin() const
+{
+    Stack st;
+    Node *p(root);
+    if (p)
+    {
+        while (p->nodes[0])
+        {
+            st.push(make_pair(p, 0));
+            p = p->nodes[0];
+        }
+        // for(;p->nodes[0];p = p->nodes[0]) st.push(make_pair(p, 0));
+    }
+
+    return myiter(p, move(st));
 }
 
 #endif
