@@ -68,4 +68,61 @@ inline outiter<Container, Iter> outinserter(Container& c, Iter It)
     return outiter<Container, Iter>(c, it);
 }
 
+class tree
+{
+    static size_t tags;
+    char tag;
+    node *root;
+    size_t h, count; // высота и мощность дерева
+
+    public:
+        using key_type = int;
+        using value_type = int;
+        using key_compare = less<int>;
+
+        void swap(tree & other)
+        {
+            std::swap(tag, other.tag);
+            std::swap(root, other.root);
+            std::swap(h, other.h);
+            std::swap(count, other.count);
+        }
+
+        myiter insert(const myiter& where, const int& k);
+        myiter insert(const int& k, const myiter& where = myiter(nullptr))
+        {return insert(where, k).first;}
+        void display(int = 1);
+        myiter begin() const;
+        myiter end() const {return myiter(nullptr)}
+        pair<myiter, bool> insert(int, myiter = myiter(nullptr))
+        pair<myiter, bool> remove(int);
+        int size(){return count;}
+        myiter find(int) const;
+
+        tree & operator= (const tree & other)
+        {
+            tree temp;
+            for (auto x: other)
+                temp.insert(x);
+            swap(temp);
+            return *this;
+        }
+        tree & operator= (tree && other) {swap(other); return *this;}
+        tree & operator|= (const tree &);
+        tree operator| (const tree & other) const {tree res(*this); return (res |= other);}
+        tree & operator&= (const tree &);
+        tree operator& (const tree & other) const {tree res(*this); return (res &= other);}
+        tree & operator-= (const tree &);
+        tree operator- (const tree & other) const {tree res(*this); return (res -= other);}
+        tree & operator^= (const tree &);
+        tree operator^ (const tree & other) const {tree res(*this); return (res ^= other);}
+        
+        tree(): tag('A' + tags++), root(nullptr), h(0), n(0) {}
+        template<typename it>
+        tree(it, it); // формирование ддп из отрезка
+        tree(const tree &other): tree() {for(auto x = other.begin(); x != other.end(); ++x) insert(*x);}
+        tree(tree && other): tree() {swap(other);}
+        ~tree(){delete root;}
+}
+
 #endif
