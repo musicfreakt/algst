@@ -7,6 +7,13 @@
 
 using namespace std;
 
+int setval(string &s, int pos, int val)
+{
+    string t(to_string(val));
+    for (auto p: t) s[pos++] = p;
+    return t.size();
+}
+
 // УЗЕЛ ДЕРЕВА
 struct node
 {
@@ -14,10 +21,31 @@ struct node
     signed char balance_factor; // баланс (разность поддеревьев узла)
     node* nodes[2]; // левое и правое поддерево
 
+    void display(int, int, int);
     node(int k): key(k), delta(0){nodes[0] = nodes[1] = nullptr;}
     node(const node& ) = delete;
     ~node(){delete nodes[1]; delete nodes[0];}
 };
+
+
+void node::display(int row, int col, int depth)
+{
+    string sb = "-0+";
+    if ((row > MAXROW) || (col < 0) || (col > MAXCOL)) return;
+    if (row > MAXOUT)
+    {
+        screen[row].replace(col, 3, "+++");
+        return;
+    }
+    setval(screen[row], col, key);
+    screen[row+1][col] = sb[balance_factor + 1];
+    if (nodes[0])
+        nodes[0]->display(row + 1, col - OFFSET[depth], depth+1);
+    if (nodes[1])
+        nodes[1]->display(row + 1, col + OFFSET[depth], depth+1);
+
+}
+
 
 using Stack = stack<pair<Node*, int>>;
 
@@ -128,13 +156,13 @@ class tree
 
         // insert/erase
         pair<tree_iterator, bool> insert(int, tree_iterator = tree_iterator(nullptr))
-        tree_iterator insert(const tree_iterator& where, const int& k);
+        tree_iterator insert(const tree_iterator&, const int&);
         tree_iterator insert(const int& k, const tree_iterator& where = tree_iterator(nullptr))
         { return insert(where, k).first; }
         pair<tree_iterator, bool> erase(int);
 
         // set operations:
-        void display(int = 1);
+        void display();
         tree_iterator find(int);
         tree & operator= (const tree &);
         tree & operator= (tree && other) {swap(other); return *this;}
@@ -148,7 +176,7 @@ class tree
         tree operator^ (const tree & other) const {tree res(*this); return (res ^= other);}
 }
 
-void swap(tree & other)
+void tree::swap(tree & other)
 {
     std::swap(tag, other.tag);
     std::swap(root, other.root);
@@ -173,7 +201,7 @@ tree_iterator tree::begin() const
     return tree_iterator(p, move(st));
 }
 
-node* find_element(node* _node, int value) const
+node* tree::find_element(node* _node, int value) const
 {
     if (_node == nullptr ||
         (!(value < _node->value) && !(_node->value < value)))
@@ -194,13 +222,26 @@ tree_iterator tree::find(int value)
 }
 
 
-tree & operator= (const tree & other)
+tree & tree::operator= (const tree & other)
 {
     tree temp;
     for (auto x: other)
         temp.insert(x);
     swap(temp);
     return *this;
+}
+
+void tree::display()
+{
+    screen_clear();
+
+    if (root)
+    {
+        root->display(0, FIRSTCOL - SHIFT, 0);
+        screen_refresh();
+    }
+	else
+        cout << "Empty!\n"
 }
 
 #endif
