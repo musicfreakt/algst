@@ -139,7 +139,7 @@ class tree
         using key_compare = less<int>;
 
         // allocation/deallocation:
-        tree(): tag('A' + tags++), root(nullptr), h(0), n(0) {}
+        tree(): tag('A' + tags++), root(nullptr), h(0), count(0) {}
         template<typename it>
         tree(it ibegin, it iend): tree() {for(auto x = ibegin; x != iend; ++x) insert(*x);}
         tree(const tree &other): tree() {for(auto x = other.begin(); x != other.end(); ++x) insert(*x);}
@@ -201,15 +201,15 @@ tree_iterator tree::begin() const
     return tree_iterator(p, move(st));
 }
 
-node* tree::find_element(node* _node, int value) const
+node* tree::find_element(node* _node, int key) const
 {
     if (_node == nullptr ||
-        (!(value < _node->value) && !(_node->value < value)))
+        (!(key < _node->key) && !(_node->key < key)))
         return _node;
-    else if (value < _node->value)
-        return find_element(_node->left, value);
+    else if (key < _node->key)
+        return find_element(_node->left, key);
     else
-        return find_element(_node->right, value);
+        return find_element(_node->right, key);
 }
 
 tree_iterator tree::find(int value)
@@ -221,6 +221,21 @@ tree_iterator tree::find(int value)
         return tree_iterator(element);
 }
 
+pair<tree_iterator, bool> tree::insert(int k, tree_iterator where = tree_iterator(nullptr))
+{
+
+}
+
+tree_iterator insert(const tree_iterator& where, const int& k)
+{
+
+}
+
+pair<tree_iterator, bool> tree::erase(int k)
+{
+
+}
+
 
 tree & tree::operator= (const tree & other)
 {
@@ -230,6 +245,77 @@ tree & tree::operator= (const tree & other)
     swap(temp);
     return *this;
 }
+
+
+tree & tree::operator |= (const tree & other) {
+        tree temp;
+        set_union(begin(), end(),
+            other.begin(), other.end(),
+            outinserter<tree, tree_iterator>(temp,tree_iterator())); 
+        swap(temp);
+	return *this;
+}
+
+tree & tree::operator &= (const tree & other) {
+        tree temp;
+        set_intersection(begin(), end(),
+            other.begin(), other.end(),  
+            outinserter<tree, tree_iterator>(temp,tree_iterator())); 
+        swap(temp);
+	return *this;
+}
+
+tree & tree::operator -= (const tree & other) {
+        tree temp;
+        set_difference(begin(), end(),
+            other.begin(), other.end(),  
+            outinserter<tree, tree_iterator>(temp,tree_iterator())); 
+        swap(temp);
+	return *this;
+}
+tree & tree::operator ^= (const tree & other) {
+        tree temp;
+        set_symmetric_difference(begin(), end(),
+            other.begin(), other.end(),  
+            outinserter<tree, tree_iterator>(temp,tree_iterator())); 
+        swap(temp);
+	return *this;
+}
+
+// tree & tree::operator|= (const tree & other)
+// {
+//     for (auto x: other)
+//         insert(x);
+//     return *this;
+// }
+
+// tree& tree::operator &= (const tree & other){ 
+// 	tree temp;
+// 	for (auto x : *this) 
+//         if(other.find(x) != other.end()) 
+//             temp.insert(x);
+// 	temp.swap(*this);
+// 	return *this;
+// }
+// tree& tree::operator -= (const tree & other){
+// 	tree temp;
+// 	for (auto x : *this) 
+//         if(other.find(x) == other.end()) 
+//             temp.insert(x);
+// 	temp.swap(*this);
+// 	return *this;
+// }
+// tree& tree::operator ^= (const tree & other){
+// 	tree temp;
+// 	for (auto x : *this) 
+//         if(other.find(x) != other.end( ))
+//             temp.insert(x);
+// 	for (auto x : other) 
+//         if(find(x) != other.end( )) 
+//             temp.insert(x);
+// 	temp.swap(*this);
+// 	return *this;
+// }
 
 void tree::display()
 {
