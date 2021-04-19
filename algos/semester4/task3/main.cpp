@@ -1,5 +1,8 @@
 #include <iostream>
-// #include <algorithm>
+#include <algorithm>
+#include <iterator>
+#include <stack>
+#include <string>
 
 #include "screen.h"
 #include "avl_tree.h"

@@ -21,7 +21,7 @@ void screen_refresh() // Обновление экрана
     for (int y = MAXROW-1; 0 <= y; --y) // с верхней строки до нижней
     {
         for (auto x : screen[y]) // от левого столбца до правого
-            cout << x;
-        cout << '\n';
+            std::cout << x;
+        std::cout << '\n';
     }
 }
