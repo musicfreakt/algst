@@ -11,7 +11,7 @@ function X_new = replacement(X, P, x_max)
 new_index = 1;
 y_max = func(x_max) - polyval(P, x_max);
 
-while new_index < length(X) + 1 && X(new_index) < x_max
+while (new_index < length(X) + 1) && (X(new_index) < x_max)
     new_index = new_index + 1;
 end
 
