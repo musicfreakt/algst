@@ -5,7 +5,6 @@ function p = polynom(x, y, n)
 % @param n - степень полинома аппроксимации
 % @return p - полином, аппроксимирующий заданный набор точек
 
-A = ones(length(x), n);
 for i = 1:length(x)
     for j = n:-1:0
         A(i, n-j+1) = x(i)^j;

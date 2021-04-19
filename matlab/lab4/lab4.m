@@ -7,6 +7,8 @@ X = x(1):0.1:x(length(x));
 Y1 = polyval(polynom(x, y, 1), X);
 Y2 = polyval(polynom(x, y, 2), X);
 Y3 = polyval(polynom(x, y, 3), X);
+f = sincos(x, y);
+Y4 = f(1)*cos(X) + f(2)*sin(X) + f(3);
 
 plot(x,y,'*');
 hold on;
@@ -14,3 +16,4 @@ grid on;
 plot(X,Y1,'Color','r');
 plot(X,Y2,'Color','g');
 plot(X,Y3,'Color','b');
+plot(X,Y4,'Color','y');
