@@ -1,9 +1,8 @@
 function P = remeza(X, epsilon)
-% нахождение наилучшего приближения к функции методом альтернанса 
+% нахождение полинома наилучшего приближения 
 % @params
-% X - первоначально выбранный квазиальтернанс
-% epsilon - переменная для отслеживания приблизительного равенства сигмы и
-% дельты
+% X - первоначально выбранный набор точек
+% epsilon - погрешность
 % @return
 % P - полином альтернанса
 % 
@@ -12,14 +11,12 @@ i = 1;
 while i < 3 || abs(sigma - delta) >= epsilon
     if i > 1
         sigma = delta;
-        sigma
+        sigma % вывод сигм на экран
     end
     [P, delta] = quasialternance(X);
-    P
-    delta
     x_max = maxdelta(0, 7, P, deltaStep);
+    % вот тут вывести графики
     X = replacement(X, P, x_max);
-    X
     i = i + 1;
 end
 end

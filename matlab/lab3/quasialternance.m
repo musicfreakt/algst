@@ -1,4 +1,4 @@
-function [P, delta] = quasialternance(X)
+function [P, sigma] = quasialternance(X)
 % Нахождение полинома и максимального отклонения для заданного
 % квазиальтернанса
 % @params
@@ -25,7 +25,6 @@ rslt = inv(koefsMatrix)*valueMatrix';
 % Дело в том, что без flip и ' мы получим строку коэффициентов в порядке
 % возрастания степени, а нужно в порядке убывания
 P=flip(rslt(1:length(rslt)-1))';
-
-delta = rslt(length(rslt));
+sigma = rslt(length(rslt));
 
 end
