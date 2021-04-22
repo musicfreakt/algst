@@ -5,12 +5,12 @@ using namespace std;
 
 const int B[] = {-1,1};
 
-int setval(char *s, int pos, int val)
-{
-	string t(to_string(val));
-	for (auto p : t) s[pos++] = p;
-	return t.size();
-}
+// int setval(char *s, int pos, int val)
+// {
+// 	string t(to_string(val));
+// 	for (auto p : t) s[pos++] = p;
+// 	return t.size();
+// }
 
 // УЗЕЛ ДЕРЕВА
 struct node
@@ -19,22 +19,22 @@ struct node
     signed char balance_factor; // баланс (разность поддеревьев узла)
     node* nodes[2]; // левое и правое поддерево
 
-    void display();
+    void display(int, int);
     node(int k): key(k), balance_factor(0) {nodes[0] = nodes[1] = nullptr;}
     node(const node& ) = delete;
     ~node(){delete nodes[1]; delete nodes[0];}
 };
 
 
-void node::display() //Вывод узла в точку (row,col)
+void node::display(int r, int c) //Вывод узла в точку (row,col)
 {
-    cout << key << " ";
+    if (r && c && (c<80)) SCREEN[r-1][c-1] = to_string(key)[0]; // todo: ПОМЕНЯЙ ЭТО ГОВНО
+    // cout << key << " ";
 	if (nodes[0])
-        nodes[0]->display();
+        nodes[0]->display(r+1, c-(OFFSET >> r)+1);
 	if (nodes[1])
-        nodes[1]->display();
+        nodes[1]->display(r+1, c+(OFFSET >> r)-1);
 }
-
 
 using Stack = stack<pair<node*, int>>;
 
@@ -119,7 +119,6 @@ class tree
     char tag;
     node *root;
     size_t h, count; // высота и мощность дерева
-    char **SCREEN;
 
     node* find_element(node*, int) const;
     public:
@@ -522,10 +521,12 @@ tree & tree::operator^= (const tree & other)
 
 void tree::display()
 {
+    screen_clear();
     if (root)
     {
-        root->display();
-        cout << '\n';
+        cout << "SIZE: " << size() << " AVL TREE: ";
+        root->display(1, OFFSET);
+        screen_refresh();
     }
 	else
         cout << "Empty!\n";

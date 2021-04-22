@@ -1,27 +1,88 @@
 /*
     Поддержка работы с экраном
 */
-const int FIRSTROW = 0, FIRSTCOL = 40,
-MAXCOL = 80, OFFSET[] = {40, 24, 10, 4, 1},
-MAXROW = FIRSTROW + 18,
-MAXOUT = FIRSTROW + 14, SHIFT = 2;
-char screen[MAXROW][MAXCOL];
+
+char **SCREEN;
+const int OFFSET = 40;
+const int MAXROW = 5;
 
 //----------------------------------------------------------------------
 
-void screen_clear()  //Очистка экрана
+void screen_init()
 {
-    for (auto y = 0; y < MAXROW; ++y)
-        for (auto &x : screen[y])
-            x = ' ';
+    SCREEN = new char*[MAXROW];
+    for (int i = 0; i < MAXROW; ++i)
+        SCREEN[i] = new char[80];
 }
 
-void screen_refresh() // Обновление экрана
+void screen_clear()
 {
-    for (auto y = 0; y < MAXROW; ++y)
-    {
-        for (auto &x : screen[y])
-            std::cout << x << " ";
-        std::cout<<std::endl;
-    }
+    for (int i=0; i < MAXROW; ++i)
+        memset(SCREEN[i], '.', 80);
 }
+
+void screen_refresh()
+{
+    for (int i=0; i < MAXROW; ++i)
+    {
+        SCREEN[i][79]=0;
+        std::cout << '\n' << SCREEN[i];
+    }
+    std::cout << '\n';
+}
+
+void screen_delete()
+{
+    for (int i = 0; i < MAXROW; ++i)
+            delete[] SCREEN[i];
+        delete[] SCREEN;
+}
+
+// /*
+//     Поддержка работы с экраном
+// */
+//
+// const int OFFSET = 40;
+// const int MAXROW = 5;
+//
+// struct Screen
+// {
+//     char **SCREEN;
+//     screen();
+//     ~screen();
+//
+//     void clear();
+//     void refresh();
+// };
+//
+// //----------------------------------------------------------------------
+//
+// Screen::screen()
+// {
+//     for (int i = 0; i < MAXROW; i++)
+//         SCREEN[i] = new char[80];
+// }
+//
+// void Screen::clear()
+// {
+//     for (int i=0; i < MAXROW; i++)
+//         memset(SCREEN[i], '.', 80);
+// }
+//
+// void Screen::refresh()
+// {
+//     for (int i=0; i < MAXROW; i++)
+//     {
+//         SCREEN[i][79]=0;
+//         std::cout << '\n' << SCREEN[i];
+//     }
+//     std::cout << '\n';
+// }
+//
+// Screen::~screen()
+// {
+//     for (int i = 0; i < MAXROW; i++)
+//             delete[] SCREEN[i];
+//         delete[] SCREEN;
+// }
+//
