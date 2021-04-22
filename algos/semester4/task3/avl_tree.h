@@ -5,12 +5,12 @@ using namespace std;
 
 const int B[] = {-1,1};
 
-// int setval(char *s, int pos, int val)
-// {
-// 	string t(to_string(val));
-// 	for (auto p : t) s[pos++] = p;
-// 	return t.size();
-// }
+int setval(char *s, int pos, int val)
+{
+	string t(to_string(val));
+	for (auto p : t) s[pos++] = p;
+	return t.size();
+}
 
 // УЗЕЛ ДЕРЕВА
 struct node
@@ -28,7 +28,13 @@ struct node
 
 void node::display(int r, int c) //Вывод узла в точку (row,col)
 {
-    if (r && c && (c<80)) SCREEN[r-1][c-1] = to_string(key)[0]; // todo: ПОМЕНЯЙ ЭТО ГОВНО
+    string s = "-o+";
+    if (r && c && (c<80))
+    {
+        setval(SCREEN[r-1], c-1, key);
+        SCREEN[r][c-1] = s[1 + balance_factor];
+        // SCREEN[r-1][c] = to_string(balance_factor)[0];
+    }
     // cout << key << " ";
 	if (nodes[0])
         nodes[0]->display(r+1, c-(OFFSET >> r)+1);
@@ -139,8 +145,8 @@ class tree
         tree_iterator begin() const;
         tree_iterator end() const { return tree_iterator(nullptr); }
         bool empty() const { return (root == nullptr); }
-        // bool empty() const { return (count == 0); }
         int size() const { return count; }
+        int height() const {return h;}
 
         // insert/erase
         pair<tree_iterator, bool> insert(int, tree_iterator = tree_iterator(nullptr));
@@ -218,8 +224,6 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
             St.push(make_pair(root, 1));
             return make_pair(tree_iterator(root, move(St)), true);
         }
-        else
-            St.push(make_pair(root, 1));
     }
     else // с места предыдущей вствки
     {
@@ -237,68 +241,86 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
             q = q->nodes[0];
         else
             q = q->nodes[1];
-        St.push(make_pair(p, a));
+        St.push(make_pair(p, 1 - a));
 	}
 
     q = new node(k); //Вставлен новый узел в точке q
     if (p)
     {
-		if (k < p->key)
+        int a{k < p->key};
+		if (a)
             p->nodes[0] = q;
 		else
             p->nodes[1] = q;
 	}
-    else root = q;
 
-	// while (!St.empty())
-    // //Движемся к корню, опрокидывая балансы, ищем не нуль
-	// {
-	// 	auto pa = St.top(); St.pop();
-	// 	node *p = pa.first;
-    //     int a = pa.second;
-	// 	if (!p->balance_factor)
-    //     {
-	// 		p->balance_factor = B[a]; //Замена 0 на +-1
-	// 		if (p == root) //Дерево подросло
-	// 		{
-    //             ++h;
-    //             break;
-    //         }
-	// 		else q = p, p = St.top().first;  //Шаг вверх, цикл продолжается
-	// 	}
-	// 	else if (p->balance_factor == -B[a])
-    //     { //Сбалансировалось
-	// 		p->balance_factor = 0; //Замена +-1 на 0
-	// 		break;
-	// 	}
-	// 	//===== Перебалансировка =====
-	// 	else if (p->balance_factor == q->balance_factor)
-    //     {	//Случай 1: Однократный поворот
-	// 		p->nodes[a] = q->nodes[1 - a];
-	// 		q->nodes[1 - a] = p;
-	// 		p->balance_factor = q->balance_factor = 0;
-	// 		if(p == root) p = root = q;
-	// 		else St.top().first->nodes[St.top().second] = p = q;
-	// 	    break;
-	// 	}
-	// 	else
-    //     {	//Случай 2: Двукратный поворот
-	// 		node *r(q->nodes[1-a]);
-	// 		p->nodes[a] = r->nodes[1 - a];
-	// 		q->nodes[1-a] = r->nodes[a];
-	// 		r->nodes[1 - a] = p;
-	// 	    r->nodes[a] = q;
-	// 		if (r->balance_factor == B[a]) { p->balance_factor = -B[a]; q->balance_factor = 0; }
-	// 		else if (r->balance_factor == -B[a]) { p->balance_factor = 0; q->balance_factor = B[a]; }
-	// 		else { p->balance_factor = q->balance_factor = 0; }
-	// 		r->balance_factor = 0;
-	// 		if (p == root)
-    //             p = root = r;
-	// 		else
-    //             St.top().first->nodes[St.top().second] = p = r;
-	// 	    break;
-	// 	}
-	// }
+	while (!St.empty())
+    //Движемся к корню, опрокидывая балансы, ищем не нуль
+	{
+		auto pa = St.top(); St.pop();
+		p = pa.first;
+        int a = pa.second;
+		if (!(p->balance_factor))
+        {
+			p->balance_factor = B[a]; //Замена 0 на +-1
+			if (p == root) //Дерево подросло
+			{
+                ++h;
+                break;
+            }
+			else
+            {
+                q = p;
+                p = St.top().first;
+            }
+            //Шаг вверх, цикл продолжается
+		}
+		else if (p->balance_factor == -B[a])
+        { //Сбалансировалось
+			p->balance_factor = 0; //Замена +-1 на 0
+			break;
+		}
+		//===== Перебалансировка =====
+		else if (p->balance_factor == q->balance_factor)
+        {	//Случай 1: Однократный поворот
+			p->nodes[a] = q->nodes[1 - a];
+			q->nodes[1 - a] = p;
+			p->balance_factor = q->balance_factor = 0;
+			if(p == root)
+                p = root = q;
+			else
+                St.top().first->nodes[St.top().second] = p = q;
+		    break;
+		}
+		else
+        {	//Случай 2: Двукратный поворот
+			node *r = q->nodes[1 - a];
+			p->nodes[a] = r->nodes[1 - a];
+			q->nodes[1-a] = r->nodes[a];
+			r->nodes[1 - a] = p;
+		    r->nodes[a] = q;
+			if (r->balance_factor == B[a])
+            {
+                p->balance_factor = -B[a];
+                q->balance_factor = 0;
+            }
+			else if (r->balance_factor == -B[a])
+            {
+                 p->balance_factor = 0;
+                 q->balance_factor = B[a];
+            }
+			else
+            {
+                p->balance_factor = q->balance_factor = 0;
+            }
+			r->balance_factor = 0;
+			if (p == root)
+                p = root = r;
+			else
+                St.top().first->nodes[St.top().second] = p = r;
+		    break;
+		}
+	}
 
     ++count;
     return make_pair(tree_iterator(q, move(St)), true);
@@ -484,47 +506,12 @@ tree & tree::operator^= (const tree & other)
 	return *this;
 }
 
-// tree & tree::operator|= (const tree & other)
-// {
-//     for (auto x: other)
-//         insert(x);
-//     return *this;
-// }
-
-// tree& tree::operator &= (const tree & other){
-// 	tree temp;
-// 	for (auto x : *this)
-//         if(other.find(x) != other.end())
-//             temp.insert(x);
-// 	temp.swap(*this);
-// 	return *this;
-// }
-// tree& tree::operator -= (const tree & other){
-// 	tree temp;
-// 	for (auto x : *this)
-//         if(other.find(x) == other.end())
-//             temp.insert(x);
-// 	temp.swap(*this);
-// 	return *this;
-// }
-// tree& tree::operator ^= (const tree & other){
-// 	tree temp;
-// 	for (auto x : *this)
-//         if(other.find(x) != other.end( ))
-//             temp.insert(x);
-// 	for (auto x : other)
-//         if(find(x) != other.end( ))
-//             temp.insert(x);
-// 	temp.swap(*this);
-// 	return *this;
-// }
-
 void tree::display()
 {
     screen_clear();
     if (root)
     {
-        cout << "SIZE: " << size() << " AVL TREE: ";
+        cout << "HEIGHT: " << height() <<"; SIZE: " << size() << "; AVL TREE: ";
         root->display(1, OFFSET);
         screen_refresh();
     }
