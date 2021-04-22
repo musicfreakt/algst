@@ -3,13 +3,13 @@
 
 using namespace std;
 
-const int B[] = {0,-1,1};
+const int B[] = {-1,1};
 
-int setval(string &s, int pos, int val)
+int setval(char *s, int pos, int val)
 {
-    string t(to_string(val));
-    for (auto p: t) s[pos++] = p;
-    return t.size();
+	string t(to_string(val));
+	for (auto p : t) s[pos++] = p;
+	return t.size();
 }
 
 // УЗЕЛ ДЕРЕВА
@@ -19,30 +19,21 @@ struct node
     signed char balance_factor; // баланс (разность поддеревьев узла)
     node* nodes[2]; // левое и правое поддерево
 
-    void display(int, int, int);
+    void display();
     node(int k): key(k), balance_factor(0) {nodes[0] = nodes[1] = nullptr;}
     node(const node& ) = delete;
     ~node(){delete nodes[1]; delete nodes[0];}
 };
 
 
-// void node::display(int row, int col, int depth)
-// {
-//     string sb = "-0+";
-//     if ((row > MAXROW) || (col < 0) || (col > MAXCOL)) return;
-//     if (row > MAXOUT)
-//     {
-//         screen[row].replace(col, 3, "+++");
-//         return;
-//     }
-//     setval(screen[row], col, key);
-//     screen[row+1][col] = sb[balance_factor + 1];
-//     if (nodes[0])
-//         nodes[0]->display(row + 1, col - OFFSET[depth], depth+1);
-//     if (nodes[1])
-//         nodes[1]->display(row + 1, col + OFFSET[depth], depth+1);
-//
-// }
+void node::display() //Вывод узла в точку (row,col)
+{
+    cout << key << " ";
+	if (nodes[0])
+        nodes[0]->display();
+	if (nodes[1])
+        nodes[1]->display();
+}
 
 
 using Stack = stack<pair<node*, int>>;
@@ -128,6 +119,7 @@ class tree
     char tag;
     node *root;
     size_t h, count; // высота и мощность дерева
+    char **SCREEN;
 
     node* find_element(node*, int) const;
     public:
@@ -154,7 +146,7 @@ class tree
         // insert/erase
         pair<tree_iterator, bool> insert(int, tree_iterator = tree_iterator(nullptr));
         tree_iterator insert(const tree_iterator& where, const int& k) { return insert(k, where).first; }
-        // pair<tree_iterator, bool> erase(int);
+        pair<tree_iterator, bool> erase(int);
 
         // set operations:
         void display();
@@ -215,7 +207,7 @@ tree_iterator tree::find(int value)
 
 pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
 {
-    node *q{root};
+    node *q{root}, *p;
     Stack St;
 
     if (!where.ptr) // свободная вставка
@@ -239,224 +231,209 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
     while (q) // поиск места вставки...
     {
 		if (k == q->key)
-            return (make_pair(tree_iterator(q, move(St)), true));
+            return (make_pair(tree_iterator(q, move(St)), false));
+        p = q;
 		int a{k < q->key}; //Шаг поиска вниз по дереву
-        q = q->nodes[1 - a];
-        St.push(make_pair(q, a));
+        if (a)
+            q = q->nodes[0];
+        else
+            q = q->nodes[1];
+        St.push(make_pair(p, a));
 	}
 
-    q = new node(k);
-
-    //Вставлен новый узел в точке q
-	while (!St.empty())
-    //Движемся к корню, опрокидывая балансы, ищем не нуль
-	{
-		auto pa = St.top(); St.pop();
-		node *p = pa.first;
-        int a = pa.second;
-		if (!p->balance_factor)
-        {
-			p->balance_factor = B[a]; //Замена 0 на +-1
-			if (p == root) //Дерево подросло
-			{
-                ++h;
-                break;
-            }
-			else q = p, p = St.top().first;  //Шаг вверх, цикл продолжается
-		}
-		else if (p->balance_factor == -B[a])
-        { //Сбалансировалось
-			p->balance_factor = 0; //Замена +-1 на 0
-			break;
-		}
-		//===== Перебалансировка =====
-		else if (p->balance_factor == q->balance_factor)
-        {	//Случай 1: Однократный поворот
-			p->nodes[a] = q->nodes[1 - a];
-			q->nodes[1 - a] = p;
-			p->balance_factor = q->balance_factor = 0;
-			if(p == root) p = root = q;
-			else St.top().first->nodes[St.top().second] = p = q;
-		    break;
-		}
+    q = new node(k); //Вставлен новый узел в точке q
+    if (p)
+    {
+		if (k < p->key)
+            p->nodes[0] = q;
 		else
-        {	//Случай 2: Двукратный поворот
-			node *r(q->nodes[1-a]);
-			p->nodes[a] = r->nodes[1 - a];
-			q->nodes[1-a] = r->nodes[a];
-			r->nodes[1 - a] = p;
-		    r->nodes[a] = q;
-			if (r->balance_factor == B[a]) { p->balance_factor = -B[a]; q->balance_factor = 0; }
-			else if (r->balance_factor == -B[a]) { p->balance_factor = 0; q->balance_factor = B[a]; }
-			else { p->balance_factor = q->balance_factor = 0; }
-			r->balance_factor = 0;
-			if (p == root)
-                p = root = r;
-			else
-                St.top().first->nodes[St.top().second] = p = r;
-		    break;
-		}
+            p->nodes[1] = q;
 	}
+    else root = q;
+
+	// while (!St.empty())
+    // //Движемся к корню, опрокидывая балансы, ищем не нуль
+	// {
+	// 	auto pa = St.top(); St.pop();
+	// 	node *p = pa.first;
+    //     int a = pa.second;
+	// 	if (!p->balance_factor)
+    //     {
+	// 		p->balance_factor = B[a]; //Замена 0 на +-1
+	// 		if (p == root) //Дерево подросло
+	// 		{
+    //             ++h;
+    //             break;
+    //         }
+	// 		else q = p, p = St.top().first;  //Шаг вверх, цикл продолжается
+	// 	}
+	// 	else if (p->balance_factor == -B[a])
+    //     { //Сбалансировалось
+	// 		p->balance_factor = 0; //Замена +-1 на 0
+	// 		break;
+	// 	}
+	// 	//===== Перебалансировка =====
+	// 	else if (p->balance_factor == q->balance_factor)
+    //     {	//Случай 1: Однократный поворот
+	// 		p->nodes[a] = q->nodes[1 - a];
+	// 		q->nodes[1 - a] = p;
+	// 		p->balance_factor = q->balance_factor = 0;
+	// 		if(p == root) p = root = q;
+	// 		else St.top().first->nodes[St.top().second] = p = q;
+	// 	    break;
+	// 	}
+	// 	else
+    //     {	//Случай 2: Двукратный поворот
+	// 		node *r(q->nodes[1-a]);
+	// 		p->nodes[a] = r->nodes[1 - a];
+	// 		q->nodes[1-a] = r->nodes[a];
+	// 		r->nodes[1 - a] = p;
+	// 	    r->nodes[a] = q;
+	// 		if (r->balance_factor == B[a]) { p->balance_factor = -B[a]; q->balance_factor = 0; }
+	// 		else if (r->balance_factor == -B[a]) { p->balance_factor = 0; q->balance_factor = B[a]; }
+	// 		else { p->balance_factor = q->balance_factor = 0; }
+	// 		r->balance_factor = 0;
+	// 		if (p == root)
+    //             p = root = r;
+	// 		else
+    //             St.top().first->nodes[St.top().second] = p = r;
+	// 	    break;
+	// 	}
+	// }
 
     ++count;
     return make_pair(tree_iterator(q, move(St)), true);
 }
 
+
 pair<tree_iterator, bool> tree::erase(int k) // зачем pair?
 {
+    bool cont = true;
+    node *target{root}, *parent = nullptr;
 
-    //Проверяем, существует ли данный узел
-    node* remove_node = find_element(k); // todo: заменить на итераторы??!!!
-    if(remove_node == nullptr)
-        return false;
+    // найти узел
+    while (target != nullptr && target->key != k)
+    {
+        parent = target;
+        target = target->nodes[1 - (k < target->key)];
+    }
 
-    node * current_node;
-    //Если удаляем корень
-    if(remove_node == root){
-        if()
-            current_node = remove_node.nodes[];
-        else curTree = tree.left;
-        while (curTree.left != null) {
-            curTree = curTree.left;
-        }
-        T temp = curTree.val;
-        this.remove(temp);
-        tree.val = temp;
-        return true;
-    }
-    //Удаление листьев
-    if(tree.left==null && tree.right==null && tree.parent != null){
-        if(tree == tree.parent.left)
-            tree.parent.left = null;
-        else {
-            tree.parent.right = null;
-        }
-        return true;
-    }
-    //Удаление узла, имеющего левое поддерево, но не имеющее правого поддерева
-    if(tree.left != null && tree.right == null){
-        //Меняем родителя
-        tree.left.parent = tree.parent;
-        if(tree == tree.parent.left){
-            tree.parent.left = tree.left;
-        }
-        else if(tree == tree.parent.right){
-            tree.parent.right = tree.left;
-        }
-        return true;
-    }
-    //Удаление узла, имеющего правое поддерево, но не имеющее левого поддерева
-    if(tree.left == null && tree.right != null){
-        //Меняем родителя
-        tree.right.parent = tree.parent;
-        if(tree == tree.parent.left){
-            tree.parent.left = tree.right;
-        }
-        else if(tree == tree.parent.right){
-            tree.parent.right = tree.right;
-        }
-        return true;
-    }
-    //Удаляем узел, имеющий поддеревья с обеих сторон
-    if(tree.right!=null && tree.left!=null) {
-        curTree = tree.right;
-        while (curTree.left != null) {
-            curTree = curTree.left;
-        }
-        //Если самый левый элемент является первым потомком
-        if(curTree.parent == tree) {
-            curTree.left = tree.left;
-            tree.left.parent = curTree;
-            curTree.parent = tree.parent;
-            if (tree == tree.parent.left) {
-                tree.parent.left = curTree;
-            } else if (tree == tree.parent.right) {
-                tree.parent.right = curTree;
-            }
-            return true;
-        }
-        //Если самый левый элемент НЕ является первым потомком
-        else {
-            if (curTree.right != null) {
-                curTree.right.parent = curTree.parent;
-            }
-            curTree.parent.left = curTree.right;
-            curTree.right = tree.right;
-            curTree.left = tree.left;
-            tree.left.parent = curTree;
-            tree.right.parent = curTree;
-            curTree.parent = tree.parent;
-            if (tree == tree.parent.left) {
-                tree.parent.left = curTree;
-            } else if (tree == tree.parent.right) {
-                tree.parent.right = curTree;
-            }
-            return true;
-        }
-    }
-    return false;
+    if (target == nullptr)
+        return make_pair(end(), false);
 
+    // случай 1 : лист, т.е нет потомков
+    if(target->nodes[0] == nullptr && target->nodes[1] == nullptr)
+    {
+        if (parent == nullptr)
+            return make_pair(end(), false);
+        if(target == parent->nodes[0])
+            parent->nodes[0] = nullptr;
+        else
+            parent->nodes[1] = nullptr;
+    }
 
+    // случай 2 : один потомок
+        // случай 2.1 : нет правого
+    if(target->nodes[1] == nullptr)
+    {
+        if (parent == nullptr)
+            return make_pair(tree_iterator(target->nodes[0]), false); //If target node is root itself
+        if (target == parent->nodes[0])
+            parent->nodes[0] = target->nodes[0];
+        else
+            parent->nodes[1] = target->nodes[0];
+    }
 
+        // случай 2.1 : нет левого
+    if(target->nodes[0] == nullptr)
+    {
+        if (parent == nullptr)
+            return make_pair(tree_iterator(target->nodes[1]), false); //If target node is root itself
+        if (target == parent->nodes[0])
+            parent->nodes[0] = target->nodes[1];
+        else
+            parent->nodes[1] = target->nodes[1];
+    }
+
+    // случай 3 : Оба потомка
+    if (target->nodes[0] != nullptr && target->nodes[1] != nullptr)
+    {
+        node *prev = target, *p = target->nodes[0];
+
+        for(;p->nodes[0];p = p->nodes[0]) prev = p;
+
+        target->key = p->key;
+        if (p == prev->nodes[0])
+            prev->nodes[0] = p->nodes[1];
+        else
+            prev->nodes[0] = p->nodes[1];
+    }
+
+    target->nodes[0] = target->nodes[1] = nullptr;
+    delete target;
     // удалить узел k
 
-    while (cont) //Цикл, пока не дойдём до корня дерева
-    {
-        cont = false;
-        if (!p)
-            --h; // Дошли до корня. Уменьшаем высоту дерева
-        else if (p->b) //b != 0
-        {
-            cont = true;
-            if (p->b == B[a]) // Поддерево сбалансировалось. Идем к корню...
-            {
-                p->b = 0;
-                auto pp = St.top(); St.pop();	//Поднятие из стека указателя на отца и направления
-                p = pp.first; a = pp.second;
-            }
-            else // p->b == -B[a]: Требуется перебалансировка
-            {
-                q = r = p->L[1 - a];
-                if (r->b == -p->b)  // Случай 2: двукратный поворот
-                {
-                    r = r->L[a];
-                    p->L[1 - a] = r->L[a];
-                    q->L[a] = r->L[1 - a];
-                    r->L[a] = p;
-                    r->L[1 - a] = q;
-                    if (r->b)
-                    {
-                        if (r->b == B[a]) { p->b = 0; q->b = -B[a]; }
-                        else { p->b = B[a]; q->b = 0; }
-                        r->b = 0;
-                    }
-                    else  q->b = p->b = 0;
-                }
-                else // Случаи 1 и 3: однократный поворот
-                {
-                    p->L[1 - a] = r->L[a];
-                    r->L[a] = p;
-                    if (r->b) // Случай 1: поддерево стало ниже...
-                    {
-                        r->b = p->b = 0;
-                    }
-                    else // Случай 3: высота поддерева не изменилась!
-                    {
-                        r->b = B[a];
-                        cont = false;     //...Балансировка закончена. Выход
-                    }
-                }
-                auto pp = St.top(); St.pop();     //Шаг вверх по дереву
-                p = pp.first; a = pp.second;
-                if (p) p->link[a] = r;     // Завершение поворотов
-                else root = r;
-            }
-        }
-        else
-        {
-            p->b = -B[a]; // (p->b == 0): Алгоритм завершён.
-        }
-    } //while(cont)...
+    //
+    // while (cont) //Цикл, пока не дойдём до корня дерева
+    // {
+    //     cont = false;
+    //     if (!p)
+    //         --h; // Дошли до корня. Уменьшаем высоту дерева
+    //     else if (p->balance_factor) //b != 0
+    //     {
+    //         cont = true;
+    //         if (p->balance_factor == B[a]) // Поддерево сбалансировалось. Идем к корню...
+    //         {
+    //             p->balance_factor = 0;
+    //             auto pp = St.top(); St.pop();	//Поднятие из стека указателя на отца и направления
+    //             p = pp.first; a = pp.second;
+    //         }
+    //         else // p->b == -B[a]: Требуется перебалансировка
+    //         {
+    //             q = r = p->nodes[1 - a];
+    //             if (r->balance_factor == -p->balance_factor)  // Случай 2: двукратный поворот
+    //             {
+    //                 r = r->nodes[a];
+    //                 p->nodes[1 - a] = r->nodes[a];
+    //                 q->nodes[a] = r->nodes[1 - a];
+    //                 r->nodes[a] = p;
+    //                 r->nodes[1 - a] = q;
+    //                 if (r->balance_factor)
+    //                 {
+    //                     if (r->balance_factor == B[a]) { p->balance_factor = 0; q->balance_factor = -B[a]; }
+    //                     else { p->balance_factor = B[a]; q->balance_factor = 0; }
+    //                     r->balance_factor = 0;
+    //                 }
+    //                 else  q->balance_factor = p->balance_factor = 0;
+    //             }
+    //             else // Случаи 1 и 3: однократный поворот
+    //             {
+    //                 p->nodes[1 - a] = r->nodes[a];
+    //                 r->nodes[a] = p;
+    //                 if (r->balance_factor) // Случай 1: поддерево стало ниже...
+    //                 {
+    //                     r->balance_factor = p->balance_factor = 0;
+    //                 }
+    //                 else // Случай 3: высота поддерева не изменилась!
+    //                 {
+    //                     r->balance_factor = B[a];
+    //                     cont = false;     //...Балансировка закончена. Выход
+    //                 }
+    //             }
+    //             auto pp = St.top(); St.pop();     //Шаг вверх по дереву
+    //             p = pp.first; a = pp.second;
+    //             if (p) p->link[a] = r;     // Завершение поворотов
+    //             else root = r;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         p->balance_factor = -B[a]; // (p->b == 0): Алгоритм завершён.
+    //     }
+    // } //while(cont)...
+
+    --count;
+    return make_pair(end(), true);
 }
 
 tree & tree::operator= (const tree & other)
@@ -543,17 +520,15 @@ tree & tree::operator^= (const tree & other)
 // 	return *this;
 // }
 
-// void tree::display()
-// {
-//     screen_clear();
-//
-//     if (root)
-//     {
-//         root->display(0, FIRSTCOL - SHIFT, 0);
-//         screen_refresh();
-//     }
-// 	else
-//         cout << "Empty!\n";
-// }
+void tree::display()
+{
+    if (root)
+    {
+        root->display();
+        cout << '\n';
+    }
+	else
+        cout << "Empty!\n";
+}
 
 #endif
