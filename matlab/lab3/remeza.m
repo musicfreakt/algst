@@ -17,7 +17,7 @@ while i < 3 || abs(sigma - delta) >= epsilon
     x_max = maxdelta(0, 7, P, deltaStep);
     % вот тут вывести графики
     % Построение графиков
-   % f = figure('Color','w');
+    % f = figure('Color','w');
     %set(f, 'Position', [200, 100, 1000, 495]) 
     % вывод графика
     %subplot(1,2,1)
