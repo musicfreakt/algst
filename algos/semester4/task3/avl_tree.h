@@ -69,12 +69,12 @@ tree_iterator& tree_iterator::operator++()
     {
         st.push(make_pair(ptr, 1));
         ptr = ptr->nodes[1];
-        while (ptr->nodes[0])
-        {
-            st.push(make_pair(ptr, 0));
-            ptr = ptr->nodes[0];
-        }
-        // for(;ptr->nodes[0];ptr = ptr->nodes[0]) st.push(make_pair(ptr, 0));
+        // while (ptr->nodes[0])
+        // {
+        //     st.push(make_pair(ptr, 0));
+        //     ptr = ptr->nodes[0];
+        // }
+        for(;ptr->nodes[0];ptr = ptr->nodes[0]) st.push(make_pair(ptr, 0));
     }
     else
     {
@@ -391,67 +391,67 @@ bool tree::erase(int k)
     q->nodes[0] = q->nodes[1] = nullptr;
     delete q;
 
-    while (cont) //Цикл, пока не дойдём до корня дерева
-    {
-        cont = false;
-        if (!p)
-            --h; // Дошли до корня. Уменьшаем высоту дерева
-        else if (p->balance_factor) //b != 0
-        {
-            cont = true;
-            if (p->balance_factor == B[a]) // Поддерево сбалансировалось. Идем к корню...
-            {
-                p->balance_factor = 0;
-                auto pp = St.top(); St.pop();	//Поднятие из стека указателя на отца и направления
-                p = pp.first; a = pp.second;
-            }
-            else // p->b == -B[a]: Требуется перебалансировка
-            {
-                node *r;
-                q = r = p->nodes[1 - a];
-                if (r->balance_factor == -p->balance_factor)  // Случай 2: двукратный поворот
-                {
-                    r = r->nodes[a];
-                    p->nodes[1 - a] = r->nodes[a];
-                    q->nodes[a] = r->nodes[1 - a];
-                    r->nodes[a] = p;
-                    r->nodes[1 - a] = q;
-                    if (r->balance_factor)
-                    {
-                        if (r->balance_factor == B[a]) { p->balance_factor = 0; q->balance_factor = -B[a]; }
-                        else { p->balance_factor = B[a]; q->balance_factor = 0; }
-                        r->balance_factor = 0;
-                    }
-                    else  q->balance_factor = p->balance_factor = 0;
-                }
-                else // Случаи 1 и 3: однократный поворот
-                {
-                    p->nodes[1 - a] = r->nodes[a];
-                    r->nodes[a] = p;
-                    if (r->balance_factor) // Случай 1: поддерево стало ниже...
-                    {
-                        r->balance_factor = p->balance_factor = 0;
-                    }
-                    else // Случай 3: высота поддерева не изменилась!
-                    {
-                        r->balance_factor = B[a];
-                        cont = false;     //...Балансировка закончена. Выход
-                    }
-                }
-                auto pp = St.top(); St.pop();     //Шаг вверх по дереву
-                p = pp.first; a = pp.second;
-                if (p)
-                    p->nodes[a] = r;     // Завершение поворотов
-                else
-                    root = r;
-            }
-
-        }
-        else
-        {
-            p->balance_factor = -B[a]; // (p->b == 0): Алгоритм завершён.
-        }
-    } //while(cont)...
+    // while (cont) //Цикл, пока не дойдём до корня дерева
+    // {
+    //     cont = false;
+    //     if (!p)
+    //         --h; // Дошли до корня. Уменьшаем высоту дерева
+    //     else if (p->balance_factor) //b != 0
+    //     {
+    //         cont = true;
+    //         if (p->balance_factor == B[a]) // Поддерево сбалансировалось. Идем к корню...
+    //         {
+    //             p->balance_factor = 0;
+    //             auto pp = St.top(); St.pop();	//Поднятие из стека указателя на отца и направления
+    //             p = pp.first; a = pp.second;
+    //         }
+    //         else // p->b == -B[a]: Требуется перебалансировка
+    //         {
+    //             node *r;
+    //             q = r = p->nodes[1 - a];
+    //             if (r->balance_factor == -p->balance_factor)  // Случай 2: двукратный поворот
+    //             {
+    //                 r = r->nodes[a];
+    //                 p->nodes[1 - a] = r->nodes[a];
+    //                 q->nodes[a] = r->nodes[1 - a];
+    //                 r->nodes[a] = p;
+    //                 r->nodes[1 - a] = q;
+    //                 if (r->balance_factor)
+    //                 {
+    //                     if (r->balance_factor == B[a]) { p->balance_factor = 0; q->balance_factor = -B[a]; }
+    //                     else { p->balance_factor = B[a]; q->balance_factor = 0; }
+    //                     r->balance_factor = 0;
+    //                 }
+    //                 else  q->balance_factor = p->balance_factor = 0;
+    //             }
+    //             else // Случаи 1 и 3: однократный поворот
+    //             {
+    //                 p->nodes[1 - a] = r->nodes[a];
+    //                 r->nodes[a] = p;
+    //                 if (r->balance_factor) // Случай 1: поддерево стало ниже...
+    //                 {
+    //                     r->balance_factor = p->balance_factor = 0;
+    //                 }
+    //                 else // Случай 3: высота поддерева не изменилась!
+    //                 {
+    //                     r->balance_factor = B[a];
+    //                     cont = false;     //...Балансировка закончена. Выход
+    //                 }
+    //             }
+    //             auto pp = St.top(); St.pop();     //Шаг вверх по дереву
+    //             p = pp.first; a = pp.second;
+    //             if (p)
+    //                 p->nodes[a] = r;     // Завершение поворотов
+    //             else
+    //                 root = r;
+    //         }
+    //
+    //     }
+    //     else
+    //     {
+    //         p->balance_factor = -B[a]; // (p->b == 0): Алгоритм завершён.
+    //     }
+    // } //while(cont)...
 
     --count;
     return true;
