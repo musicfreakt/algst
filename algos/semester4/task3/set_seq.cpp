@@ -16,10 +16,20 @@ class set_seq // todo: норм название
     Seq seq; // последовательность
 
     public:
-        erase(int, int);
-        excl(const set_seq&);
-        change(const set_seq&, int);
+        pair<Iterator, bool> insert(int, Iterator);
+        void erase(int, int);
+        void excl(const set_seq&);
+        void change(const set_seq&, int);
 };
+
+
+pair<Iterator, bool> set_seq::insert(int key, Iterator it = nullptr)
+{
+    auto r = set.insert(key, it);
+    seq.push_back(r.first);
+    return r;
+}
+
 
 void set_seq::erase (int left, int right)
 /*
