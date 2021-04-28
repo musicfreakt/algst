@@ -4,7 +4,7 @@
 
 char **SCREEN;
 const int OFFSET = 40;
-const int MAXROW = 6;
+const int MAXROW = 8;
 
 //----------------------------------------------------------------------
 
