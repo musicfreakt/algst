@@ -15,9 +15,9 @@ int setval(char *s, int pos, int val)
 // УЗЕЛ ДЕРЕВА
 struct node
 {
-    int duplicates; // количество дубликатов ключа
     int key; // ключ узла
     signed char balance_factor; // баланс (разность поддеревьев узла)
+    int duplicates; // количество дубликатов ключа
     node* nodes[2]; // левое и правое поддерево
 
     void display(int, int);
@@ -36,7 +36,6 @@ void node::display(int r, int c) //Вывод узла в точку (row,col)
         SCREEN[r][c-1] = s[1 + balance_factor];
         setval(SCREEN[r+1], c-1, duplicates + 1);
     }
-    // cout << key << " ";
     if (nodes[0])
         nodes[0]->display(r+1, c-(OFFSET >> r)+1);
     if (nodes[1])
@@ -122,8 +121,6 @@ inline outiterator<Container, Iter> outinserter(Container& c, Iter It)
 // АВЛ ДЕРЕВО
 class tree
 {
-    static size_t tags;
-    char tag;
     node *root;
     size_t h, count; // высота и мощность дерева
 
@@ -134,7 +131,7 @@ class tree
         using key_compare = less<int>;
 
         // allocation/deallocation:
-        tree(): tag('A' + tags++), root(nullptr), h(0), count(0) {}
+        tree(): root(nullptr), h(0), count(0) {}
         template<typename it>
         tree(it ibegin, it iend): tree() {for(auto x = ibegin; x != iend; ++x) insert(*x);}
         tree(const tree &other): tree() {for(auto x = other.begin(); x != other.end(); ++x) insert(*x);}
@@ -159,19 +156,18 @@ class tree
         tree_iterator find(int);
         tree & operator= (const tree &);
         tree & operator= (tree && other) {swap(other); return *this;}
-        tree & operator|= (const tree &);
-        tree operator| (const tree & other) const {tree res(*this); return (res |= other);}
-        tree & operator&= (const tree &);
-        tree operator& (const tree & other) const {tree res(*this); return (res &= other);}
-        tree & operator-= (const tree &);
-        tree operator- (const tree & other) const {tree res(*this); return (res -= other);}
-        tree & operator^= (const tree &);
-        tree operator^ (const tree & other) const {tree res(*this); return (res ^= other);}
+        // tree & operator|= (const tree &);
+        // tree operator| (const tree & other) const {tree res(*this); return (res |= other);}
+        // tree & operator&= (const tree &);
+        // tree operator& (const tree & other) const {tree res(*this); return (res &= other);}
+        // tree & operator-= (const tree &);
+        // tree operator- (const tree & other) const {tree res(*this); return (res -= other);}
+        // tree & operator^= (const tree &);
+        // tree operator^ (const tree & other) const {tree res(*this); return (res ^= other);}
 };
 
 void tree::swap(tree & other)
 {
-    std::swap(tag, other.tag);
     std::swap(root, other.root);
     std::swap(h, other.h);
     std::swap(count, other.count);
@@ -489,52 +485,12 @@ tree & tree::operator= (const tree & other)
     return *this;
 }
 
-tree & tree::operator|= (const tree & other)
-{
-        tree temp;
-        set_union(begin(), end(),
-            other.begin(), other.end(),
-            outinserter<tree, tree_iterator>(temp,tree_iterator()));
-        swap(temp);
-	return *this;
-}
-
-tree & tree::operator&= (const tree & other)
-{
-        tree temp;
-        set_intersection(begin(), end(),
-            other.begin(), other.end(),
-            outinserter<tree, tree_iterator>(temp,tree_iterator()));
-        swap(temp);
-	return *this;
-}
-
-tree & tree::operator-= (const tree & other)
-{
-        tree temp;
-        set_difference(begin(), end(),
-            other.begin(), other.end(),
-            outinserter<tree, tree_iterator>(temp,tree_iterator()));
-        swap(temp);
-	return *this;
-}
-
-tree & tree::operator^= (const tree & other)
-{
-        tree temp;
-        set_symmetric_difference(begin(), end(),
-            other.begin(), other.end(),
-            outinserter<tree, tree_iterator>(temp,tree_iterator()));
-        swap(temp);
-	return *this;
-}
-
 void tree::display()
 {
     screen_clear();
     if (root)
     {
-        cout << "AVL TREE " << tag << " (HEIGHT: " << height() <<"; SIZE: " << size() << "): ";
+        cout << "AVL TREE " << " (HEIGHT: " << height() <<"; SIZE: " << size() << "): ";
         root->display(1, OFFSET);
         screen_refresh();
     }

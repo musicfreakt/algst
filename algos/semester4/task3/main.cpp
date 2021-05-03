@@ -1,3 +1,4 @@
+// Вычислить: A \ (B ∩ C ∩ D) ⊕ E
 #include <iostream>
 #include <algorithm>
 #include <iterator>
@@ -10,12 +11,13 @@
 #include "avl_tree.h"
 #include "set_seq.h"
 
-size_t tree::tags = 0;
+size_t set_seq::tags = 0;
 
 int main()
 {
     screen_init();
     set_seq test;
+    set_seq A;
     // tree_iterator it;
     // test_tree.insert(30);
     // test_tree.insert(40);
@@ -36,8 +38,13 @@ int main()
     test.insert(9);
     test.display();
 
-    // test.erase(1);
-    // test.display();
+    A.insert(7);
+    A.insert(4);
+    A.insert(2);
+    A.display();
+
+    test.excl(A);
+    test.display(true);
 
     screen_delete();
     return 0;
