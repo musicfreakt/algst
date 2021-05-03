@@ -2,6 +2,8 @@ using Set = tree;
 using Iterator = tree_iterator;
 using Seq = std::vector<Iterator>;
 
+const int U = 26;
+
 class set_seq // todo: норм название
 /*
     Комбинированная структура,
@@ -20,6 +22,11 @@ class set_seq // todo: норм название
     set_seq& operator=(set_seq &&) = delete;
 
     public:
+        set_seq() = default;
+        set_seq(int);
+        set_seq (set_seq &&);
+        set_seq (const set_seq &);
+
         pair<Iterator, bool> insert(int, Iterator);
 
         // операции над последовательностью
@@ -41,6 +48,20 @@ class set_seq // todo: норм название
         int power() const { return seq_.size(); }
 };
 
+set_seq::set_seq(int power) : tag('A' + tags++)
+{
+    for(int i = 0; i < power; ++i)
+        seq_.push_back(set_.insert(std::rand()%U).first);
+}
+
+set_seq::set_seq (set_seq && source)
+    : tag(source.tag), set_(std::move(source.set_)), seq_(std::move(source.seq_)) {}
+
+set_seq::set_seq (const set_seq & source): tag(source.tag)
+{
+    for (auto x : source.seq_)
+        seq_.push_back(set_.insert(*x).first);
+}
 
 pair<Iterator, bool> set_seq::insert(int key, Iterator it = nullptr)
 {
@@ -148,13 +169,14 @@ void set_seq::change(const set_seq & other, int pos = 0)
 }
 
 
-// set_seq& set_seq::operator&= (const set_seq & other);
+// set_seq& set_seq::operator&= (const set_seq & other)
 // {
-//     tree temp;
+//     set_seq temp;
 //     set_intersection(begin(), end(),
 //         other.begin(), other.end(),
-//         outinserter<tree, tree_iterator>(temp,tree_iterator()));
-//     swap(temp);
+//         outinserter(temp, Iterator()));
+//     set_.swap(temp.set_);
+//     seq_.swap(temp.seq_);
 // 	return *this;
 // }
 
