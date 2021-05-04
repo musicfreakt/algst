@@ -120,7 +120,7 @@ class tree
 
         // другие методы
         void display();
-        tree_iterator find(int);
+        tree_iterator find(int) const;
         tree & operator= (const tree &);
         tree & operator= (tree && other) {swap(other); return *this;}
 };
@@ -151,7 +151,7 @@ node* tree::find_element(node* _node, int key) const
         return find_element(_node->nodes[!(key < _node->key)], key);
 }
 
-tree_iterator tree::find(int value)
+tree_iterator tree::find(int value) const
 {
     node* element = find_element(root, value);
     if (element == nullptr)
@@ -200,8 +200,7 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
     q = new node(k); //Вставлен новый узел в точке q
     if (p)
     {
-        int a{k < p->key};
-        if (a)
+        if (k < p->key)
             p->nodes[0] = q;
         else
             p->nodes[1] = q;
@@ -250,7 +249,7 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
         { //Случай 2: Двукратный поворот
             node *r = q->nodes[1 - a];
             p->nodes[a] = r->nodes[1 - a];
-            q->nodes[1-a] = r->nodes[a];
+            q->nodes[1 - a] = r->nodes[a];
             r->nodes[1 - a] = p;
             r->nodes[a] = q;
             if (r->balance_factor == B[a])
@@ -271,7 +270,7 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
             if (p == root)
                 p = root = r;
             else
-                St.top().first->nodes[St.top().second] = p = r;
+                St.top().first->nodes[St.top().second] = r;
             break;
         }
     }

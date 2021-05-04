@@ -16,24 +16,24 @@ size_t set_seq::tags = 0;
 int main()
 {
     screen_init();
-    set_seq A;
-    set_seq B;
+    set_seq a;
+    set_seq b;
 
-    A.insert(7);
-    A.insert(4);
-    A.insert(2);
-    A.display();
+    a.insert(7);
+    a.insert(4);
+    a.insert(2);
+    a.display(true);
 
-    B.insert(7);
-    B.insert(6);
-    B.insert(3);
-    B.insert(10);
-    B.insert(12);
-    B.insert(23);
-    B.display();
+    b.insert(7);
+    b.insert(6);
+    b.insert(3);
+    b.insert(10);
+    b.insert(12);
+    b.insert(23);
+    b.display(true);
 
-    A -= B;
-    A.display(true);
+    // b -= a;
+    // b.display(true);
 
     screen_delete();
     return 0;

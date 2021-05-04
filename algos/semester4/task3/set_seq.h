@@ -215,6 +215,19 @@ set_seq& set_seq::operator&= (const set_seq & other)
 	return *this;
 }
 
+
+// set_seq& set_seq::operator -= (const set_seq & other)
+// {
+// 	Set temp;
+// 	Seq stemp;
+// 	for (auto x : set_)
+// 		if(other.set_.find(x) == other.set_.end())
+// 			stemp.push_back(temp.insert(x).first);
+// 	temp.swap(set_);
+// 	stemp.swap(seq_);
+// 	return *this;
+// }
+
 set_seq& set_seq::operator-= (const set_seq & other)
 {
     set_seq temp;
@@ -226,16 +239,16 @@ set_seq& set_seq::operator-= (const set_seq & other)
 	return *this;
 }
 
-set_seq& set_seq::operator^= (const set_seq & other)
-{
-    set_seq temp;
-    set_symmetric_difference(set_.begin(), set_.end(),
-        other.set_.begin(), other.set_.end(),
-        outinserter(temp, Iterator(nullptr)));
-    set_.swap(temp.set_);
-    seq_.swap(temp.seq_);
-	return *this;
-}
+// set_seq& set_seq::operator^= (const set_seq & other)
+// {
+//     set_seq temp;
+//     set_symmetric_difference(set_.begin(), set_.end(),
+//         other.set_.begin(), other.set_.end(),
+//         outinserter(temp, Iterator(nullptr)));
+//     set_.swap(temp.set_);
+//     seq_.swap(temp.seq_);
+// 	return *this;
+// }
 
 void set_seq::display(bool tree_flag = false)
 {
