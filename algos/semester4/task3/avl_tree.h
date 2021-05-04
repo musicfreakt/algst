@@ -89,48 +89,15 @@ tree_iterator& tree_iterator::operator++()
     return *this;
 }
 
-// ИТЕРАТОР ВСТАВКИ (нужны присваивание, разыменование , инкремент)
-template<typename Container, typename Iter = tree_iterator>
-class outiterator: public iterator<output_iterator_tag, typename Container::value_type>
-{
-    protected:
-        Container& container; // Контейнер для вставки элементов
-        Iter iter; // текущее значение итератора чтения
-    public:
-        outiterator(Container &c, Iter it) : container(c), iter(it) {}
-        const outiterator<Container>& operator= (const typename Container::value_type& value)
-        {
-            iter = container.insert(iter, value);
-            return *this;
-        }
-
-        // Присваивание копии фиктивное
-        const outiterator<Container>& operator= (const outiterator<Container> &) { return *this; }
-        outiterator<Container>& operator* () {return *this;} // Разыменование - пустая операция
-        outiterator<Container>& operator++ () {return *this;} // Инкремент - пустая операция
-        outiterator<Container>& operator++ (int) {return *this;} // Инкремент - пустая операция
-};
-
-// функция для создания итератора вставки
-template<typename Container, typename Iter>
-inline outiterator<Container, Iter> outinserter(Container& c, Iter It)
-{
-    return outiterator<Container, Iter>(c, It);
-}
-
 // АВЛ ДЕРЕВО
 class tree
 {
     node *root;
-    size_t h, count; // высота и мощность дерева
+    int h, count; // высота и мощность дерева
 
     node* find_element(node*, int) const;
     public:
-        using key_type = int;
-        using value_type = int;
-        using key_compare = less<int>;
-
-        // allocation/deallocation:
+        // конструкторы/деструкторы:
         tree(): root(nullptr), h(0), count(0) {}
         template<typename it>
         tree(it ibegin, it iend): tree() {for(auto x = ibegin; x != iend; ++x) insert(*x);}
@@ -139,31 +106,23 @@ class tree
         ~tree(){ delete root; }
         void swap(tree &);
 
-        // accessors:
+        // доступ:
         tree_iterator begin() const;
         tree_iterator end() const { return tree_iterator(nullptr); }
         bool empty() const { return (root == nullptr); }
         int size() const { return count; }
         int height() const {return h;}
 
-        // insert/erase
+        // вставка/удаление
         pair<tree_iterator, bool> insert(int, tree_iterator = tree_iterator(nullptr));
         tree_iterator insert(const tree_iterator& where, const int& k) { return insert(k, where).first; }
         bool erase(int);
 
-        // set operations:
+        // другие методы
         void display();
         tree_iterator find(int);
         tree & operator= (const tree &);
         tree & operator= (tree && other) {swap(other); return *this;}
-        // tree & operator|= (const tree &);
-        // tree operator| (const tree & other) const {tree res(*this); return (res |= other);}
-        // tree & operator&= (const tree &);
-        // tree operator& (const tree & other) const {tree res(*this); return (res &= other);}
-        // tree & operator-= (const tree &);
-        // tree operator- (const tree & other) const {tree res(*this); return (res -= other);}
-        // tree & operator^= (const tree &);
-        // tree operator^ (const tree & other) const {tree res(*this); return (res ^= other);}
 };
 
 void tree::swap(tree & other)
@@ -399,12 +358,6 @@ bool tree::erase(int k)
             succ->nodes[0] = succ->nodes[1] = nullptr;
             delete succ;
         }
-
-        // while(!St.empty())
-        // {
-        //     cout << St.top().first->key << '\n';
-        //     St.pop();
-        // }
 
         // восстановить баланс
         do //Цикл, пока не дойдём до корня дерева

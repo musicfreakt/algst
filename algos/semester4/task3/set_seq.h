@@ -4,6 +4,35 @@ using Seq = std::vector<Iterator>;
 
 const int U = 26;
 
+// ИТЕРАТОР ВСТАВКИ (нужны присваивание, разыменование , инкремент)
+template<typename Container, typename Iter = Iterator>
+class outiterator: public iterator<output_iterator_tag, typename Container::value_type>
+{
+    protected:
+        Container& container; // Контейнер для вставки элементов
+        Iter iter; // текущее значение итератора чтения
+    public:
+        outiterator(Container &c, Iter it) : container(c), iter(it) {}
+        const outiterator<Container>& operator= (const typename Container::value_type& value)
+        {
+            iter = container.insert(iter, value);
+            return *this;
+        }
+
+        // Присваивание копии фиктивное
+        const outiterator<Container>& operator= (const outiterator<Container> &) { return *this; }
+        outiterator<Container>& operator* () {return *this;} // Разыменование - пустая операция
+        outiterator<Container>& operator++ () {return *this;} // Инкремент - пустая операция
+        outiterator<Container>& operator++ (int) {return *this;} // Инкремент - пустая операция
+};
+
+// функция для создания итератора вставки
+template<typename Container, typename Iter>
+inline outiterator<Container, Iter> outinserter(Container& c, Iter It)
+{
+    return outiterator<Container, Iter>(c, It);
+}
+
 class set_seq // todo: норм название
 /*
     Комбинированная структура,
@@ -22,12 +51,17 @@ class set_seq // todo: норм название
     set_seq& operator=(set_seq &&) = delete;
 
     public:
-        set_seq() = default;
+        using key_type = int;
+        using value_type = int;
+        using key_compare = less<int>;
+
+        set_seq(): tag('A' + tags++) {}
         set_seq(int);
         set_seq (set_seq &&);
         set_seq (const set_seq &);
 
         pair<Iterator, bool> insert(int, Iterator);
+        Iterator insert(const Iterator& where, const int& k) { return insert(k, where).first; }
 
         // операции над последовательностью
         void erase(int, int);
@@ -36,13 +70,15 @@ class set_seq // todo: норм название
         void change(const set_seq&, int);
 
         // операции над множеством
-        // set_seq& operator &= (const set_seq &);
-        // set_seq operator & (const set_seq & other) const
-        // { set_seq result(*this); return (result &= other); }
-        // set_seq& operator -= (const set_seq &);
-        // set_seq operator - (const set_seq & other) const
-        // {set_seq result(*this); return (result -= other);}
-
+        set_seq& operator &= (const set_seq &);
+        set_seq operator & (const set_seq & other) const
+        { set_seq result(*this); return (result &= other); }
+        set_seq& operator -= (const set_seq &);
+        set_seq operator - (const set_seq & other) const
+        {set_seq result(*this); return (result -= other);}
+        set_seq& operator ^= (const set_seq &);
+        set_seq operator ^ (const set_seq & other) const
+        {set_seq result(*this); return (result ^= other);}
 
         void display(bool);
         int power() const { return seq_.size(); }
@@ -69,7 +105,6 @@ pair<Iterator, bool> set_seq::insert(int key, Iterator it = nullptr)
     seq_.push_back(r.first);
     return r;
 }
-
 
 void set_seq::erase(int left, int right)
 /*
@@ -135,7 +170,7 @@ void set_seq::excl(const set_seq & other)
 
 void set_seq::concat(const set_seq & other)
 /*
-    Сцепление
+    Вторая последовательность сцепляется с первой.
 */
 {
     for(auto x : other.seq_)
@@ -169,49 +204,50 @@ void set_seq::change(const set_seq & other, int pos = 0)
 }
 
 
-// set_seq& set_seq::operator&= (const set_seq & other)
-// {
-//     set_seq temp;
-//     set_intersection(begin(), end(),
-//         other.begin(), other.end(),
-//         outinserter(temp, Iterator()));
-//     set_.swap(temp.set_);
-//     seq_.swap(temp.seq_);
-// 	return *this;
-// }
+set_seq& set_seq::operator&= (const set_seq & other)
+{
+    set_seq temp;
+    set_intersection(set_.begin(), set_.end(),
+        other.set_.begin(), other.set_.end(),
+        outinserter(temp, Iterator(nullptr)));
+    set_.swap(temp.set_);
+    seq_.swap(temp.seq_);
+	return *this;
+}
 
-// tree & tree::operator-= (const tree & other)
-// {
-//     tree temp;
-//     set_difference(begin(), end(),
-//         other.begin(), other.end(),
-//         outinserter<tree, tree_iterator>(temp,tree_iterator()));
-//     swap(temp);
-// 	return *this;
-// }
-//
-// tree & tree::operator^= (const tree & other)
-// {
-//         tree temp;
-//         set_symmetric_difference(begin(), end(),
-//             other.begin(), other.end(),
-//             outinserter<tree, tree_iterator>(temp,tree_iterator()));
-//         swap(temp);
-// 	return *this;
-// }
+set_seq& set_seq::operator-= (const set_seq & other)
+{
+    set_seq temp;
+    set_difference(set_.begin(), set_.end(),
+        other.set_.begin(), other.set_.end(),
+        outinserter(temp, Iterator(nullptr)));
+    set_.swap(temp.set_);
+    seq_.swap(temp.seq_);
+	return *this;
+}
 
+set_seq& set_seq::operator^= (const set_seq & other)
+{
+    set_seq temp;
+    set_symmetric_difference(set_.begin(), set_.end(),
+        other.set_.begin(), other.set_.end(),
+        outinserter(temp, Iterator(nullptr)));
+    set_.swap(temp.set_);
+    seq_.swap(temp.seq_);
+	return *this;
+}
 
 void set_seq::display(bool tree_flag = false)
 {
     if (tree_flag)
         set_.display();
 
-    std::cout << "SET: \n";
+    std::cout << "SET (" << tag << "): \n";
     for(auto x : set_)
-        std::cout << x << " ";
+        std::cout << x << ' ';
 
-    std::cout << "\nSEQUENCE: \n< ";
+    std::cout << "\nSEQUENCE: (" << tag << "): \n< ";
     for (auto i : seq_)
-        std::cout << *i << " ";
+        std::cout << *i << ' ';
     std::cout << ">\n";
 }
