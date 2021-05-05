@@ -5,13 +5,6 @@ using namespace std;
 
 const int B[] = {-1,1};
 
-int setval(char *s, int pos, int val)
-{
-    string t(to_string(val));
-    for (auto p : t) s[pos++] = p;
-    return t.size();
-}
-
 // УЗЕЛ ДЕРЕВА
 struct node
 {
@@ -20,26 +13,26 @@ struct node
     int duplicates; // количество дубликатов ключа
     node* nodes[2]; // левое и правое поддерево
 
-    void display(int, int);
+    void display(char**, int, int);
     node(int k): key(k), balance_factor(0), duplicates(0) {nodes[0] = nodes[1] = nullptr;}
-    node(const node& ) = delete;
+    node(const node&) = delete;
     ~node(){delete nodes[1]; delete nodes[0];}
 };
 
 
-void node::display(int r, int c) //Вывод узла в точку (row,col)
+void node::display(char** s, int r, int c) //Вывод узла в точку (row,col)
 {
-    string s = "-o+";
+    string b = "-o+";
     if (r && c && (c<80))
     {
-        setval(SCREEN[r-1], c-1, key);
-        SCREEN[r][c-1] = s[1 + balance_factor];
-        setval(SCREEN[r+1], c-1, duplicates + 1);
+        setval(s[r-1], c-1, key);
+        s[r][c-1] = b[1 + balance_factor];
+        setval(s[r+1], c-1, duplicates + 1);
     }
     if (nodes[0])
-        nodes[0]->display(r+1, c-(OFFSET >> r)+1);
+        nodes[0]->display(s, r+1, c-(OFFSET >> r)+1);
     if (nodes[1])
-        nodes[1]->display(r+1, c+(OFFSET >> r)-1);
+        nodes[1]->display(s, r+1, c+(OFFSET >> r)-1);
 }
 
 using Stack = stack<pair<node*, int>>;
@@ -92,6 +85,7 @@ tree_iterator& tree_iterator::operator++()
 // АВЛ ДЕРЕВО
 class tree
 {
+    static screen s;
     node *root;
     int h, count; // высота и мощность дерева
 
@@ -439,12 +433,12 @@ tree & tree::operator= (const tree & other)
 
 void tree::display()
 {
-    screen_clear();
+    s.screen_clear();
     if (root)
     {
         cout << "AVL TREE " << " (HEIGHT: " << height() <<"; SIZE: " << size() << "): ";
-        root->display(1, OFFSET);
-        screen_refresh();
+        root->display(s.SCREEN, 1, OFFSET);
+        s.screen_refresh();
     }
 	else
         cout << "Empty!\n";

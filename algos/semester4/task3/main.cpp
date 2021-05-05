@@ -11,30 +11,19 @@
 #include "avl_tree.h"
 #include "set_seq.h"
 
+screen tree::s;
 size_t set_seq::tags = 0;
 
 int main()
 {
-    screen_init();
-    set_seq a;
-    set_seq b;
+    // std::srand(std::time(nullptr));
 
-    a.insert(7);
-    a.insert(4);
-    a.insert(2);
-    a.display(true);
+    set_seq a(10), b(10), c(10), d(10), e(10), f;
 
-    b.insert(7);
-    b.insert(6);
-    b.insert(3);
-    b.insert(10);
-    b.insert(12);
-    b.insert(23);
-    b.display(true);
+    a.display(); b.display(); c.display(); d.display(); e.display();
 
-    // b -= a;
-    // b.display(true);
+    f = a - ((b & c & d) ^ e);
 
-    screen_delete();
+    f.display(true);
     return 0;
 }

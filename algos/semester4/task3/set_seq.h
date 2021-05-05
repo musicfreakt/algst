@@ -1,3 +1,6 @@
+#ifndef SET_SEQ_H
+#define SET_SEQ_H
+
 using Set = tree;
 using Iterator = tree_iterator;
 using Seq = std::vector<Iterator>;
@@ -47,8 +50,6 @@ class set_seq // todo: норм название
     char tag;
     Set set_; // множество
     Seq seq_; // последовательность
-    set_seq& operator=(const set_seq &) = delete;
-    set_seq& operator=(set_seq &&) = delete;
 
     public:
         using key_type = int;
@@ -59,6 +60,8 @@ class set_seq // todo: норм название
         set_seq(int);
         set_seq (set_seq &&);
         set_seq (const set_seq &);
+        set_seq& operator=(const set_seq &);
+        set_seq& operator=(set_seq &&);
 
         pair<Iterator, bool> insert(int, Iterator);
         Iterator insert(const Iterator& where, const int& k) { return insert(k, where).first; }
@@ -203,6 +206,22 @@ void set_seq::change(const set_seq & other, int pos = 0)
     }
 }
 
+set_seq& set_seq::operator= (const set_seq & other)
+{
+    set_seq temp;
+    for (auto x: other.seq_)
+        seq_.push_back(temp.set_.insert(*x).first);
+    seq_.swap(temp.seq_);
+    set_.swap(temp.set_);
+    return *this;
+}
+
+set_seq& set_seq::operator= (set_seq && other)
+{
+    seq_.swap(other.seq_);
+    set_.swap(other.set_);
+    return *this;
+}
 
 set_seq& set_seq::operator&= (const set_seq & other)
 {
@@ -216,26 +235,38 @@ set_seq& set_seq::operator&= (const set_seq & other)
 }
 
 
-// set_seq& set_seq::operator -= (const set_seq & other)
+set_seq& set_seq::operator -= (const set_seq & other)
+{
+	Set temp;
+	Seq stemp;
+	for (auto x : set_)
+		if(other.set_.find(x) == other.set_.end())
+			stemp.push_back(temp.insert(x).first);
+	temp.swap(set_);
+	stemp.swap(seq_);
+	return *this;
+}
+
+// set_seq& set_seq::operator-= (const set_seq & other)
 // {
-// 	Set temp;
-// 	Seq stemp;
-// 	for (auto x : set_)
-// 		if(other.set_.find(x) == other.set_.end())
-// 			stemp.push_back(temp.insert(x).first);
-// 	temp.swap(set_);
-// 	stemp.swap(seq_);
+//     set_seq temp;
+//     set_difference(set_.begin(), set_.end(),
+//         other.set_.begin(), other.set_.end(),
+//         outinserter(temp, Iterator(nullptr)));
+//     set_.swap(temp.set_);
+//     seq_.swap(temp.seq_);
 // 	return *this;
 // }
 
-set_seq& set_seq::operator-= (const set_seq & other)
+set_seq& set_seq::operator ^= (const set_seq & other)
 {
-    set_seq temp;
-    set_difference(set_.begin(), set_.end(),
-        other.set_.begin(), other.set_.end(),
-        outinserter(temp, Iterator(nullptr)));
-    set_.swap(temp.set_);
-    seq_.swap(temp.seq_);
+	Set temp;
+	Seq stemp;
+	for (auto x : set_)
+		if(other.set_.find(x) != other.set_.end())
+			stemp.push_back(temp.insert(x).first);
+	temp.swap(set_);
+	stemp.swap(seq_);
 	return *this;
 }
 
@@ -255,12 +286,13 @@ void set_seq::display(bool tree_flag = false)
     if (tree_flag)
         set_.display();
 
-    std::cout << "SET (" << tag << "): \n";
+    std::cout << "\nSET (" << tag << "): ";
     for(auto x : set_)
         std::cout << x << ' ';
-
-    std::cout << "\nSEQUENCE: (" << tag << "): \n< ";
+    std::cout << "\nSEQUENCE: (" << tag << "): < ";
     for (auto i : seq_)
         std::cout << *i << ' ';
     std::cout << ">\n";
 }
+
+#endif
