@@ -18,11 +18,13 @@ int main()
 {
     // std::srand(std::time(nullptr));
 
+    
+
     set_seq a(10), b(10), c(10), d(10), e(10), f;
 
     a.display(); b.display(); c.display(); d.display(); e.display();
 
-    f = a - ((b & c & d) ^ e);
+    f = a - (b & c & d) ^ e;
 
     f.display(true);
     return 0;

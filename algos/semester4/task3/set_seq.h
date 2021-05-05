@@ -38,16 +38,15 @@ inline outiterator<Container, Iter> outinserter(Container& c, Iter It)
 
 class set_seq // todo: норм название
 /*
-    Комбинированная структура,
-    хранящая множество с последовательностью.
+    Комбинированная структура, хранящая множество с последовательностью.
 
     Множество реализовано при помощи структуры АВЛ-Дерево.
     Последовательность реализована при помощи вектора итераторов
     на элементы множества.
 */
 {
-    static size_t tags;
-    char tag;
+    static size_t tags; // количетво тегов 
+    char tag; // тег струтуры
     Set set_; // множество
     Seq seq_; // последовательность
 
@@ -235,51 +234,27 @@ set_seq& set_seq::operator&= (const set_seq & other)
 }
 
 
-set_seq& set_seq::operator -= (const set_seq & other)
+set_seq& set_seq::operator-= (const set_seq & other)
 {
-	Set temp;
-	Seq stemp;
-	for (auto x : set_)
-		if(other.set_.find(x) == other.set_.end())
-			stemp.push_back(temp.insert(x).first);
-	temp.swap(set_);
-	stemp.swap(seq_);
+    set_seq temp;
+    set_difference(set_.begin(), set_.end(),
+        other.set_.begin(), other.set_.end(),
+        outinserter(temp, Iterator(nullptr)));
+    set_.swap(temp.set_);
+    seq_.swap(temp.seq_);
 	return *this;
 }
 
-// set_seq& set_seq::operator-= (const set_seq & other)
-// {
-//     set_seq temp;
-//     set_difference(set_.begin(), set_.end(),
-//         other.set_.begin(), other.set_.end(),
-//         outinserter(temp, Iterator(nullptr)));
-//     set_.swap(temp.set_);
-//     seq_.swap(temp.seq_);
-// 	return *this;
-// }
-
-set_seq& set_seq::operator ^= (const set_seq & other)
+set_seq& set_seq::operator^= (const set_seq & other)
 {
-	Set temp;
-	Seq stemp;
-	for (auto x : set_)
-		if(other.set_.find(x) != other.set_.end())
-			stemp.push_back(temp.insert(x).first);
-	temp.swap(set_);
-	stemp.swap(seq_);
+    set_seq temp;
+    set_symmetric_difference(set_.begin(), set_.end(),
+        other.set_.begin(), other.set_.end(),
+        outinserter(temp, Iterator(nullptr)));
+    set_.swap(temp.set_);
+    seq_.swap(temp.seq_);
 	return *this;
 }
-
-// set_seq& set_seq::operator^= (const set_seq & other)
-// {
-//     set_seq temp;
-//     set_symmetric_difference(set_.begin(), set_.end(),
-//         other.set_.begin(), other.set_.end(),
-//         outinserter(temp, Iterator(nullptr)));
-//     set_.swap(temp.set_);
-//     seq_.swap(temp.seq_);
-// 	return *this;
-// }
 
 void set_seq::display(bool tree_flag = false)
 {

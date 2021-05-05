@@ -1,6 +1,7 @@
 #ifndef AVL_TREE_H
 #define AVL_TREE_H
 
+using Stack = stack<pair<node*, int>>;
 using namespace std;
 
 const int B[] = {-1,1};
@@ -13,14 +14,13 @@ struct node
     int duplicates; // количество дубликатов ключа
     node* nodes[2]; // левое и правое поддерево
 
-    void display(char**, int, int);
     node(int k): key(k), balance_factor(0), duplicates(0) {nodes[0] = nodes[1] = nullptr;}
     node(const node&) = delete;
     ~node(){delete nodes[1]; delete nodes[0];}
+    void display(char**, int, int);
 };
 
-
-void node::display(char** s, int r, int c) //Вывод узла в точку (row,col)
+void node::display(char** s, int r, int c) //Вывод узла в точку (r,c)
 {
     string b = "-o+";
     if (r && c && (c<80))
@@ -34,8 +34,6 @@ void node::display(char** s, int r, int c) //Вывод узла в точку (
     if (nodes[1])
         nodes[1]->display(s, r+1, c+(OFFSET >> r)-1);
 }
-
-using Stack = stack<pair<node*, int>>;
 
 //ИТЕРАТОР ЧТЕНИЯ (нужны сравнения, разыменования, инкремент)
 struct tree_iterator: public std::iterator<std::forward_iterator_tag, int>
@@ -62,11 +60,6 @@ tree_iterator& tree_iterator::operator++()
     {
         st.push(make_pair(ptr, 1));
         ptr = ptr->nodes[1];
-        // while (ptr->nodes[0])
-        // {
-        //     st.push(make_pair(ptr, 0));
-        //     ptr = ptr->nodes[0];
-        // }
         for(;ptr->nodes[0];ptr = ptr->nodes[0]) st.push(make_pair(ptr, 0));
     }
     else
@@ -85,18 +78,16 @@ tree_iterator& tree_iterator::operator++()
 // АВЛ ДЕРЕВО
 class tree
 {
-    static screen s;
-    node *root;
+    static screen s; // для вывода деревьев
+    node *root; // корень дерева
     int h, count; // высота и мощность дерева
 
     node* find_element(node*, int) const;
     public:
         // конструкторы/деструкторы:
         tree(): root(nullptr), h(0), count(0) {}
-        template<typename it>
-        tree(it ibegin, it iend): tree() {for(auto x = ibegin; x != iend; ++x) insert(*x);}
         tree(const tree &other): tree() {for(auto x = other.begin(); x != other.end(); ++x) insert(*x);}
-        tree(tree && other): tree() { swap(other); }
+        tree(tree && other): tree() {swap(other);}
         ~tree(){ delete root; }
         void swap(tree &);
 
@@ -161,7 +152,7 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
 
     if (!where.ptr) // свободная вставка
     {
-        if (q == nullptr)
+        if (empty())
         {
             root = new node(k);
             count = h = 1;
@@ -199,6 +190,8 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
         else
             p->nodes[1] = q;
     }
+    else
+        root = q;
 
     node *new_node = q;
 
@@ -208,6 +201,7 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
         auto pa = St.top(); St.pop();
         p = pa.first;
         int a = pa.second;
+
         if (!(p->balance_factor))
         {
             p->balance_factor = B[a]; //Замена 0 на +-1
@@ -217,10 +211,7 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
                 break;
             }
             else
-            {
                 q = p;
-                p = St.top().first;
-            }
         }
         else if (p->balance_factor == -B[a])
         { // Сбалансировалось
@@ -241,7 +232,7 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
         }
         else
         { //Случай 2: Двукратный поворот
-            node *r = q->nodes[1 - a];
+            node *r(q->nodes[1 - a]);
             p->nodes[a] = r->nodes[1 - a];
             q->nodes[1 - a] = r->nodes[a];
             r->nodes[1 - a] = p;
@@ -264,7 +255,7 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
             if (p == root)
                 p = root = r;
             else
-                St.top().first->nodes[St.top().second] = r;
+                St.top().first->nodes[St.top().second] = p = r;
             break;
         }
     }
