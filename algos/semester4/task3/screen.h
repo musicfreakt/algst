@@ -49,8 +49,8 @@ void screen::screen_refresh()
 screen::~screen()
 {
     for (int i = 0; i < MAXROW; ++i)
-            delete[] SCREEN[i];
-        delete[] SCREEN;
+        delete[] SCREEN[i];
+    delete[] SCREEN;
 }
 
 #endif

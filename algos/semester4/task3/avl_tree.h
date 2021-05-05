@@ -1,7 +1,6 @@
 #ifndef AVL_TREE_H
 #define AVL_TREE_H
 
-using Stack = stack<pair<node*, int>>;
 using namespace std;
 
 const int B[] = {-1,1};
@@ -34,6 +33,8 @@ void node::display(char** s, int r, int c) //Вывод узла в точку (
     if (nodes[1])
         nodes[1]->display(s, r+1, c+(OFFSET >> r)-1);
 }
+
+using Stack = stack<pair<node*, int>>;
 
 //ИТЕРАТОР ЧТЕНИЯ (нужны сравнения, разыменования, инкремент)
 struct tree_iterator: public std::iterator<std::forward_iterator_tag, int>

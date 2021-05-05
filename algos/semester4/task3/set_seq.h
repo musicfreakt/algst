@@ -45,7 +45,7 @@ class set_seq // todo: норм название
     на элементы множества.
 */
 {
-    static size_t tags; // количетво тегов 
+    static size_t tags; // количетво тегов
     char tag; // тег струтуры
     Set set_; // множество
     Seq seq_; // последовательность
@@ -57,8 +57,10 @@ class set_seq // todo: норм название
 
         set_seq(): tag('A' + tags++) {}
         set_seq(int);
-        set_seq (set_seq &&);
-        set_seq (const set_seq &);
+        set_seq(set_seq &&);
+        set_seq(const set_seq &);
+        template <typename iter>
+        set_seq(iter, iter);
         set_seq& operator=(const set_seq &);
         set_seq& operator=(set_seq &&);
 
@@ -86,7 +88,7 @@ class set_seq // todo: норм название
         int power() const { return seq_.size(); }
 };
 
-set_seq::set_seq(int power) : tag('A' + tags++)
+set_seq::set_seq(int power) : set_seq()
 {
     for(int i = 0; i < power; ++i)
         seq_.push_back(set_.insert(std::rand()%U).first);
@@ -100,6 +102,14 @@ set_seq::set_seq (const set_seq & source): tag(source.tag)
     for (auto x : source.seq_)
         seq_.push_back(set_.insert(*x).first);
 }
+
+template <typename iter>
+set_seq::set_seq (iter b, iter e): set_seq()
+{
+    for (auto i = b; i != e; ++i)
+        seq_.push_back(set_.insert(*i).first);
+}
+
 
 pair<Iterator, bool> set_seq::insert(int key, Iterator it = nullptr)
 {
@@ -152,7 +162,8 @@ void set_seq::excl(const set_seq & other)
                         ++r;
                         int c(*seq_[q]), d(other.seq_[r].ptr->key);
                         f &= c == d;
-                    }while ((r<m-1) && f);
+                    }
+                    while ((r<m-1) && f);
                 if(f)
                 {
                     Set temp;
@@ -258,9 +269,6 @@ set_seq& set_seq::operator^= (const set_seq & other)
 
 void set_seq::display(bool tree_flag = false)
 {
-    if (tree_flag)
-        set_.display();
-
     std::cout << "\nSET (" << tag << "): ";
     for(auto x : set_)
         std::cout << x << ' ';
@@ -268,6 +276,8 @@ void set_seq::display(bool tree_flag = false)
     for (auto i : seq_)
         std::cout << *i << ' ';
     std::cout << ">\n";
+    if (tree_flag)
+        set_.display();
 }
 
 #endif
