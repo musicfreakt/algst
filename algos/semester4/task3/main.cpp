@@ -25,8 +25,8 @@ int main()
         std::vector<int> a_ = {1, 2, 3},
         b_ = {1, 3, 4, 5},
         c_ = {1, 3, 8},
-        d_ = {1, 3, 7, 16},
-        e_ = {0, 1, 2};
+        d_ = {1, 3, 8, 12, 14, 14, 23},
+        e_ = {0, 1, 2, 3, 4, 5, 6};
 
         set_seq a(a_.begin(), a_.end()),
         b(b_.begin(), b_.end()),
@@ -35,11 +35,25 @@ int main()
         e(e_.begin(), e_.end()),
         f;
 
+        cout << "\n\nSet operations example: \n\n";
         a.display(); b.display(); c.display(); d.display(); e.display();
 
         f = a - (b & c & d) ^ e;
 
         f.display(true);
+        cout << "\n\nSequence operations example: \n\n";
+        cout << "Erase elements from 2 to 4 in (e):";
+        e.erase(2, 4);
+        e.display(true);
+
+        cout << "\nExcl (c) from (d):";
+        d.excl(c);
+        d.display(true);
+
+        cout << "\nChange (c) in (d) from 3 position:";
+        d.change(c, 3);
+        d.display(true);
+
     }
     else
     {
