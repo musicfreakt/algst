@@ -100,14 +100,14 @@ set_seq::set_seq (set_seq && source)
 set_seq::set_seq (const set_seq & source): tag(source.tag)
 {
     for (auto x : source.seq_)
-        seq_.push_back(set_.insert(*x).first);
+        seq_.push_back(set_.insert(*x%U).first);
 }
 
 template <typename iter>
 set_seq::set_seq (iter b, iter e): set_seq()
 {
     for (auto i = b; i != e; ++i)
-        seq_.push_back(set_.insert(*i).first);
+        seq_.push_back(set_.insert(*i%U).first);
 }
 
 
