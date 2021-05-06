@@ -10,18 +10,18 @@
 
 const int lim = 1000;
 using Set = tree;
-using Fterator = tree_iterator;
-using Seq = std::vector<Fterator>;
+using Iterator = tree_iterator;
+using Seq = std::vector<Iterator>;
 
 // ИТЕРАТОР ВСТАВКИ (нужны присваивание, разыменование , инкремент)
-template<typename Container, typename Fter = Fterator>
+template<typename Container, typename Iter = Iterator>
 class outiterator: public iterator<output_iterator_tag, typename Container::value_type>
 {
     protected:
         Container& container; // Контейнер для вставки элементов
-        Fter iter; // текущее значение итератора чтения
+        Iter iter; // текущее значение итератора чтения
     public:
-        outiterator(Container &c, Fter it) : container(c), iter(it) {}
+        outiterator(Container &c, Iter it) : container(c), iter(it) {}
         const outiterator<Container>& operator= (const typename Container::value_type& value)
         {
             iter = container.insert(iter, value);
@@ -36,10 +36,10 @@ class outiterator: public iterator<output_iterator_tag, typename Container::valu
 };
 
 // функция для создания итератора вставки
-template<typename Container, typename Fter>
-inline outiterator<Container, Fter> outinserter(Container& c, Fter Ft)
+template<typename Container, typename Iter>
+inline outiterator<Container, Iter> outinserter(Container& c, Iter It)
 {
-    return outiterator<Container, Fter>(c, Ft);
+    return outiterator<Container, Iter>(c, It);
 }
 
 class set_seq
@@ -70,8 +70,8 @@ class set_seq
         set_seq& operator=(const set_seq &);
         set_seq& operator=(set_seq &&);
 
-        pair<Fterator, bool> insert(int, Fterator);
-        Fterator insert(const Fterator& where, const int& k) { return insert(k, where).first; }
+        pair<Iterator, bool> insert(int, Iterator);
+        Iterator insert(const Iterator& where, const int& k) { return insert(k, where).first; }
 
         // операции над последовательностью
         void erase(int, int);
@@ -120,7 +120,7 @@ set_seq::set_seq (iter b, iter e): set_seq()
 }
 
 
-pair<Fterator, bool> set_seq::insert(int key, Fterator it = nullptr)
+pair<Iterator, bool> set_seq::insert(int key, Iterator it = nullptr)
 {
     auto r = set_.insert(key, it);
     seq_.push_back(r.first);
@@ -262,7 +262,7 @@ set_seq& set_seq::operator&= (const set_seq & other)
     set_seq temp;
     set_intersection(set_.begin(), set_.end(),
         other.set_.begin(), other.set_.end(),
-        outinserter(temp, Fterator(nullptr)));
+        outinserter(temp, Iterator(nullptr)));
     set_.swap(temp.set_);
     seq_.swap(temp.seq_);
 	return *this;
@@ -274,7 +274,7 @@ set_seq& set_seq::operator-= (const set_seq & other)
     set_seq temp;
     set_difference(set_.begin(), set_.end(),
         other.set_.begin(), other.set_.end(),
-        outinserter(temp, Fterator(nullptr)));
+        outinserter(temp, Iterator(nullptr)));
     set_.swap(temp.set_);
     seq_.swap(temp.seq_);
 	return *this;
@@ -285,7 +285,7 @@ set_seq& set_seq::operator^= (const set_seq & other)
     set_seq temp;
     set_symmetric_difference(set_.begin(), set_.end(),
         other.set_.begin(), other.set_.end(),
-        outinserter(temp, Fterator(nullptr)));
+        outinserter(temp, Iterator(nullptr)));
     set_.swap(temp.set_);
     seq_.swap(temp.seq_);
 	return *this;
@@ -317,18 +317,18 @@ size_t set_seq::tags = 0;
 int main()
 {
     using namespace std::chrono;
-    srand((unsigned int)1);
+    srand((unsigned int)7);
     // srand((unsigned int)time(nullptr));
     bool debug = false; //false, чтобы запретить отладочный вывод
     auto MaxMul = 5;
     int middle_power = 0, set_count = 0;
     auto Used = [&] (set_seq & t){ middle_power += t.power();++set_count; };
     auto DebOut = [debug] (set_seq & t) { if(debug) { t.display(); }};
-    auto rand = [] (int d) { return std::rand( )%d; }; //Лямбда-функция!
-    ofstream fout("in.txt"); //Открытие файла для результатов
+    auto rand = [] (int d) { return std::rand( )%d; };
+    ofstream fout("in.txt");
 
     int p = rand(20) + 1; //Текущая мощность (место для цикла по p)
-    for (int p = rand(20) + 1; p < 20; ++p)
+    for (int p = rand(20) + 1; p < 100; ++p)
     {
         //=== Данные ===
         set_seq A(p), B(p), C(p), D(p), E(0), F(p);
@@ -356,15 +356,15 @@ int main()
         if (debug) cout << "\n=== F^=C ===(" << q_s_sub << ") ";
         F-=C; DebOut(F); Used(F);
 
-        int a = rand(F.power()), b = rand(F.power());
-        if (debug) cout << "\n=== F.erase (" << a << "," << b << ")===";
-        if (debug && a>b) cout << "(skipped!)";
-        F.erase(a, b); DebOut(F); Used(F);
-
         int e = rand(F.power());
         if (debug) cout << "\n=== F.change (D, " << e << ") ===";
         if (debug) D.display(); Used(D);
         F.change(D, e); DebOut(F); Used(F);
+
+        int a = rand(F.power()), b = rand(F.power());
+        if (debug) cout << "\n=== F.erase (" << a << "," << b << ")===";
+        if (debug && a>b) cout << "(skipped!)";
+        F.erase(a, b); DebOut(F); Used(F);
 
         if (debug) cout << "\n=== F.excl(E) ===";
         E.prepare_excl(F);
