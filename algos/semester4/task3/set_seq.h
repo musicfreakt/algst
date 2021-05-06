@@ -5,8 +5,6 @@ using Set = tree;
 using Iterator = tree_iterator;
 using Seq = std::vector<Iterator>;
 
-const int U = 26;
-
 // ИТЕРАТОР ВСТАВКИ (нужны присваивание, разыменование , инкремент)
 template<typename Container, typename Iter = Iterator>
 class outiterator: public iterator<output_iterator_tag, typename Container::value_type>
@@ -69,6 +67,7 @@ class set_seq // todo: норм название
 
         // операции над последовательностью
         void erase(int, int);
+        void prepare_excl(const set_seq&);
         void excl(const set_seq&);
         void concat(const set_seq&);
         void change(const set_seq&, int);
@@ -91,7 +90,7 @@ class set_seq // todo: норм название
 set_seq::set_seq(int power) : set_seq()
 {
     for(int i = 0; i < power; ++i)
-        seq_.push_back(set_.insert(std::rand()%U).first);
+        seq_.push_back(set_.insert(std::rand()%(power*3)).first);
 }
 
 set_seq::set_seq (set_seq && source)
@@ -100,14 +99,14 @@ set_seq::set_seq (set_seq && source)
 set_seq::set_seq (const set_seq & source): tag(source.tag)
 {
     for (auto x : source.seq_)
-        seq_.push_back(set_.insert(*x%U).first);
+        seq_.push_back(set_.insert(*x).first);
 }
 
 template <typename iter>
 set_seq::set_seq (iter b, iter e): set_seq()
 {
     for (auto i = b; i != e; ++i)
-        seq_.push_back(set_.insert(*i%U).first);
+        seq_.push_back(set_.insert(*i).first);
 }
 
 
