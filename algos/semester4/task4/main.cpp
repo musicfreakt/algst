@@ -8,7 +8,6 @@
 
 #include "avl_tree.h"
 
-const int lim = 1000;
 using Set = tree;
 using Iterator = tree_iterator;
 using Seq = std::vector<Iterator>;
@@ -51,7 +50,7 @@ class set_seq
     на элементы множества.
 */
 {
-    static size_t tags; // количетво тегов
+    static size_t tags; // количество тегов
     char tag; // тег струтуры
     Set set_; // множество
     Seq seq_; // последовательность
@@ -62,7 +61,7 @@ class set_seq
         using key_compare = less<int>;
 
         set_seq(): tag('A' + tags++) {}
-        set_seq(int);
+        set_seq(int, int);
         set_seq(set_seq &&);
         set_seq(const set_seq &);
         template <typename iter>
@@ -94,13 +93,13 @@ class set_seq
         void display();
         int power() const { return seq_.size(); }
 
-        friend void prepare_and(set_seq&, set_seq&, const int);
+        friend void prepare_and(set_seq&, set_seq&, const int, int);
 };
 
-set_seq::set_seq(int power) : set_seq()
+set_seq::set_seq(int power, int lim) : set_seq()
 {
     for(int i = 0; i < power; ++i)
-        seq_.push_back(set_.insert(std::rand()%(power*3)).first);
+        seq_.push_back(set_.insert(std::rand()%lim).first);
 }
 
 set_seq::set_seq (set_seq && source)
@@ -151,16 +150,19 @@ void set_seq::erase(int left, int right)
 
 void set_seq::prepare_excl( const set_seq& other )
 {
-	int a = rand()%other.power(),
-    b = rand()%other.power();
-	if (b>a)
+    if (other.power())
     {
-		for (int x = a; x <= b; ++x)
+    	int a = rand()%other.power(),
+        b = rand()%other.power();
+    	if (b>a)
         {
-			auto y = other.seq_[x];
-            insert(*y);
-		}
-	}
+    		for (int x = a; x <= b; ++x)
+            {
+    			auto y = other.seq_[x];
+                insert(*y);
+    		}
+    	}
+    }
 }
 
 
@@ -302,7 +304,7 @@ void set_seq::display()
     std::cout << ">\n";
 }
 
-void prepare_and(set_seq& one, set_seq& two, const int quantity)
+void prepare_and(set_seq& one, set_seq& two, const int quantity, int lim)
 {
 	for (int i = 0; i < quantity; ++i)
     {
@@ -317,68 +319,76 @@ size_t set_seq::tags = 0;
 int main()
 {
     using namespace std::chrono;
-    srand((unsigned int)7);
-    // srand((unsigned int)time(nullptr));
+    // srand((unsigned int)7);
+    srand((unsigned int)time(nullptr));
     bool debug = false; //false, чтобы запретить отладочный вывод
-    auto MaxMul = 5;
+    auto MaxMul = 10;
     int middle_power = 0, set_count = 0;
-    auto Used = [&] (set_seq & t){ middle_power += t.power();++set_count; };
+    auto Used = [&] (set_seq & t){ middle_power += t.power(); ++set_count;};
     auto DebOut = [debug] (set_seq & t) { if(debug) { t.display(); }};
     auto rand = [] (int d) { return std::rand( )%d; };
     ofstream fout("in.txt");
 
-    int p = rand(20) + 1; //Текущая мощность (место для цикла по p)
-    for (int p = rand(20) + 1; p < 100; ++p)
+    // int p = rand(20) + 1; //Текущая мощность (место для цикла по p)
+    int iterations = 1000;
+    int max = 200;
+
+    for (int p = rand(max) + 2; iterations > 0; --iterations, p = rand(max) + 2)
     {
-        //=== Данные ===
-        set_seq A(p), B(p), C(p), D(p), E(0), F(p);
-        int q_and(rand(MaxMul) + 1);
-        prepare_and(A, F, q_and);
-        if (debug) A.display(); Used(A);
-        if (debug) F.display(); Used(F);
-        //=== Цепочка операций ===
-        // (Операция пропускается (skipped!), если аргументы некорректны)
-        //Идёт суммирование мощностей множеств и подсчёт их количества,
-        // измеряется время выполнения цепочки
-        auto t1 = high_resolution_clock::now( );
-        if (debug) cout << "\n=== F&=A ===(" << q_and << ") ";
-        F&=A; DebOut(F); Used(F);
+            int U = 3*p; // Устанавливаем мощность универсума
+            // для того, чтоб диапазон случайных чисел не был очень большим
+            // в этом случае будет больше шанс того, что будет пересечение множеств
+            // но и будет не так много дупликатов.
+            //=== Данные ===
+            set_seq A(p, U), B(p, U), C(p, U), D(p, U), E(0, U), F(p, U);
+            int q_and(rand(MaxMul) + 1);
+            prepare_and(A, F, q_and, U);
+            if (debug) A.display(); Used(A);
+            if (debug) F.display(); Used(F);
+            //=== Цепочка операций ===
+            // (Операция пропускается (skipped!), если аргументы некорректны)
+            // Идёт суммирование мощностей множеств и подсчёт их количества,
+            // измеряется время выполнения цепочки
+            auto t1 = high_resolution_clock::now();
+            if (debug) cout << "\n=== F&=A ===(" << q_and << ") ";
+            F&=A; DebOut(F); Used(F);
 
-        int q_sub(rand(MaxMul) + 1);
-        prepare_and(B, F, q_sub);
-        if (debug) F.display(), B.display(); middle_power += q_sub; Used(B);
-        if (debug) cout << "\n=== F-=B ===(" << q_sub << ") ";
-        F-=B; DebOut(F); Used(F);
+            int e = rand(F.power());
+            if (debug) cout << "\n=== F.change (D, " << e << ") ===";
+            if (debug) D.display(); Used(D);
+            F.change(D, e); DebOut(F); Used(F);
 
-        int q_s_sub(rand(MaxMul) + 1);
-        prepare_and(C, F, q_s_sub);
-        if (debug) F.display(), C.display(); middle_power += q_s_sub; Used(C);
-        if (debug) cout << "\n=== F^=C ===(" << q_s_sub << ") ";
-        F-=C; DebOut(F); Used(F);
+            int q_sub(rand(MaxMul) + 1);
+            prepare_and(B, F, q_sub, U);
+            if (debug) F.display(), B.display(); middle_power += q_sub; Used(B);
+            if (debug) cout << "\n=== F-=B ===(" << q_sub << ") ";
+            F-=B; DebOut(F); Used(F);
 
-        int e = rand(F.power());
-        if (debug) cout << "\n=== F.change (D, " << e << ") ===";
-        if (debug) D.display(); Used(D);
-        F.change(D, e); DebOut(F); Used(F);
+            int q_s_sub(rand(MaxMul) + 1);
+            prepare_and(C, F, q_s_sub, U);
+            if (debug) F.display(), C.display(); middle_power += q_s_sub; Used(C);
+            if (debug) cout << "\n=== F^=C ===(" << q_s_sub << ") ";
+            F^=C; DebOut(F); Used(F);
 
-        int a = rand(F.power()), b = rand(F.power());
-        if (debug) cout << "\n=== F.erase (" << a << "," << b << ")===";
-        if (debug && a>b) cout << "(skipped!)";
-        F.erase(a, b); DebOut(F); Used(F);
+            int a, b;
+            if (F.power()) a = rand(F.power()), b = rand(F.power());
+            else a = 10, b = 0;
+            if (debug) cout << "\n=== F.erase (" << a << "," << b << ")===";
+            if (debug && a>b) cout << "(skipped!)";
+            F.erase(a, b); DebOut(F); Used(F);
 
-        if (debug) cout << "\n=== F.excl(E) ===";
-        E.prepare_excl(F);
-        if(debug && !E.power()) cout << "(skipped)!";
-        if(debug) E.display(); Used(E);
-        F.excl(E); DebOut(F); Used(F);
+            if (debug) cout << "\n=== F.excl(E) ===";
+            E.prepare_excl(F);
+            if(debug && !E.power()) cout << "(skipped)!";
+            if(debug) E.display(); Used(E);
+            F.excl(E); DebOut(F); Used(F);
 
-        auto t2 = high_resolution_clock::now( );
-        auto dt = duration_cast<duration<double>>(t2-t1);
-        middle_power /= set_count;
-        fout << p << ' ' << dt.count() << endl; //Выдача в файл
-        cout << "\n=== Конец === (" << p << " : " << set_count << " * " <<
-        middle_power << " DT=" << (dt.count()) <<")\n";
+            auto t2 = high_resolution_clock::now();
+            auto dt = duration_cast<duration<double>>(t2-t1);
+            middle_power /= set_count;
+            fout << p << ' ' << dt.count() << endl; //Выдача в файл
+            cout << "\n=== Конец === (" << p << " : " << set_count << " * " <<
+            middle_power << " DT=" << (dt.count()) <<")\n";
     }
-    cin.get();
     return 0;
 }

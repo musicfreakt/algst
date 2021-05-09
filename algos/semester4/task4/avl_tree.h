@@ -215,30 +215,34 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
         }
         else
         { //Случай 2: Двукратный поворот
-            node *r(q->nodes[1 - a]);
-            p->nodes[a] = r->nodes[1 - a];
-            q->nodes[1 - a] = r->nodes[a];
-            r->nodes[1 - a] = p;
-            r->nodes[a] = q;
-            if (r->balance_factor == B[a])
+            node *r = q->nodes[1 - a];
+            if (r != nullptr)
             {
-                p->balance_factor = -B[a];
-                q->balance_factor = 0;
+                p->nodes[a] = r->nodes[1 - a];
+                q->nodes[1 - a] = r->nodes[a];
+                r->nodes[1 - a] = p;
+                r->nodes[a] = q;
+                if (r->balance_factor == B[a])
+                {
+                    p->balance_factor = -B[a];
+                    q->balance_factor = 0;
+                }
+                else if (r->balance_factor == -B[a])
+                {
+                     p->balance_factor = 0;
+                     q->balance_factor = B[a];
+                }
+                else
+                {
+                    p->balance_factor = q->balance_factor = 0;
+                }
+                r->balance_factor = 0;
+                if (p == root)
+                    p = root = r;
+                else
+                    St.top().first->nodes[St.top().second] = p = r;
+                break;
             }
-            else if (r->balance_factor == -B[a])
-            {
-                 p->balance_factor = 0;
-                 q->balance_factor = B[a];
-            }
-            else
-            {
-                p->balance_factor = q->balance_factor = 0;
-            }
-            r->balance_factor = 0;
-            if (p == root)
-                p = root = r;
-            else
-                St.top().first->nodes[St.top().second] = p = r;
             break;
         }
     }
