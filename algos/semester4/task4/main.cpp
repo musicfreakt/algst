@@ -325,9 +325,8 @@ int main(int argc, char* argv[])
 
     auto MaxMul = 5;
     int middle_power = 0, set_count = 0;
-    int shift = 5;
-    int iterations = 1000;
-    int max_ = 500;
+    int iterations = 101;
+    int max_ = 2000;
     bool debug = false;
 
     if (argc == 4)
@@ -340,21 +339,21 @@ int main(int argc, char* argv[])
     auto rand = [] (int d) { return std::rand()%d; };
     auto DebOut = [debug] (set_seq & t) { if(debug) { t.display(); }};
 
-    for (int p = rand(max_) + shift; iterations > 0; --iterations, p = rand(max_) + shift)
+    for (int p = rand(max_) + 5; iterations > 0; --iterations, p = rand(max_) + 5)
     {
         int U = 3*p; // Устанавливаем мощность универсума
-
         //=== Данные ===
-        set_seq A(p, U), B(p, U), C(p, U), D(p, U), E(p, U), F(p, U);
-        int q_and(rand(MaxMul) + 1);
-        prepare_and(A, F, q_and, U);
-        if (debug) A.display(); Used(A);
-        if (debug) F.display(); Used(F);
+        set_seq A(p, U), B(p, U), C(p, U), D(p, U), E(p, U), F(0, U);
         //=== Цепочка операций ===
         // (Операция пропускается (skipped!), если аргументы некорректны)
         // Идёт суммирование мощностей множеств и подсчёт их количества,
         // измеряется время выполнения цепочки
         auto t1 = high_resolution_clock::now();
+
+        int q_and(rand(MaxMul) + 1);
+        prepare_and(A, F, q_and, U);
+        if (debug) A.display(); Used(A);
+        if (debug) F.display(); Used(F);
         if (debug) cout << "\n=== F&=A ===(" << q_and << ") ";
         F&=A; DebOut(F); Used(F);
 
@@ -383,7 +382,7 @@ int main(int argc, char* argv[])
         F.erase(a, b); DebOut(F); Used(F);
 
         if (debug) cout << "\n=== F.concat(E) ===";
-        if (debug) E.display(); Used(E);
+        if (debug) E.display(), F.display(); Used(E);
         F.concat(E); DebOut(F); Used(F);
 
         if (debug) cout << "\n=== F.excl(E) ===";

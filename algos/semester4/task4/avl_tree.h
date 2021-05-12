@@ -133,7 +133,7 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
     node *q{root}, *p;
     Stack St;
 
-    if (!where.ptr) // свободная вставка
+    if (!where.ptr || where == nullptr) // свободная вставка
     {
         if (empty())
         {
@@ -216,8 +216,8 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
         else
         { //Случай 2: Двукратный поворот
             node *r = q->nodes[1 - a];
-            if (r != nullptr)
-            {
+            // if (r != nullptr)
+            // {
                 p->nodes[a] = r->nodes[1 - a];
                 q->nodes[1 - a] = r->nodes[a];
                 r->nodes[1 - a] = p;
@@ -242,8 +242,8 @@ pair<tree_iterator, bool> tree::insert(int k, tree_iterator where)
                 else
                     St.top().first->nodes[St.top().second] = p = r;
                 break;
-            }
-            break;
+            // }
+            // break;
         }
     }
 
