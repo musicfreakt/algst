@@ -1,31 +1,31 @@
 package Factory;
 
-//import javax.persistence.*;
+import javax.persistence.*;
 
-//@Entity
-//@Table(name = "kurs.persons")
-//@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-//@DiscriminatorColumn(name = "discriminator", discriminatorType = DiscriminatorType.STRING)
-//@DiscriminatorValue(value = "P")
 /**
  * Абстрактный класс человека
  * @author Яловега Никита 9308
  * @version 0.1
-*/
+ */
+@Entity
+@Table(name = "persons")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "discriminator", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorValue(value = "P")
 public abstract class Person
 {
-//    @Id
-//    @Column(name="id")
-//    @GeneratedValue(strategy=GenerationType.IDENTITY)
     /** Поле уникального идентификатора */
+    @Id
+    @Column(name="id")
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     protected int id;
 
-//    @Column(name="name")
     /** Поле имени человека */
+    @Column(name="name")
     protected String name;
 
-//    @Column(name="surname")
     /** Поле фимилии человека */
+    @Column(name="surname")
     protected String surname;
 
     /**

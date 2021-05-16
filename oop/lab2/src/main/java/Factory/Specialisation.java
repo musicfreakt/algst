@@ -2,21 +2,25 @@ package Factory;
 
 import javax.persistence.*;
 
-//@Entity
-//@Table(name = "kurs.specialisations")
 /**
  * Класс специализации работника
  * @author Яловега Никита 9308
  * @version 0.1
  */
+@Entity
+@Table(name = "specialisations")
 public class Specialisation
 {
-    private int id;
-    private String name;
 
-//    @Id
-//    @Column(name="id")
-//    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    /** Уникальный идентификатор профессии */
+    @Id
+    @Column(name="specialisation_id")
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private int id;
+
+    /** Название профессии */
+    @Column(name="name")
+    private String name;
 
     /**
      * Функция получения значения поля {@link Specialisation#id}

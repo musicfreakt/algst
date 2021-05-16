@@ -3,22 +3,23 @@ package Factory;
 import java.util.*;
 import javax.persistence.*;
 
-//@Entity
-//@Table(name = "persons")
-//@DiscriminatorValue(value = "C")
 /**
  * Класс клиента завода по производству металлических изделий.
  * Наследник класса {@link Person}
  * @author Яловега Никита 9308
  * @version 0.1
  */
+@Entity
+@Table(name = "persons")
+@DiscriminatorValue(value = "C")
 public class Client extends Person
 {
-//    @Column(name="company")
     /** Название компании клиента */
+    @Column(name="company")
     private String company;
 
     /** Контракты клиента */
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private ArrayList<Contract> contracts;
 
     /**

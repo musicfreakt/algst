@@ -3,24 +3,33 @@ package Factory;
 import java.util.List;
 import javax.persistence.*;
 
-//@Entity
-//@Table(name = "persons")
-//@DiscriminatorValue(value = "E")
 /**
  * Класс сотрудника завода по производству металлических изделий.
  * Наследник класса {@link Person}
  * @author Яловега Никита 9308
  * @version 0.1
-*/
+ */
+@Entity
+@Table(name = "persons")
+@DiscriminatorValue(value = "E")
 public class Employee extends Person
 {
     /** Поле опыта работы */
-    private int wexp;
+    @Column(name="exp")
+    private int exp;
 
     /** Поле профессии рабочего */
-    private int specialisation;
+    @OneToOne (optional=false)
+    @JoinColumn (name="specialisation_id")
+    private Specialisation specialisation;
 
     /** Контракты, в которых участвует рабочий */
+    @ManyToMany(cascade = { CascadeType.ALL })
+    @JoinTable(
+            name = "employee_contract",
+            joinColumns = { @JoinColumn(name = "id") },
+            inverseJoinColumns = { @JoinColumn(name = "contract_id") }
+    )
     private List<Contract> contracts;
 
     /**
@@ -28,37 +37,37 @@ public class Employee extends Person
      * @param id - идентификатор
      * @param name - имя
      * @param lastName - фамилия
-     * @param wexp - опыт работы
+     * @param exp - опыт работы
      */
-    public Employee(int id, String name, String lastName, int wexp)
+    public Employee(int id, String name, String lastName, int exp)
     {
         super(id, name, lastName);
-        this.wexp = wexp;
+        this.exp = exp;
     }
 
     /**
-     * Функция получения значения поля {@link Employee#wexp}
+     * Функция получения значения поля {@link Employee#exp}
      * @return возвращает опыт работы рабочего
      */
     public int getWorkExp()
     {
-        return wexp;
+        return exp;
     }
 
     /**
-     * Процедура определения значения поля {@link Employee#wexp}
-     * @param newWexp - новая фамилия человека
+     * Процедура определения значения поля {@link Employee#exp}
+     * @param newexp - новая фамилия человека
      */
-    public void setWorkExp(int newWexp)
+    public void setWorkExp(int newexp)
     {
-        wexp = newWexp;
+        exp = newexp;
     }
 
     /**
      * Процедура определения значения поля {@link Employee#specialisation}
      * @param d - профессия сотрудника
      */
-    public void setSpecialisation(int d)
+    public void setSpecialisation(Specialisation d)
     {
         specialisation = d;
     }
@@ -67,7 +76,7 @@ public class Employee extends Person
      * Функция получения значения поля {@link Employee#specialisation}
      * @return возвращает профессию сотрудника
      */
-    public int getSpecialisation()
+    public Specialisation getSpecialisation()
     {
         return specialisation;
     }
@@ -79,10 +88,7 @@ public class Employee extends Person
     public void addContract(Contract newContract)
     {
         contracts.add(newContract);
-        if (specialisation == 0) // Если рабочий - менеджер
-            newContract.setManager(this); // добавляем в контракт менеджера
-        else
-            newContract.addWorker(this); // добавляем в контракт рабочего
+        newContract.addWorker(this); // добавляем в контракт рабочего
     }
 
     /**
@@ -101,10 +107,7 @@ public class Employee extends Person
     public void removeContract(Contract c)
     {
         contracts.remove(c);
-        if (specialisation == 0) // Если рабочий - менеджер
-            c.setManager(null);
-        else
-            c.removeWorker(this);
+        c.removeWorker(this);
     }
 
 }

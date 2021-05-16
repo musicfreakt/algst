@@ -2,36 +2,51 @@ package Factory;
 
 import java.sql.Date;
 import java.util.List;
+import javax.persistence.*;
 
 /**
  * Класс контракта завода по производству металлических изделий.
  * @author Яловега Никита 9308
  * @version 0.1
 */
+@Entity
+@Table(name="contract")
 public class Contract
 {
     /** Уникальный идентификатор контракта */
+    @Id
+    @Column(name="contract_id")
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private int id;
 
     /** Описание условий контракта */
+    @Column(name="description")
     private String description;
 
     /** Цена контракта */
+    @Column(name="price")
     private double price;
 
     /** Клиент, подписавший контракт */
+    @ManyToOne (optional=false)
+    @JoinColumn (name = "id")
     private Client client;
 
     /** Менеджер, подписавший контракт */
-    private Employee manager;
+    @ManyToOne (optional=false)
+    @JoinColumn (name = "id")
+    private Manager manager;
 
     /** Рабочие, выполняющие условия контракта */
+    @ManyToMany(mappedBy = "contract")
     private List<Employee> workers;
 
     /** Дата начала действия контракта */
+    @Column(name="begin")
     private Date dateBegin;
 
     /** Дата окончания действия контракта */
+    @Column(name="end")
     private Date dateEnd;
 
     /**
@@ -54,6 +69,15 @@ public class Contract
     public int getID()
     {
         return id;
+    }
+
+    /**
+     * Функция определения значения поля {@link Contract#id}
+     * @param newID - новый идентификатор
+     */
+    public void setID(int newID)
+    {
+        id = newID;
     }
 
     /**
@@ -114,7 +138,7 @@ public class Contract
      * Метод определения значения поля {@link Contract#manager}
      * @param newManager - новый менеджен контракта
      */
-    public void setManager(Employee newManager)
+    public void setManager(Manager newManager)
     {
         manager = newManager;
     }
@@ -123,7 +147,7 @@ public class Contract
      * Метод получения значения поля {@link Contract#manager}
      * @return возвращает менеджера
      */
-    public Employee getManager()
+    public Manager getManager()
     {
         return manager;
     }
