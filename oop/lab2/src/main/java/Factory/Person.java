@@ -7,11 +7,7 @@ import javax.persistence.*;
  * @author Яловега Никита 9308
  * @version 0.1
  */
-@Entity
-@Table(name = "persons")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "discriminator", discriminatorType = DiscriminatorType.STRING)
-@DiscriminatorValue(value = "P")
+@MappedSuperclass
 public abstract class Person
 {
     /** Поле уникального идентификатора */

@@ -10,8 +10,7 @@ import javax.persistence.*;
  * @version 0.1
  */
 @Entity
-@Table(name = "persons")
-@DiscriminatorValue(value = "C")
+@Table(name = "clients")
 public class Client extends Person
 {
     /** Название компании клиента */

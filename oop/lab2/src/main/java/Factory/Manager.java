@@ -10,8 +10,7 @@ import javax.persistence.*;
  * @version 0.1
  */
 @Entity
-@Table(name = "persons")
-@DiscriminatorValue(value = "M")
+@Table(name = "managers")
 public class Manager extends Person
 {
     /** Контракты, в которые подписывал менеджер */

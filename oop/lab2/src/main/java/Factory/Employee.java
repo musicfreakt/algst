@@ -10,8 +10,7 @@ import javax.persistence.*;
  * @version 0.1
  */
 @Entity
-@Table(name = "persons")
-@DiscriminatorValue(value = "E")
+@Table(name = "employees")
 public class Employee extends Person
 {
     /** Поле опыта работы */
@@ -19,7 +18,7 @@ public class Employee extends Person
     private int exp;
 
     /** Поле профессии рабочего */
-    @OneToOne (optional=false)
+    @OneToOne (optional = false)
     @JoinColumn (name="specialisation_id")
     private Specialisation specialisation;
 
@@ -27,7 +26,7 @@ public class Employee extends Person
     @ManyToMany(cascade = { CascadeType.ALL })
     @JoinTable(
             name = "employee_contract",
-            joinColumns = { @JoinColumn(name = "id") },
+            joinColumns = { @JoinColumn(name = "employees_id") },
             inverseJoinColumns = { @JoinColumn(name = "contract_id") }
     )
     private List<Contract> contracts;

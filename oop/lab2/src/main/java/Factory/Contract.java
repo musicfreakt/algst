@@ -15,7 +15,7 @@ public class Contract
 {
     /** Уникальный идентификатор контракта */
     @Id
-    @Column(name="contract_id")
+    @Column(name="id")
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private int id;
 
@@ -29,12 +29,12 @@ public class Contract
 
     /** Клиент, подписавший контракт */
     @ManyToOne (optional=false)
-    @JoinColumn (name = "id")
+    @JoinColumn (name = "client_id")
     private Client client;
 
     /** Менеджер, подписавший контракт */
     @ManyToOne (optional=false)
-    @JoinColumn (name = "id")
+    @JoinColumn (name = "manager_id")
     private Manager manager;
 
     /** Рабочие, выполняющие условия контракта */

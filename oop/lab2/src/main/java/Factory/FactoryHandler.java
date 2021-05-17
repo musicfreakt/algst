@@ -1,179 +1,209 @@
 package Factory;
 
-import java.util.List;
+import java.util.*;
 
 import org.hibernate.*;
 import org.hibernate.cfg.*;
-import javax.persistence.*;
 
 public class FactoryHandler
 {
     private List<Client> clients = null;
     private List<Employee> workers = null;
+    private List<Manager> managers = null;
     private List<Specialisation> specialisations= null;
     private List<Contract> contracts = null;
 
-//    private SessionFactory factory;
-//    private Session session;
+    private SessionFactory factory;
+    private Session session;
 
     public FactoryHandler()
     {
         System.out.println("Time to check save data!");
         System.out.println("Loading...");
-//        loadData();
+        loadData();
     }
 
+    public void loadData()
+    {
+        factory = new Configuration()
+                .configure("META-INF/hibernate.cfg.xml")
+                .addAnnotatedClass(Person.class)
+                .addAnnotatedClass(Specialisation.class)
+                .addAnnotatedClass(Employee.class)
+                .addAnnotatedClass(Manager.class)
+                .addAnnotatedClass(Client.class)
+                .addAnnotatedClass(Contract.class)
+                .buildSessionFactory();
 
-//    public void loadData()
-//    {
-//        factory = new Configuration()
-//                .configure("hibernate.cfg.xml")
-//                .addAnnotatedClass(Racer.class)
-//                .addAnnotatedClass(Team.class)
-//                .addAnnotatedClass(Track.class)
-//                .addAnnotatedClass(Competition.class)
-//                .buildSessionFactory();
-//
-//        session = factory.getCurrentSession();
-//        try
-//        {
-//            racers = loadRacers();
-//            teams = loadTeams();
-//            tracks = loadTracks();
-//            comps = loadComps();
-//        }
-//        finally {
-//            factory.close();
-//        }
-//    }
+        session = factory.getCurrentSession();
+        try
+        {
+            specialisations = loadSpecialisations();
+            clients = loadClients();
+            workers = loadWorkers();
+            managers = loadManagers();
+            contracts = loadContracts();
+        }
+        finally {
+            factory.close();
+        }
+    }
 
-//    public List<Racer> loadRacers()
-//    {
-//        List<Racer> loadedRacers = null;
-//        factory = new Configuration()
-//                .configure("hibernate.cfg.xml")
-//                .addAnnotatedClass(Racer.class)
-//                .buildSessionFactory();
-//
-//        session = factory.getCurrentSession();
-//        try
-//        {
-//            session.beginTransaction();
-//            loadedRacers = new ArrayList<Racer>( session.createCriteria(Racer.class).list() );
-//            session.getTransaction().commit();
-//        }
-//        catch(Throwable t)
-//        {
-//            System.out.println(t);
-//        }
-//        finally
-//        {
-//            factory.close();
-//        }
-//        return removeCopies(loadedRacers);
-//    }
-//
-//    public List<Team> loadTeams()
-//    {
-//        List<Team> loadedTeams = null;
-//        factory = new Configuration()
-//                .configure("hibernate.cfg.xml")
-//                .addAnnotatedClass(Team.class)
-//                .buildSessionFactory();
-//
-//        session = factory.getCurrentSession();
-//        try
-//        {
-//            session.beginTransaction();
-//            loadedTeams = new ArrayList<Team>( session.createCriteria(Team.class).list() );
-//            session.getTransaction().commit();
-//        }
-//        catch(Throwable t)
-//        {
-//            System.out.println(t);
-//        }
-//        finally
-//        {
-//            factory.close();
-//        }
-//        return removeCopies(loadedTeams);
-//    }
-//
-//    public List<Track> loadTracks()
-//    {
-//        List<Track> loadedTracks = null;
-//        factory = new Configuration()
-//                .configure("hibernate.cfg.xml")
-//                .addAnnotatedClass(Track.class)
-//                .buildSessionFactory();
-//
-//        session = factory.getCurrentSession();
-//        try
-//        {
-//            session.beginTransaction();
-//            loadedTracks = new ArrayList<Track>( session.createCriteria(Track.class).list() );
-//            session.getTransaction().commit();
-//        }
-//        catch(Throwable t)
-//        {
-//            System.out.println(t);
-//        }
-//        finally
-//        {
-//            factory.close();
-//        }
-//        return removeCopies(loadedTracks);
-//    }
-//
-//    public List<Competition> loadComps()
-//    {
-//        List<Competition> loadedComps = null;
-//        factory = new Configuration()
-//                .configure("hibernate.cfg.xml")
-//                .addAnnotatedClass(Competition.class)
-//                .buildSessionFactory();
-//
-//        session = factory.getCurrentSession();
-//        try
-//        {
-//            session.beginTransaction();
-//            loadedComps = new ArrayList<Competition>( session.createCriteria(Competition.class).list() );
-//            session.getTransaction().commit();
-//        }
-//        catch(Throwable t)
-//        {
-//            System.out.println(t);
-//        }
-//        finally
-//        {
-//            factory.close();
-//        }
-//        return removeCopies(loadedComps);
-//    }
+    public List<Specialisation> loadSpecialisations()
+    {
+        List<Specialisation> loadedSpecialisations = null;
+        factory = new Configuration()
+                .configure("META-INF/hibernate.cfg.xml")
+                .addAnnotatedClass(Specialisation.class)
+                .buildSessionFactory();
 
-//    public <T> void saveList(List<T> list)
-//    {
-//        for(T el : list)
-//            saveData(el);
-//    }
+        session = factory.getCurrentSession();
+        try
+        {
+            session.beginTransaction();
+            loadedSpecialisations = new ArrayList<Specialisation>(session.createCriteria(Specialisation.class).list() );
+            session.getTransaction().commit();
+        }
+        catch(Throwable t)
+        {
+            System.out.println(t);
+        }
+        finally
+        {
+            factory.close();
+        }
+        return removeCopies(loadedSpecialisations);
+    }
 
-//    public <T> void saveData(T data)
-//    {
-//        factory = new Configuration()
-//                .configure("hibernate.cfg.xml")
-//                .addAnnotatedClass(Racer.class)
-//                .addAnnotatedClass(Team.class)
-//                .addAnnotatedClass(Track.class)
-//                .addAnnotatedClass(Competition.class)
-//                .buildSessionFactory();
-//
-//        session = factory.getCurrentSession();
-//        session.beginTransaction();
-//        session.saveOrUpdate(data);
-//        session.getTransaction().commit();
-//    }
+    public List<Client> loadClients()
+    {
+        List<Client> loadedClients = null;
+        factory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .addAnnotatedClass(Client.class)
+                .buildSessionFactory();
 
-    /*public <T> void removeList(List<T> list)
+        session = factory.getCurrentSession();
+        try
+        {
+            session.beginTransaction();
+            loadedClients = new ArrayList<Client>( session.createCriteria(Client.class).list() );
+            session.getTransaction().commit();
+        }
+        catch(Throwable t)
+        {
+            System.out.println(t);
+        }
+        finally
+        {
+            factory.close();
+        }
+        return removeCopies(loadedClients);
+    }
+
+    public List<Employee> loadWorkers()
+    {
+        List<Employee> loadedWorkers = null;
+        factory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .addAnnotatedClass(Employee.class)
+                .buildSessionFactory();
+
+        session = factory.getCurrentSession();
+        try
+        {
+            session.beginTransaction();
+            loadedWorkers = new ArrayList<Employee>( session.createCriteria(Employee.class).list() );
+            session.getTransaction().commit();
+        }
+        catch(Throwable t)
+        {
+            System.out.println(t);
+        }
+        finally
+        {
+            factory.close();
+        }
+        return removeCopies(loadedWorkers);
+    }
+
+    public List<Manager> loadManagers()
+    {
+        List<Manager> loadedManagers = null;
+        factory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .addAnnotatedClass(Manager.class)
+                .buildSessionFactory();
+
+        session = factory.getCurrentSession();
+        try
+        {
+            session.beginTransaction();
+            loadedManagers = new ArrayList<Manager>( session.createCriteria(Manager.class).list() );
+            session.getTransaction().commit();
+        }
+        catch(Throwable t)
+        {
+            System.out.println(t);
+        }
+        finally
+        {
+            factory.close();
+        }
+        return removeCopies(loadedManagers);
+    }
+
+    public List<Contract> loadContracts()
+    {
+        List<Contract> loadedContracts = null;
+        factory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .addAnnotatedClass(Contract.class)
+                .buildSessionFactory();
+
+        session = factory.getCurrentSession();
+        try
+        {
+            session.beginTransaction();
+            loadedContracts = new ArrayList<Contract>( session.createCriteria(Contract.class).list() );
+            session.getTransaction().commit();
+        }
+        catch(Throwable t)
+        {
+            System.out.println(t);
+        }
+        finally
+        {
+            factory.close();
+        }
+        return removeCopies(loadedContracts);
+    }
+
+    public <T> void saveList(List<T> list)
+    {
+        for(T el : list)
+            saveData(el);
+    }
+
+    public <T> void saveData(T data)
+    {
+        factory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .addAnnotatedClass(Person.class)
+                .addAnnotatedClass(Specialisation.class)
+                .addAnnotatedClass(Employee.class)
+                .addAnnotatedClass(Manager.class)
+                .addAnnotatedClass(Client.class)
+                .addAnnotatedClass(Contract.class)
+                .buildSessionFactory();
+
+        session = factory.getCurrentSession();
+        session.beginTransaction();
+        session.saveOrUpdate(data);
+        session.getTransaction().commit();
+    }
+
+    public <T> void removeList(List<T> list)
     {
         for(T el : list)
             removeData(el);
@@ -182,28 +212,29 @@ public class FactoryHandler
     public <T> void removeData(T data)
     {
         factory = new Configuration()
-								.configure("hibernate.cfg.xml")
-                                .addAnnotatedClass(Racer.class)
-                                .addAnnotatedClass(Team.class)
-                                .addAnnotatedClass(Track.class)
-                                .addAnnotatedClass(Competition.class)
-                                .buildSessionFactory();
+                .configure("hibernate.cfg.xml")
+                .addAnnotatedClass(Person.class)
+                .addAnnotatedClass(Specialisation.class)
+                .addAnnotatedClass(Employee.class)
+                .addAnnotatedClass(Manager.class)
+                .addAnnotatedClass(Client.class)
+                .addAnnotatedClass(Contract.class)
+                .buildSessionFactory();
 
         session = factory.getCurrentSession();
         session.beginTransaction();
         session.delete(data);
         session.getTransaction().commit();
-    }*/
+    }
 
-//    private <T> List<T> removeCopies(List<T> list)
-//    {
-//        List<T> resultList = new ArrayList<T>();
-//        for(T el : list)
-//        {
-//            if(!resultList.contains(el))
-//                resultList.add(el);
-//        }
-//        return resultList;
-//    }
-//}
+    private <T> List<T> removeCopies(List<T> list)
+    {
+        List<T> resultList = new ArrayList<T>();
+        for(T el : list)
+        {
+            if(!resultList.contains(el))
+                resultList.add(el);
+        }
+        return resultList;
+    }
 }
