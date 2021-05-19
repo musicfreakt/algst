@@ -1,8 +1,7 @@
 package Factory.gui;
 
 import Factory.model.*;
-
-import javax.persistence.*;
+import Factory.service.*;
 import java.util.List;
 
 //import net.sf.jasperreports.engine.*;
@@ -17,82 +16,57 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
-public class WorkerWindow {
+public class WorkerWindow
+{
 
     WorkerWindow()
     {
         show();
     }
 
-    /**
-     * Окно приложения
-     */
+    /** Окно приложения */
     private JFrame window;
-    /**
-     * Модель таблицы
-     */
+
+    /** Модель таблицы */
     private DefaultTableModel model;
-    /**
-     * Добавить
-     */
+
+    /** Добавить */
     private JButton add;
-    /**
-     * Удалить
-     */
+
+    /** Удалить */
     private JButton delete;
-    /**
-     * Изменить
-     */
+
+    /** Изменить */
     private JButton edit;
-    /**
-     * Печать
-     */
+
+    /** Печать */
     private JButton print;
-    /**
-     * Панель инструментов
-     */
+
+    /** Панель инструментов */
     private JToolBar toolBar;
-    /**
-     * Таблица
-     */
+
+    /** Таблица */
     protected JTable dataWorkers;
-    /**
-     * Скролл
-     */
+
+    /** Скролл */
     private JScrollPane scroll;
 
-    /**
-     * Поток 1 отвечает за загрузку данных из XML-файла в экранную форму
-     */
+    /** Сервис Рабочего */
+    private EmployeeService employeeService = new EmployeeService();
+
+    /** Сервис Профессий */
+    private SpecialisationService specialisationService = new SpecialisationService();
+
+    /** Поток 1 отвечает за редактирование данных */
     Thread t1 = new Thread();
-    /**
-     * Поток 2 отвечает за редактирование данных и сохранение XML-файла
-     */
+    /** Поток 2 отвечает за формирование отчет */
     Thread t2 = new Thread();
-    /**
-     * Поток 3 отвечает за формирование отчета
-     */
-    Thread t3 = new Thread();
 
-//    private SessionFactory sessionFactory;
+    /** Логгер класса */
+//    private static final Logger log = Logger.getLogger(ManagerWindow.class);
 
-    final static public Object shared=new Object();
-
-    /**
-     * Логгер класса employs
-     */
-//    private static final Logger log = Logger.getLogger(employs.class);
-
-//    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("test_persistence");
-//    private EntityManager em = emf.createEntityManager();
-
-//    private AddDialogProd addDialogProd;
-//    private EditDialogProd editDialogProd;
-
-//    public void setSessionFactory(SessionFactory sessionFactory)
-//    {
-//        this.sessionFactory = sessionFactory;
-//    }
+    private AddDialogWorker addDialogWorker;
+    private EditDialogWorker editDialogWorker;
 
     public void show(){
         window = new JFrame("Список рабочих завода");
@@ -122,14 +96,12 @@ public class WorkerWindow {
         // Создание таблицы с данными
         String[] columns = {"ID", "Имя", "Фамилия", "Опыт работы", "Специальность"};
 
-
-//        List<Employee> workersList = em.createQuery("SELECT e FROM employees e").getResultList();
-//        String [][] data = new String[workersList.size()][5];
-        String [][] data = new String[0][5];
-//        for (int i = 0; i < workersList.size(); i++)
-//        {
-//            data[i] = workersList.get(i).toTableFormat();
-//        }
+        List<Employee> workersList = employeeService.findAll();
+        String [][] data = new String[workersList.size()][5];
+        for (int i = 0; i < workersList.size(); i++)
+        {
+            data[i] = workersList.get(i).toTableFormat();
+        }
 
         // Настройка таблицы
         model = new DefaultTableModel(data, columns)
@@ -160,55 +132,48 @@ public class WorkerWindow {
         window.add(scroll,BorderLayout.CENTER);
 
 
-        add.addActionListener((e) -> {
-//            addDialogProd = new AddDialogProd(window, products.this, "Добавление записи");
-//            addDialogProd.setVisible(true);
+        add.addActionListener((e) ->
+        {
+            addDialogWorker = new AddDialogWorker(window, WorkerWindow.this, "Добавление записи");
+            addDialogWorker.setVisible(true);
         });
 
         add.setMnemonic(KeyEvent.VK_A);
         delete.addActionListener((e) -> {
-//            if (dataWorkers.getRowCount() > 0) {
-//                if (dataWorkers.getSelectedRow() != -1) {
-//                    try {
-//                        model.removeRow(dataWorkers.convertRowIndexToModel(dataWorkers.getSelectedRow()));
-//                        JOptionPane.showMessageDialog(window, "Вы удалили строку");
-//                    } catch (Exception ex) {
-//                        JOptionPane.showMessageDialog(null, "Ошибка");
-//                    }
-//                } else {
-//                    JOptionPane.showMessageDialog(null, "Вы не выбрали строку для удаления");
-//                }
-//            } else {
-//                JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего удалять");
-//            }
+            if (dataWorkers.getRowCount() > 0) {
+                if (dataWorkers.getSelectedRow() != -1) {
+                    try {
+                        employeeService.delete(Integer.parseInt(dataWorkers.getValueAt(dataWorkers.getSelectedRow(), 0).toString()));
+                        model.removeRow(dataWorkers.convertRowIndexToModel(dataWorkers.getSelectedRow()));
+                        JOptionPane.showMessageDialog(window, "Вы удалили строку");
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, "Ошибка");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Вы не выбрали строку для удаления");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего удалять");
+            }
         });
 
         delete.setMnemonic(KeyEvent.VK_D);
 
         edit.addActionListener((e)-> {
-//            if (t1.isAlive()) {
-//                try {
-//                    JOptionPane.showMessageDialog(window, "Ждем, пока отработает 1 поток");
-//                    t1.join();
-//                    JOptionPane.showMessageDialog(window, "1 поток отработал, пробуем запустить 2 поток");
-//                } catch (InterruptedException ex) {
-//                    ex.printStackTrace();
-//                }
-//            }
-//            if (model.getRowCount() != 0) {
-//                if (dataWorkers.getSelectedRow() != -1) {
-//                    t2 = new Thread(() -> {
-//                        JOptionPane.showMessageDialog(null,"2 поток запущен");
-//                        editDialogProd = new EditDialogProd(window, products.this, "Редактирование");
-//                        editDialogProd.setVisible(true);
-//                    });
-//                    t2.start();
-//                } else {
-//                    JOptionPane.showMessageDialog(null, "Не выбрана строка. Нечего редактировать");
-//                }
-//            } else {
-//                JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего редактировать");
-//            }
+            if (model.getRowCount() != 0) {
+                if (dataWorkers.getSelectedRow() != -1) {
+                    t1 = new Thread(() -> {
+                        JOptionPane.showMessageDialog(null,"1 поток запущен");
+                        editDialogWorker = new EditDialogWorker(window, WorkerWindow.this, "Редактирование");
+                        editDialogWorker.setVisible(true);
+                    });
+                    t1.start();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Не выбрана строка. Нечего редактировать");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего редактировать");
+            }
         });
         edit.setMnemonic(KeyEvent.VK_E);
         
@@ -220,18 +185,37 @@ public class WorkerWindow {
 
         // Если не выделена строка, то прячем кнопки
         dataWorkers.getSelectionModel().addListSelectionListener((e) -> {
-//            Boolean check = true;
-//            if (dataWorkers.getSelectionModel().isSelectionEmpty()) {
-//                check = false;
-//            }
-//            edit.setVisible(check);
-//            delete.setVisible(check);
+            boolean check = !dataWorkers.getSelectionModel().isSelectionEmpty();
+            edit.setVisible(check);
+            delete.setVisible(check);
         });
 
         window.setVisible(true);
     }
-    public void addR(String[] arr){
-        model.addRow(arr);
+
+    public String[] getSpecs()
+    {
+        List<Specialisation> specs = specialisationService.findAll();
+        String [] result = new String[specs.size()];
+        for (int i = 0; i < specs.size(); i++)
+            result[i] = specs.get(i).getName();
+        return result;
     }
 
+    public void addR(String[] arr)
+    {
+        Employee newW = new Employee(arr[0], arr[1], Integer.parseInt(arr[2]), specialisationService.findByName(arr[3]));
+        employeeService.persist(newW);
+        model.addRow(newW.toTableFormat());
+    }
+
+    public void editR(String[] arr)
+    {
+        Employee W = employeeService.findById(Integer.parseInt(arr[0]));
+        W.setName(arr[1]);
+        W.setSurname(arr[2]);
+        W.setWorkExp(Integer.parseInt(arr[3]));
+        W.setSpecialisation(specialisationService.findByName(arr[4]));
+        employeeService.update(W);
+    }
 }

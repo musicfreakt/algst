@@ -38,11 +38,13 @@ public class Employee extends Person
      * @param name - имя
      * @param lastName - фамилия
      * @param exp - опыт работы
+     * @param specialisation - профессия
      */
-    public Employee(String name, String lastName, int exp)
+    public Employee(String name, String lastName, int exp, Specialisation specialisation)
     {
         super(name, lastName);
         this.exp = exp;
+        this.specialisation = specialisation;
     }
 
     /**

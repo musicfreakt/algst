@@ -15,7 +15,7 @@ public abstract class DialogWorker extends JDialog {
     protected JTextField surname;
     protected JTextField exp;
     protected JComboBox specs;
-    protected Boolean[] check = {false, false, false, false};
+    protected Boolean[] check = {false, false, false};
     private JButton ok = new JButton("Принять");
     private JButton cancel = new JButton("Закрыть");
     private JLabel nameLab = new JLabel("Имя");
@@ -110,7 +110,7 @@ public abstract class DialogWorker extends JDialog {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(4, 2, 2, 2));
 
-        panel.setSize(300, 150);
+        panel.setSize(300, 300);
 
         // adds to the GridLayout
         panel.add(nameLab);
@@ -150,7 +150,7 @@ public abstract class DialogWorker extends JDialog {
         }
         field.setBorder(BorderFactory.createLineBorder(color));
 
-        ok.setEnabled(check[0] && check[1] && check[2] && check[3]);
+        ok.setEnabled(check[0] && check[1] && check[2]);
     }
 
     protected void checkerInt(int i, JTextField field){
@@ -165,6 +165,6 @@ public abstract class DialogWorker extends JDialog {
         }
         field.setBorder(BorderFactory.createLineBorder(color));
 
-        ok.setEnabled(check[0] && check[1] && check[2] && check[3]);
+        ok.setEnabled(check[0] && check[1] && check[2]);
     }
 }

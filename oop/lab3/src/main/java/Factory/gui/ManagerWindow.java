@@ -20,65 +20,43 @@ public class ManagerWindow
         show();
     }
 
-    /**
-     * Окно приложения
-     */
+    /** Окно приложения */
     private JFrame window;
-    /**
-     * Модель таблицы
-     */
+
+    /** Модель таблицы */
     private DefaultTableModel model;
-    /**
-     * Добавить
-     */
+
+    /** Добавить */
     private JButton add;
-    /**
-     * Удалить
-     */
+
+    /** Удалить */
     private JButton delete;
-    /**
-     * Изменить
-     */
+
+    /** Изменить */
     private JButton edit;
-    /**
-     * Печать
-     */
+
+    /** Печать */
     private JButton print;
-    /**
-     * Панель инструментов
-     */
+
+    /** Панель инструментов */
     private JToolBar toolBar;
-    /**
-     * Таблица
-     */
+
+    /** Таблица */
     protected JTable dataManagers;
-    /**
-     * Скролл
-     */
+
+    /** Скролл */
     private JScrollPane scroll;
 
+    /** Сервис Менеджера */
     private ManagerService managerService = new ManagerService();
-
-    /**
-     * Поток 1 отвечает за загрузку данных из XML-файла в экранную форму
-     */
+    
+    /** Поток 1 отвечает за редактирование данных */
     Thread t1 = new Thread();
-    /**
-     * Поток 2 отвечает за редактирование данных и сохранение XML-файла
-     */
+    /** Поток 3 отвечает за формирование отчет */
     Thread t2 = new Thread();
-    /**
-     * Поток 3 отвечает за формирование отчета
-     */
-    Thread t3 = new Thread();
 
-
-    final static public Object shared=new Object();
-
-    /**
-     * Логгер класса employs
-     */
-//    private static final Logger log = Logger.getLogger(employs.class);
+    /** Логгер класса */
+//    private static final Logger log = Logger.getLogger(ManagerWindow.class);
 
 
     private AddDialogManager addDialogManager;
@@ -176,23 +154,14 @@ public class ManagerWindow
         delete.setMnemonic(KeyEvent.VK_D);
 
         edit.addActionListener((e)-> {
-            if (t1.isAlive()) {
-                try {
-                    JOptionPane.showMessageDialog(window, "Ждем, пока отработает 1 поток");
-                    t1.join();
-                    JOptionPane.showMessageDialog(window, "1 поток отработал, пробуем запустить 2 поток");
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-            }
             if (model.getRowCount() != 0) {
                 if (dataManagers.getSelectedRow() != -1) {
-                    t2 = new Thread(() -> {
-                        JOptionPane.showMessageDialog(null,"2 поток запущен");
+                    t1 = new Thread(() -> {
+                        JOptionPane.showMessageDialog(null,"1 поток запущен");
                         editDialogProd = new EditDialogManager(window, ManagerWindow.this, "Редактирование");
                         editDialogProd.setVisible(true);
                     });
-                    t2.start();
+                    t1.start();
                 } else {
                     JOptionPane.showMessageDialog(null, "Не выбрана строка. Нечего редактировать");
                 }
@@ -211,10 +180,7 @@ public class ManagerWindow
 
         // Если не выделена строка, то прячем кнопки
         dataManagers.getSelectionModel().addListSelectionListener((e) -> {
-            Boolean check = true;
-            if (dataManagers.getSelectionModel().isSelectionEmpty()) {
-                check = false;
-            }
+            boolean check = !dataManagers.getSelectionModel().isSelectionEmpty();
             edit.setVisible(check);
             delete.setVisible(check);
         });
@@ -311,6 +277,7 @@ public class ManagerWindow
     {
         Manager newM = new Manager(arr[0], arr[1]);
         managerService.persist(newM);
+        model.addRow(newM.toTableFormat());
     }
 
     public void editR(String[] arr)

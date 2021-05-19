@@ -1,6 +1,7 @@
 package Factory.dao;
 import Factory.model.*;
 
+import javax.persistence.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -80,7 +81,14 @@ public class SpecialisationDAO
 
     public Specialisation findById(int id)
     {
-        return getCurrentSession().get(Specialisation .class, id);
+        return getCurrentSession().get(Specialisation.class, id);
+    }
+
+    public Specialisation findByName(String name)
+    {
+        Query query = getCurrentSession().createQuery("FROM specialisations WHERE name = :name");
+        query.setParameter("name", name);
+        return (Specialisation) query.getSingleResult();
     }
 
     public void delete(Specialisation entity) {

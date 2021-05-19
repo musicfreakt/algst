@@ -25,9 +25,18 @@ public class SpecialisationService
         specialisationDao.closeCurrentSessionwithTransaction();
     }
 
-    public Specialisation findById(int id) {
+    public Specialisation findById(int id)
+    {
         specialisationDao.openCurrentSession();
         Specialisation manager = specialisationDao.findById(id);
+        specialisationDao.closeCurrentSession();
+        return manager;
+    }
+
+    public Specialisation findByName(String name)
+    {
+        specialisationDao.openCurrentSession();
+        Specialisation manager = specialisationDao.findByName(name);
         specialisationDao.closeCurrentSession();
         return manager;
     }
