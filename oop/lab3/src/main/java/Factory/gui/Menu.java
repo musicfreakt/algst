@@ -19,7 +19,7 @@ public class Menu
 
         workerWindow.addActionListener((e) -> new WorkerWindow());
         managerWindow.addActionListener((e) -> new ManagerWindow());
-        //    employWindow.addActionListener((e) -> new employs());
+        clientWindow.addActionListener((e) -> new ClientWindow());
         //    reportWindow.addActionListener((e)-> new report());
 
         refWindow.addActionListener((e) -> new Ref(window, "Справка"));
@@ -27,7 +27,7 @@ public class Menu
         JPanel mainp = new JPanel();
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4, 1));
+        panel.setLayout(new GridLayout(6, 1));
 
         panel.setSize(350, 100);
 
