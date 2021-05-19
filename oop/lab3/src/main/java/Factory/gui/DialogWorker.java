@@ -15,7 +15,7 @@ public abstract class DialogWorker extends JDialog {
     protected JTextField surname;
     protected JTextField exp;
     protected JComboBox specs;
-    protected Boolean[] check = {false,false,false};
+    protected Boolean[] check = {false, false, false, false};
     private JButton ok = new JButton("Принять");
     private JButton cancel = new JButton("Закрыть");
     private JLabel nameLab = new JLabel("Имя");
@@ -88,12 +88,12 @@ public abstract class DialogWorker extends JDialog {
         exp.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                checker(2,exp);
+                checkerInt(2,exp);
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                checker(2,exp);
+                checkerInt(2,exp);
             }
 
             @Override
@@ -102,14 +102,15 @@ public abstract class DialogWorker extends JDialog {
             }
         });
 
+
         ok.addActionListener((e) -> progress(parent));
         cancel.addActionListener((e) -> dispose());
         JPanel mainp = new JPanel();
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(3, 2, 2, 2));
+        panel.setLayout(new GridLayout(4, 2, 2, 2));
 
-        panel.setSize(300, 100);
+        panel.setSize(300, 150);
 
         // adds to the GridLayout
         panel.add(nameLab);
@@ -138,19 +139,32 @@ public abstract class DialogWorker extends JDialog {
     }
 
     protected void checker(int i, JTextField field){
-        Pattern r = Pattern.compile("^[А-ЯЁ][а-яЁё]{1,10}$");
-        Matcher m = r.matcher(field.getText());
-        if (m.matches()) {
-            field.setBorder(BorderFactory.createLineBorder(Color.GREEN));
+        Pattern b = Pattern.compile("^[А-ЯЁ][а-яЁё]{1,10}$");
+        Matcher rr = b.matcher(field.getText());
+        Color color = Color.GREEN;
+        if (rr.matches()) {
             check[i] = true;
-        }
-        else {
-            field.setBorder(BorderFactory.createLineBorder(Color.RED));
+        } else {
+            color = Color.RED;
             check[i] = false;
         }
-        if(check[0] && check[1] && check[2])
-            ok.setEnabled(true);
-        else
-            ok.setEnabled(false);
+        field.setBorder(BorderFactory.createLineBorder(color));
+
+        ok.setEnabled(check[0] && check[1] && check[2] && check[3]);
+    }
+
+    protected void checkerInt(int i, JTextField field){
+        Pattern c = Pattern.compile("^[+-]?(([1-9][0-9]*)|(0))([.,][0-9]+)?$");
+        Matcher rm = c.matcher(field.getText());
+        Color color = Color.GREEN;
+        if (rm.matches()) {
+            check[i] = true;
+        } else {
+            color = Color.RED;
+            check[i] = false;
+        }
+        field.setBorder(BorderFactory.createLineBorder(color));
+
+        ok.setEnabled(check[0] && check[1] && check[2] && check[3]);
     }
 }

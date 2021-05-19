@@ -1,4 +1,4 @@
-package Factory.entity;
+package Factory.model;
 
 import java.util.List;
 import javax.persistence.*;
@@ -25,9 +25,9 @@ public class Employee extends Person
     /** Контракты, в которых участвует рабочий */
     @ManyToMany(cascade = { CascadeType.ALL })
     @JoinTable(
-            name = "employee_contract",
-            joinColumns = { @JoinColumn(name = "employees_id") },
-            inverseJoinColumns = { @JoinColumn(name = "contract_id") }
+            name = "employees_contracts",
+            joinColumns = { @JoinColumn(name = "workers_id") },
+            inverseJoinColumns = { @JoinColumn(name = "contracts_id") }
     )
     private List<Contract> contracts;
 

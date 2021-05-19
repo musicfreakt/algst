@@ -1,4 +1,4 @@
-package Factory.entity;
+package Factory.model;
 
 import java.sql.Date;
 import java.util.List;
@@ -9,8 +9,8 @@ import javax.persistence.*;
  * @author Яловега Никита 9308
  * @version 0.1
 */
-@Entity(name = "contract")
-@Table(name="contract")
+@Entity(name = "contracts")
+@Table(name="contracts")
 public class Contract
 {
     /** Уникальный идентификатор контракта */
@@ -28,17 +28,17 @@ public class Contract
     private double price;
 
     /** Клиент, подписавший контракт */
-    @ManyToOne (optional=false)
+    @ManyToOne
     @JoinColumn (name = "client_id")
     private Client client;
 
     /** Менеджер, подписавший контракт */
-    @ManyToOne (optional=false)
+    @ManyToOne
     @JoinColumn (name = "manager_id")
     private Manager manager;
 
     /** Рабочие, выполняющие условия контракта */
-    @ManyToMany
+    @ManyToMany(mappedBy = "contracts")
     private List<Employee> workers;
 
     /** Дата начала действия контракта */

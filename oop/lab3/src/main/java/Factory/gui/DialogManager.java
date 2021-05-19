@@ -112,7 +112,8 @@ public abstract class DialogManager extends JDialog {
                 .put(KeyStroke.getKeyStroke("released ENTER"), "press");
     }
 
-    protected void checker(int i, JTextField field){
+    protected void checker(int i, JTextField field)
+    {
         Pattern r = Pattern.compile("^[А-ЯЁ][а-яЁё]{1,10}$");
         Matcher m = r.matcher(field.getText());
         if (m.matches()) {

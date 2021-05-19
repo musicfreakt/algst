@@ -1,4 +1,4 @@
-package Factory.entity;
+package Factory.model;
 
 import java.util.*;
 import javax.persistence.*;
@@ -18,7 +18,7 @@ public class Client extends Person
     private String company;
 
     /** Контракты клиента */
-    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = false)
+    @OneToMany(mappedBy = "client")
     private List<Contract> client_contracts;
 
     public Client() { }
@@ -28,13 +28,11 @@ public class Client extends Person
      * @param name - имя
      * @param lastName - фамилия
      * @param company - компания
-     * @param contract - контракты
      */
-    public Client(String name, String lastName, String company, List<Contract> contract)
+    public Client(String name, String lastName, String company)
     {
         super(name, lastName);
         this.company = company;
-        this.client_contracts = contract;
     }
 
     /**

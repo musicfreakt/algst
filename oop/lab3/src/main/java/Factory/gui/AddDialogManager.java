@@ -12,7 +12,6 @@ public class AddDialogManager extends DialogManager {
         setVisible(false);
         String[] arr = {name.getText(),surname.getText()};
 
-        // ДОБАВИТЬ НОВОГО ДУРАЧКА
         parent.addR(arr);
 
         JOptionPane.showMessageDialog(null, "Вы добавили сотрудника \""+arr[0]+" "+arr[1]+"\"");

@@ -1,4 +1,4 @@
-package Factory.entity;
+package Factory.model;
 
 import java.util.List;
 import javax.persistence.*;
@@ -14,20 +14,19 @@ import javax.persistence.*;
 public class Manager extends Person
 {
     /** Контракты, в которые подписывал менеджер */
-    @OneToMany
+    @OneToMany(mappedBy = "manager")
     private List<Contract> manager_contracts;
 
     public Manager() {}
 
     /**
-     * Конструктор - создание нового объекта Employee
+     * Конструктор - создание нового объекта Manager
      * @param name - имя
      * @param lastName - фамилия
      */
-    public Manager(String name, String lastName, List<Contract> contract)
+    public Manager(String name, String lastName)
     {
         super(name, lastName);
-        this.manager_contracts = contract;
     }
 
     /**
@@ -64,4 +63,9 @@ public class Manager extends Person
         return new String[] {String.valueOf(id), name, surname};
     }
 
+    @Override
+    public String toString()
+    {
+        return name + " " + surname;
+    }
 }

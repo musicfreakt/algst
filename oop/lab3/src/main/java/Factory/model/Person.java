@@ -1,4 +1,4 @@
-package Factory.entity;
+package Factory.model;
 
 import javax.persistence.*;
 

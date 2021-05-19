@@ -1,6 +1,6 @@
 package Factory.gui;
 
-import Factory.entity.*;
+import Factory.model.*;
 
 import javax.persistence.*;
 import java.util.List;
@@ -83,8 +83,8 @@ public class WorkerWindow {
      */
 //    private static final Logger log = Logger.getLogger(employs.class);
 
-    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("test_persistence");
-    private EntityManager em = emf.createEntityManager();
+//    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("test_persistence");
+//    private EntityManager em = emf.createEntityManager();
 
 //    private AddDialogProd addDialogProd;
 //    private EditDialogProd editDialogProd;
@@ -123,12 +123,13 @@ public class WorkerWindow {
         String[] columns = {"ID", "Имя", "Фамилия", "Опыт работы", "Специальность"};
 
 
-        List<Employee> workersList = em.createQuery("SELECT e FROM employees e").getResultList();
-        String [][] data = new String[workersList.size()][5];
-        for (int i = 0; i < workersList.size(); i++)
-        {
-            data[i] = workersList.get(i).toTableFormat();
-        }
+//        List<Employee> workersList = em.createQuery("SELECT e FROM employees e").getResultList();
+//        String [][] data = new String[workersList.size()][5];
+        String [][] data = new String[0][5];
+//        for (int i = 0; i < workersList.size(); i++)
+//        {
+//            data[i] = workersList.get(i).toTableFormat();
+//        }
 
         // Настройка таблицы
         model = new DefaultTableModel(data, columns)
