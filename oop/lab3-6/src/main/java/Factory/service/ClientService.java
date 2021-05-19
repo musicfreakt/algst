@@ -6,54 +6,54 @@ import java.util.List;
 
 public class ClientService
 {
-    private static ClientDAO employeeDao;
+    private static ClientDAO clientDao;
 
     public ClientService()
     {
-        employeeDao = new ClientDAO();
+        clientDao = new ClientDAO();
     }
 
     public void persist(Client entity) {
-        employeeDao.openCurrentSessionwithTransaction();
-        employeeDao.persist(entity);
-        employeeDao.closeCurrentSessionwithTransaction();
+        clientDao.openCurrentSessionwithTransaction();
+        clientDao.persist(entity);
+        clientDao.closeCurrentSessionwithTransaction();
     }
 
     public void update(Client entity) {
-        employeeDao.openCurrentSessionwithTransaction();
-        employeeDao.update(entity);
-        employeeDao.closeCurrentSessionwithTransaction();
+        clientDao.openCurrentSessionwithTransaction();
+        clientDao.update(entity);
+        clientDao.closeCurrentSessionwithTransaction();
     }
 
     public Client findById(int id) {
-        employeeDao.openCurrentSession();
-        Client manager = employeeDao.findById(id);
-        employeeDao.closeCurrentSession();
-        return manager;
+        clientDao.openCurrentSession();
+        Client contract = clientDao.findById(id);
+        clientDao.closeCurrentSession();
+        return contract;
     }
 
     public void delete(int id) {
-        employeeDao.openCurrentSessionwithTransaction();
-        Client manager = employeeDao.findById(id);
-        employeeDao.delete(manager);
-        employeeDao.closeCurrentSessionwithTransaction();
+        clientDao.openCurrentSessionwithTransaction();
+        Client contract = clientDao.findById(id);
+        clientDao.delete(contract);
+        clientDao.closeCurrentSessionwithTransaction();
     }
 
     public List<Client> findAll() {
-        employeeDao.openCurrentSession();
-        List<Client> managers = employeeDao.findAll();
-        employeeDao.closeCurrentSession();
-        return managers;
+        clientDao.openCurrentSession();
+        List<Client> contracts = clientDao.findAll();
+        clientDao.closeCurrentSession();
+        return contracts;
     }
 
     public void deleteAll() {
-        employeeDao.openCurrentSessionwithTransaction();
-        employeeDao.deleteAll();
-        employeeDao.closeCurrentSessionwithTransaction();
+        clientDao.openCurrentSessionwithTransaction();
+        clientDao.deleteAll();
+        clientDao.closeCurrentSessionwithTransaction();
     }
 
-    public ClientDAO employeeDao()
+    public ClientDAO clientDao()
     {
-        return employeeDao;
+        return clientDao;
     }
 }
