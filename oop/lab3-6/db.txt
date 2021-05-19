@@ -1,0 +1,18 @@
+CREATE DATABASE kurs;
+
+use kurs;
+
+CREATE TABLE `specialisation` (`specialisation_id` int(11) PRIMARY KEY AUTO_INCREMENT, `name` TEXT) AUTO_INCREMENT=1;
+
+CREATE TABLE `` (`id` int(11) PRIMARY KEY AUTO_INCREMENT, `name` TEXT, `surname` TEXT,
+ `score` int(11), `teamid` int(11)) AUTO_INCREMENT=1;
+
+CREATE TABLE `teams` (`id` int(11) PRIMARY KEY AUTO_INCREMENT, `name` TEXT) AUTO_INCREMENT=1;
+
+CREATE TABLE `tracks` (`id` int(11) PRIMARY KEY AUTO_INCREMENT, `name` TEXT,
+ `country` TEXT) AUTO_INCREMENT=1;
+
+CREATE TABLE `competitions` (`id` int(11) PRIMARY KEY AUTO_INCREMENT, `name` TEXT, `date` DATE,
+ `track_id` int(11), `winner_id` int(11)) AUTO_INCREMENT=1;
+
+CREATE TABLE `competitions_racers` (`Competition_id` int(11), `racers_id` int(11));
