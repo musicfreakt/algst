@@ -1,6 +1,4 @@
-import Factory.*;
-
-import javax.persistence.*;
+import Factory.gui.Menu;
 
 public class App
 {

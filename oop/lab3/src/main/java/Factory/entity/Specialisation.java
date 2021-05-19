@@ -1,4 +1,4 @@
-package Factory;
+package Factory.entity;
 
 import javax.persistence.*;
 
@@ -7,20 +7,27 @@ import javax.persistence.*;
  * @author Яловега Никита 9308
  * @version 0.1
  */
-@Entity
+@Entity(name = "specialisations")
 @Table(name = "specialisations")
 public class Specialisation
 {
 
     /** Уникальный идентификатор профессии */
     @Id
-    @Column(name="specialisation_id")
+    @Column(name="id")
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private int id;
 
     /** Название профессии */
     @Column(name="name")
     private String name;
+
+    public Specialisation(){}
+
+    public Specialisation(String name)
+    {
+        this.name = name;
+    }
 
     /**
      * Функция получения значения поля {@link Specialisation#id}
@@ -56,5 +63,10 @@ public class Specialisation
     public void setName(String newName)
     {
         name = newName;
+    }
+
+    public String[] toTableFormat()
+    {
+        return new String[] {String.valueOf(getID()), getName()};
     }
 }

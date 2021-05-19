@@ -1,4 +1,4 @@
-package Factory;
+package Factory.entity;
 
 import java.sql.Date;
 import java.util.List;
@@ -9,7 +9,7 @@ import javax.persistence.*;
  * @author Яловега Никита 9308
  * @version 0.1
 */
-@Entity
+@Entity(name = "contract")
 @Table(name="contract")
 public class Contract
 {
@@ -38,7 +38,7 @@ public class Contract
     private Manager manager;
 
     /** Рабочие, выполняющие условия контракта */
-    @ManyToMany(mappedBy = "contract")
+    @ManyToMany
     private List<Employee> workers;
 
     /** Дата начала действия контракта */
@@ -48,6 +48,8 @@ public class Contract
     /** Дата окончания действия контракта */
     @Column(name="end")
     private Date dateEnd;
+
+    public Contract() {}
 
     /**
      * Конструктор - создание нового объекта {@link Contract}

@@ -1,4 +1,4 @@
-package Factory;
+package Factory.entity;
 
 import javax.persistence.*;
 
@@ -24,15 +24,15 @@ public abstract class Person
     @Column(name="surname")
     protected String surname;
 
+    public Person() {}
+
     /**
      * Конструктор - создание нового объекта Person
-     * @param id - идентификатор
      * @param name - имя
      * @param surname - фамилия
      */
-    public Person(int id, String name, String surname)
+    public Person(String name, String surname)
     {
-        this.id = id;
         this.name = name;
         this.surname = surname;
     }

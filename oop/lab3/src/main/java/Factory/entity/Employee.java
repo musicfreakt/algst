@@ -1,4 +1,4 @@
-package Factory;
+package Factory.entity;
 
 import java.util.List;
 import javax.persistence.*;
@@ -9,7 +9,7 @@ import javax.persistence.*;
  * @author Яловега Никита 9308
  * @version 0.1
  */
-@Entity
+@Entity(name = "employees")
 @Table(name = "employees")
 public class Employee extends Person
 {
@@ -31,16 +31,17 @@ public class Employee extends Person
     )
     private List<Contract> contracts;
 
+    public Employee(){}
+
     /**
      * Конструктор - создание нового объекта Employee
-     * @param id - идентификатор
      * @param name - имя
      * @param lastName - фамилия
      * @param exp - опыт работы
      */
-    public Employee(int id, String name, String lastName, int exp)
+    public Employee(String name, String lastName, int exp)
     {
-        super(id, name, lastName);
+        super(name, lastName);
         this.exp = exp;
     }
 

@@ -1,4 +1,4 @@
-package Factory;
+package Factory.entity;
 
 import java.util.*;
 import javax.persistence.*;
@@ -9,7 +9,7 @@ import javax.persistence.*;
  * @author Яловега Никита 9308
  * @version 0.1
  */
-@Entity
+@Entity(name = "clients")
 @Table(name = "clients")
 public class Client extends Person
 {
@@ -18,20 +18,23 @@ public class Client extends Person
     private String company;
 
     /** Контракты клиента */
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    private ArrayList<Contract> contracts;
+    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = false)
+    private List<Contract> client_contracts;
+
+    public Client() { }
 
     /**
      * Конструктор - создание нового объекта {@link Client}
-     * @param id - идентификатор
      * @param name - имя
      * @param lastName - фамилия
      * @param company - компания
+     * @param contract - контракты
      */
-    public Client(int id, String name, String lastName, String company)
+    public Client(String name, String lastName, String company, List<Contract> contract)
     {
-        super(id, name, lastName);
+        super(name, lastName);
         this.company = company;
+        this.client_contracts = contract;
     }
 
     /**
@@ -58,17 +61,17 @@ public class Client extends Person
      */
     public void addContract(Contract newContract)
     {
-        contracts.add(newContract);
+        client_contracts.add(newContract);
         newContract.setClient(this); // связываем контракт с этим клиентом
     }
 
     /**
-     * Функция получения значения поля {@link Client#contracts}
+     * Функция получения значения поля {@link Client#client_contracts}
      * @return возвращает контракты клиента
      */
-    public ArrayList<Contract> getContracts()
+    public List<Contract> getContracts()
     {
-        return contracts;
+        return client_contracts;
     }
 
     /**
@@ -77,7 +80,7 @@ public class Client extends Person
      */
     public void removeContract(Contract c)
     {
-        contracts.remove(c);
+        client_contracts.remove(c);
         c.setClient(null);
     }
 
