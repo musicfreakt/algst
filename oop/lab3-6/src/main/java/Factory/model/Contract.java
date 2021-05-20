@@ -217,4 +217,9 @@ public class Contract
         return workers;
     }
 
+    public String[] toTableFormat()
+    {
+        return new String[] {String.valueOf(id)};
+    }
+
 }

@@ -22,9 +22,9 @@ import java.util.List;
 //import net.sf.jasperreports.engine.data.JRXmlDataSource;
 //import net.sf.jasperreports.engine.export.JRPdfExporter;
 
-public class ManagerWindow
+public class SpecialisationWindow
 {
-    ManagerWindow()
+    SpecialisationWindow()
     {
         show();
     }
@@ -51,25 +51,25 @@ public class ManagerWindow
     private JToolBar toolBar;
 
     /** Таблица */
-    protected JTable dataManagers;
+    protected JTable dataSpecialisations;
 
     /** Скролл */
     private JScrollPane scroll;
 
     /** Сервис Менеджера */
-    private ManagerService managerService = new ManagerService();
-    
+    private SpecialisationService specialisationService = new SpecialisationService();
+
     /** Поток 1 отвечает за редактирование данных */
     Thread t1 = new Thread();
-    /** Поток 3 отвечает за формирование отчет */
+    /** Поток 2 отвечает за формирование отчет */
     Thread t2 = new Thread();
 
     /** Логгер класса */
-//    private static final Logger log = Logger.getLogger(ManagerWindow.class);
+//    private static final Logger log = Logger.getLogger(SpecialisationWindow.class);
 
 
-    private AddDialogManager addDialogManager;
-    private EditDialogManager editDialogProd;
+    private AddDialogSpecialisation addDialogSpecialisation;
+    private EditDialogSpecialisation editDialogSpecialisation;
 
     public void show()
     {
@@ -98,13 +98,13 @@ public class ManagerWindow
         window.setLayout(new BorderLayout());
         window.add(toolBar,BorderLayout.NORTH);
         // Создание таблицы с данными
-        String[] columns = {"ID", "Имя", "Фамилия"};
+        String[] columns = {"ID", "Название должности"};
 
-        List<Manager> managersList = managerService.findAll();
-        String [][] data = new String[managersList.size()][5];
-        for (int i = 0; i < managersList.size(); i++)
+        List<Specialisation> specialisationsList = specialisationService.findAll();
+        String [][] data = new String[specialisationsList.size()][5];
+        for (int i = 0; i < specialisationsList.size(); i++)
         {
-            data[i] = managersList.get(i).toTableFormat();
+            data[i] = specialisationsList.get(i).toTableFormat();
         }
 
         // Настройка таблицы
@@ -115,13 +115,13 @@ public class ManagerWindow
                 return false;
             }
         };
-        this.dataManagers = new JTable(model);
-        dataManagers.setFont(new Font(Font.SERIF,Font.BOLD,14));
-        dataManagers.setIntercellSpacing(new Dimension(0,1));
-        dataManagers.setRowHeight(dataManagers.getRowHeight()+10);
-        dataManagers.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        this.dataSpecialisations = new JTable(model);
+        dataSpecialisations.setFont(new Font(Font.SERIF,Font.BOLD,14));
+        dataSpecialisations.setIntercellSpacing(new Dimension(0,1));
+        dataSpecialisations.setRowHeight(dataSpecialisations.getRowHeight()+10);
+        dataSpecialisations.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
-        dataManagers.setDefaultRenderer(dataManagers.getColumnClass(1), new DefaultTableCellRenderer(){
+        dataSpecialisations.setDefaultRenderer(dataSpecialisations.getColumnClass(1), new DefaultTableCellRenderer(){
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 super.setHorizontalAlignment(SwingConstants.CENTER);
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -130,30 +130,30 @@ public class ManagerWindow
 
         });
 
-        scroll = new JScrollPane(this.dataManagers);
+        scroll = new JScrollPane(this.dataSpecialisations);
 
         // Размещение таблицы с данными
         window.add(scroll,BorderLayout.CENTER);
 
         // Если не выделена строка, то прячем кнопки
-        dataManagers.getSelectionModel().addListSelectionListener((e) -> {
-            boolean check = !dataManagers.getSelectionModel().isSelectionEmpty();
+        dataSpecialisations.getSelectionModel().addListSelectionListener((e) -> {
+            boolean check = !dataSpecialisations.getSelectionModel().isSelectionEmpty();
             edit.setVisible(check);
             delete.setVisible(check);
         });
 
         add.addActionListener((e) -> {
-            addDialogManager = new AddDialogManager(window, ManagerWindow.this, "Добавление записи");
-            addDialogManager.setVisible(true);
+            addDialogSpecialisation = new AddDialogSpecialisation(window, SpecialisationWindow.this, "Добавление записи");
+            addDialogSpecialisation.setVisible(true);
         });
 
         add.setMnemonic(KeyEvent.VK_A);
         delete.addActionListener((e) -> {
-            if (dataManagers.getRowCount() > 0) {
-                if (dataManagers.getSelectedRow() != -1) {
+            if (dataSpecialisations.getRowCount() > 0) {
+                if (dataSpecialisations.getSelectedRow() != -1) {
                     try {
-                        managerService.delete(Integer.parseInt(dataManagers.getValueAt(dataManagers.getSelectedRow(), 0).toString()));
-                        model.removeRow(dataManagers.convertRowIndexToModel(dataManagers.getSelectedRow()));
+                        specialisationService.delete(Integer.parseInt(dataSpecialisations.getValueAt(dataSpecialisations.getSelectedRow(), 0).toString()));
+                        model.removeRow(dataSpecialisations.convertRowIndexToModel(dataSpecialisations.getSelectedRow()));
                         JOptionPane.showMessageDialog(window, "Вы удалили строку");
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(null, "Ошибка");
@@ -170,11 +170,11 @@ public class ManagerWindow
 
         edit.addActionListener((e)-> {
             if (model.getRowCount() != 0) {
-                if (dataManagers.getSelectedRow() != -1) {
+                if (dataSpecialisations.getSelectedRow() != -1) {
                     t1 = new Thread(() -> {
                         JOptionPane.showMessageDialog(null,"1 поток запущен");
-                        editDialogProd = new EditDialogManager(window, ManagerWindow.this, "Редактирование");
-                        editDialogProd.setVisible(true);
+                        editDialogSpecialisation = new EditDialogSpecialisation(window, SpecialisationWindow.this, "Редактирование");
+                        editDialogSpecialisation.setVisible(true);
                     });
                     t1.start();
                 } else {
@@ -187,10 +187,10 @@ public class ManagerWindow
         edit.setMnemonic(KeyEvent.VK_E);
 
         print.addActionListener((e)->{
-            if (model.getRowCount() != 0)
-            {
-//                ManagerWindow.print();
-            }
+//            if (model.getRowCount() != 0)
+//            {
+//                SpecialisationWindow.print();
+//            }
         });
 
         window.setVisible(true);
@@ -211,16 +211,16 @@ public class ManagerWindow
 //            doc.appendChild(window);
 //            // Создание дочерних элементов dataEmploy и присвоение значений атрибутам
 //            for (int i = 0; i < model.getRowCount(); i++) {
-//                Element dataManager = doc.createElement("dataManager");
-//                window.appendChild(dataManager);
-//                dataManager.setAttribute("name", (String) model.getValueAt(i, 0));
-//                dataManager.setAttribute("surname", (String) model.getValueAt(i, 1));
+//                Element dataSpecialisation = doc.createElement("dataSpecialisation");
+//                window.appendChild(dataSpecialisation);
+//                dataSpecialisation.setAttribute("name", (String) model.getValueAt(i, 0));
+//                dataSpecialisation.setAttribute("surname", (String) model.getValueAt(i, 1));
 //            }
 //            try {
 //                // Создание преобразователя документа
 //                Transformer trans = TransformerFactory.newInstance().newTransformer();
 //                // Создание файла с именем dataEmploy.xml для записи документа
-//                java.io.FileWriter fw = new FileWriter("dataManager.xml");
+//                java.io.FileWriter fw = new FileWriter("dataSpecialisation.xml");
 //                // Запись документа в файл
 //                trans.transform(new DOMSource(doc), new StreamResult(fw));
 //            } catch (TransformerConfigurationException e) {
@@ -251,9 +251,9 @@ public class ManagerWindow
 //            // Указание источника XML-данных
 //            JRDataSource jr = new JRXmlDataSource(datasource, xpath);
 //            // Создание отчета на базе шаблона
-//            JasperReport report = JasperCompileManager.compileReport(template);
+//            JasperReport report = JasperCompileSpecialisation.compileReport(template);
 //            // Заполнение отчета данными
-//            JasperPrint print = JasperFillManager.fillReport(report, null, jr);
+//            JasperPrint print = JasperFillSpecialisation.fillReport(report, null, jr);
 //
 //            if(resultpath.toLowerCase().endsWith("pdf")) {
 //                JRExporter exporter;
@@ -263,7 +263,7 @@ public class ManagerWindow
 //                exporter.exportReport();
 //            }
 //            else
-//                JasperExportManager.exportReportToHtmlFile(print,resultpath);
+//                JasperExportSpecialisation.exportReportToHtmlFile(print,resultpath);
 //            JOptionPane.showMessageDialog(null,"2 поток закончил работу. Отчет создан");
 //        }
 //        catch (JRException e)
@@ -272,19 +272,18 @@ public class ManagerWindow
 //        }
 //    }
 
-    public void addR(String[] arr)
+    public void addR(String name)
     {
-        Manager newM = new Manager(arr[0], arr[1]);
-        managerService.persist(newM);
-        model.addRow(newM.toTableFormat());
+        Specialisation newS = new Specialisation(name);
+        specialisationService.persist(newS);
+        model.addRow(newS.toTableFormat());
     }
 
     public void editR(String[] arr)
     {
-        Manager M = managerService.findById(Integer.parseInt(arr[0]));
+        Specialisation M = specialisationService.findById(Integer.parseInt(arr[0]));
         M.setName(arr[1]);
-        M.setSurname(arr[2]);
-        managerService.update(M);
+        specialisationService.update(M);
     }
 
 }

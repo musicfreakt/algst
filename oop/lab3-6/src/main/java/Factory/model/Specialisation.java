@@ -1,6 +1,7 @@
 package Factory.model;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * Класс специализации работника
@@ -22,6 +23,10 @@ public class Specialisation
     @Column(name="name")
     private String name;
 
+    /** Рабочие данной профессии */
+    @OneToMany(mappedBy = "specialisation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Employee> employees;
+
     public Specialisation(){}
 
     public Specialisation(String name)
@@ -30,7 +35,7 @@ public class Specialisation
     }
 
     /**
-     * Функция получения значения поля {@link Specialisation#id}
+     * Метод получения значения поля {@link Specialisation#id}
      * @return возвращает уникальный идентификатор
      */
     public int getID()
@@ -39,7 +44,7 @@ public class Specialisation
     }
 
     /**
-     * Функция определения значения поля {@link Specialisation#id}
+     * Метод определения значения поля {@link Specialisation#id}
      * @param newID - новый идентификатор
      */
     public void setID(int newID)
@@ -48,7 +53,7 @@ public class Specialisation
     }
 
     /**
-     * Функция получения значения поля {@link Specialisation#name}
+     * Метод получения значения поля {@link Specialisation#name}
      * @return возвращает название специализации
      */
     public String getName()
@@ -57,12 +62,41 @@ public class Specialisation
     }
 
     /**
-     * Процедура определения значения поля {@link Specialisation#name}
+     * Метод определения значения поля {@link Specialisation#name}
      * @param newName - новое название специализации
      */
     public void setName(String newName)
     {
         name = newName;
+    }
+
+    /**
+     * Метод добавления новых работников {@link Specialisation#employees}
+     * @param newEmployee - новый работник
+     */
+    public void addEmployee(Employee newEmployee)
+    {
+        employees.add(newEmployee);
+        // связываем сотрудника с этим отделом
+        newEmployee.setSpecialisation(this);
+    }
+
+    /**
+     * Метод получения значения поля {@link Specialisation#employees}
+     * @return Работники данной профессии
+     */
+    public List<Employee> getEmployees()
+    {
+        return employees;
+    }
+
+    /**
+     * Метод удаления работников из профессии {@link Specialisation#employees}
+     * @param e - работник, которого нужно убрать
+     */
+    public void removeEmployee(Employee e)
+    {
+        employees.remove(e);
     }
 
     public String[] toTableFormat()

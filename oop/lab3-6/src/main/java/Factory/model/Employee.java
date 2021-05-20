@@ -18,7 +18,7 @@ public class Employee extends Person
     private int exp;
 
     /** Поле профессии рабочего */
-    @OneToOne (optional = false)
+    @ManyToOne
     @JoinColumn (name="specialisation_id")
     private Specialisation specialisation;
 
