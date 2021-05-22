@@ -25,6 +25,15 @@ public class ContractService
         contractDao.closeCurrentSessionwithTransaction();
     }
 
+    public void setEnd(int id)
+    {
+        contractDao.openCurrentSessionwithTransaction();
+        Contract contract = contractDao.findById(id);
+        contract.setIsEnd(true);
+        contractDao.update(contract);
+        contractDao.closeCurrentSessionwithTransaction();
+    }
+
     public Contract findById(int id) {
         contractDao.openCurrentSession();
         Contract contract = contractDao.findById(id);

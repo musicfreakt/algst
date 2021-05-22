@@ -3,6 +3,7 @@ package Factory.gui;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.jdatepicker.impl.*;
 import java.awt.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,7 +17,8 @@ public abstract class DialogContract extends JDialog
     protected JTextField price;
     protected JComboBox clients;
     protected JComboBox managers;
-
+    protected JDatePickerImpl dataBegin;
+    protected JDatePickerImpl dataEnd;
 
     protected Boolean[] check = {false};
     private JButton ok = new JButton("Принять");
@@ -51,8 +53,8 @@ public abstract class DialogContract extends JDialog
         JLabel priceLab = new JLabel("Цена");
         JLabel clientLab = new JLabel("Клиент");
         JLabel managerLab = new JLabel("Менеджер");
-//        JLabel beginLab = new JLabel("Дата подписания договора");
-//        JLabel endLab = new JLabel("Дата окончания работ");
+        JLabel beginLab = new JLabel("Дата подписания договора");
+        JLabel endLab = new JLabel("Дата окончания работ");
 
         ok.setEnabled(false);
         // Инит кнопок
@@ -94,11 +96,10 @@ public abstract class DialogContract extends JDialog
         panel.add(clients);
         panel.add(managerLab);
         panel.add(managers);
-
-//        panel.add(beginLab);
-
-//        panel.add(endLab);
-
+        panel.add(beginLab);
+        panel.add(dataBegin);
+        panel.add(endLab);
+        panel.add(dataEnd);
 
         mainp.add(panel);
         add(BorderLayout.CENTER, mainp);

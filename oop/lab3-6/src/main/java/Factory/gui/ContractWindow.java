@@ -39,6 +39,9 @@ public class ContractWindow
     /** Печать */
     private JButton print;
 
+    /** Завершить */
+    private JButton end;
+
     /** Панель инструментов */
     private JToolBar toolBar;
 
@@ -80,6 +83,7 @@ public class ContractWindow
         delete = new JButton("Удалить");
         edit = new JButton("Редактировать");
         print = new JButton("Печать");
+        end = new JButton("Завершить");
 
         // Настройка подсказок
         add.setToolTipText("Добавить контракт");
@@ -92,6 +96,7 @@ public class ContractWindow
         toolBar.add(delete);
         toolBar.add(edit);
         toolBar.add(print);
+        toolBar.add(end);
         // Размещение панели инструментов
         window.setLayout(new BorderLayout());
         window.add(toolBar,BorderLayout.NORTH);
@@ -138,6 +143,7 @@ public class ContractWindow
             boolean check = !dataContracts.getSelectionModel().isSelectionEmpty();
             edit.setVisible(check);
             delete.setVisible(check);
+            end.setVisible(check);
         });
 
         add.addActionListener((e) -> {
@@ -183,6 +189,26 @@ public class ContractWindow
             }
         });
         edit.setMnemonic(KeyEvent.VK_E);
+
+        end.addActionListener((e) -> {
+            if (dataContracts.getRowCount() > 0) {
+                if (dataContracts.getSelectedRow() != -1) {
+                    try
+                    {
+                        contractService.setEnd(Integer.parseInt(dataContracts.getValueAt(dataContracts.getSelectedRow(), 0).toString()));
+//                        model.removeRow(dataContracts.convertRowIndexToModel(dataContracts.getSelectedRow())); // todo: сделать изменение
+                        JOptionPane.showMessageDialog(window, "Вы отметили договор завершеным");
+                    } catch (Exception ex)
+                    {
+                        JOptionPane.showMessageDialog(null, "Ошибка");
+                    }
+                } else
+                    JOptionPane.showMessageDialog(null, "Вы не выбрали строку для удаления");
+            } else
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего удалять");
+        });
+
+        end.setMnemonic(KeyEvent.VK_D);
 
         print.addActionListener((e)->{
 //            if (model.getRowCount() != 0)
@@ -281,7 +307,7 @@ public class ContractWindow
 //    }
 
 
-    public void addR(String[] arr)
+    public void addR(String[] arr, Date begin, Date end)
     {
         String[] r = arr[2].split(" ");
         int client_id = Integer.parseInt(r[0]);
@@ -293,8 +319,8 @@ public class ContractWindow
                 clientService.findById(client_id),
                 managerService.findById(manager_id),
                 null,
-                new Date(),
-                new Date(),
+                begin,
+                end,
                 false);
         contractService.persist(newM);
         model.addRow(newM.toTableFormat());
