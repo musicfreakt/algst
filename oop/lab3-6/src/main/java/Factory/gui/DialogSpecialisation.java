@@ -15,7 +15,7 @@ public abstract class DialogSpecialisation extends JDialog {
     protected Boolean check = false;
     private JButton ok = new JButton("Принять");
     private JButton cancel = new JButton("Закрыть");
-    private JLabel nameLab = new JLabel("Имя");
+    private JLabel nameLab = new JLabel("Название профессии");
 
     /**
      * Выполнение манипуляций с данными

@@ -1,4 +1,5 @@
 Factory/gui/ClientWindow$1.class
+Factory/gui/DialogContract$1.class
 Factory/gui/EditDialogWorker.class
 Factory/model/Manager.class
 Factory/gui/Ref.class
@@ -21,10 +22,12 @@ Factory/gui/DialogWorker$2.class
 Factory/gui/AddDialogSpecialisation.class
 Factory/model/Person.class
 Factory/gui/DialogSpecialisation.class
+Factory/gui/AddDialogContract.class
 Factory/gui/DialogManager$1.class
 Factory/gui/AddDialogClient.class
 Factory/gui/ClientWindow.class
 Factory/gui/SpecialisationWindow$2.class
+Factory/gui/DialogContract.class
 Factory/model/Employee.class
 Factory/gui/DialogWorker$1.class
 Factory/gui/ManagerWindow.class
@@ -43,6 +46,7 @@ Factory/dao/SpecialisationDAO.class
 Factory/gui/EditDialogSpecialisation.class
 Factory/gui/DialogManager$2.class
 Factory/gui/SpecialisationWindow.class
+Factory/gui/EditDialogContract.class
 Factory/gui/ContractWindow.class
 Factory/gui/DialogClient$3.class
 Factory/dao/ClientDAO.class

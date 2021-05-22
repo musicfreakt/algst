@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Абстрактный класс Диалогового окна Добавления/Редактирования данных менеджеров
+ * Абстрактный класс Диалогового окна Добавления/Редактирования данных клиентов
  */
 public abstract class DialogClient extends JDialog {
     protected JTextField name;

@@ -8,6 +8,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.Date;
 import java.util.List;
 //import net.sf.jasperreports.engine.*;
 //import net.sf.jasperreports.engine.data.JRXmlDataSource;
@@ -50,21 +51,27 @@ public class ContractWindow
     /** Сервис Контрактов */
     private ContractService contractService = new ContractService();
 
+    /** Сервис Менеджеров */
+    private ManagerService managerService = new ManagerService();
+
+    /** Сервис Клиентов */
+    private ClientService clientService = new ClientService();
+
+
     /** Поток 1 отвечает за редактирование данных */
     Thread t1 = new Thread();
-    /** Поток 3 отвечает за формирование отчет */
+    /** Поток 2 отвечает за формирование отчет */
     Thread t2 = new Thread();
 
     /** Логгер класса */
 //    private static final Logger log = Logger.getLogger(ContractWindow.class);
 
-
-//    private AddDialogContract addDialogContract;
-//    private EditDialogContract editDialogProd;
+    private AddDialogContract addDialogContract;
+    private EditDialogContract editDialogContract;
 
     public void show()
     {
-        window = new JFrame("Список рабочих завода");
+        window = new JFrame("Список договоров завода");
         window.setSize(1000,500);
         window.setLocation(310,130);
         window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -89,7 +96,7 @@ public class ContractWindow
         window.setLayout(new BorderLayout());
         window.add(toolBar,BorderLayout.NORTH);
         // Создание таблицы с данными
-        String[] columns = {"ID", "Описание", "Фамилия"};
+        String[] columns = {"ID", "Описание", "Цена", "Клиент", "Менеджер", "Дата подписания", "Дата окончания работ", "Состояние"};
 
         List<Contract> contractsList = contractService.findAll();
         String [][] data = new String[contractsList.size()][5];
@@ -126,48 +133,54 @@ public class ContractWindow
         // Размещение таблицы с данными
         window.add(scroll,BorderLayout.CENTER);
 
+        // Если не выделена строка, то прячем кнопки
+        dataContracts.getSelectionModel().addListSelectionListener((e) -> {
+            boolean check = !dataContracts.getSelectionModel().isSelectionEmpty();
+            edit.setVisible(check);
+            delete.setVisible(check);
+        });
 
         add.addActionListener((e) -> {
-//            addDialogContract = new AddDialogContract(window, ContractWindow.this, "Добавление записи");
-//            addDialogContract.setVisible(true);
+            addDialogContract = new AddDialogContract(window, ContractWindow.this, "Добавление записи");
+            addDialogContract.setVisible(true);
         });
 
         add.setMnemonic(KeyEvent.VK_A);
         delete.addActionListener((e) -> {
-//            if (dataContracts.getRowCount() > 0) {
-//                if (dataContracts.getSelectedRow() != -1) {
-//                    try {
-//                        contractService.delete(Integer.parseInt(dataContracts.getValueAt(dataContracts.getSelectedRow(), 0).toString()));
-//                        model.removeRow(dataContracts.convertRowIndexToModel(dataContracts.getSelectedRow()));
-//                        JOptionPane.showMessageDialog(window, "Вы удалили строку");
-//                    } catch (Exception ex) {
-//                        JOptionPane.showMessageDialog(null, "Ошибка");
-//                    }
-//                } else {
-//                    JOptionPane.showMessageDialog(null, "Вы не выбрали строку для удаления");
-//                }
-//            } else {
-//                JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего удалять");
-//            }
+            if (dataContracts.getRowCount() > 0) {
+                if (dataContracts.getSelectedRow() != -1) {
+                    try {
+                        contractService.delete(Integer.parseInt(dataContracts.getValueAt(dataContracts.getSelectedRow(), 0).toString()));
+                        model.removeRow(dataContracts.convertRowIndexToModel(dataContracts.getSelectedRow()));
+                        JOptionPane.showMessageDialog(window, "Вы удалили строку");
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, "Ошибка");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Вы не выбрали строку для удаления");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего удалять");
+            }
         });
 
         delete.setMnemonic(KeyEvent.VK_D);
 
         edit.addActionListener((e)-> {
-//            if (model.getRowCount() != 0) {
-//                if (dataContracts.getSelectedRow() != -1) {
-//                    t1 = new Thread(() -> {
-//                        JOptionPane.showMessageDialog(null,"1 поток запущен");
-//                        editDialogProd = new EditDialogContract(window, ContractWindow.this, "Редактирование");
-//                        editDialogProd.setVisible(true);
-//                    });
-//                    t1.start();
-//                } else {
-//                    JOptionPane.showMessageDialog(null, "Не выбрана строка. Нечего редактировать");
-//                }
-//            } else {
-//                JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего редактировать");
-//            }
+            if (model.getRowCount() != 0) {
+                if (dataContracts.getSelectedRow() != -1) {
+                    t1 = new Thread(() -> {
+                        JOptionPane.showMessageDialog(null,"1 поток запущен");
+                        editDialogContract = new EditDialogContract(window, ContractWindow.this, "Редактирование");
+                        editDialogContract.setVisible(true);
+                    });
+                    t1.start();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Не выбрана строка. Нечего редактировать");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего редактировать");
+            }
         });
         edit.setMnemonic(KeyEvent.VK_E);
 
@@ -178,12 +191,7 @@ public class ContractWindow
 //            }
         });
 
-        // Если не выделена строка, то прячем кнопки
-        dataContracts.getSelectionModel().addListSelectionListener((e) -> {
-            boolean check = !dataContracts.getSelectionModel().isSelectionEmpty();
-            edit.setVisible(check);
-            delete.setVisible(check);
-        });
+
 
         window.setVisible(true);
     }
@@ -275,17 +283,53 @@ public class ContractWindow
 
     public void addR(String[] arr)
     {
-//        Contract newM = new Contract(arr[0], arr[1]);
-//        contractService.persist(newM);
-//        model.addRow(newM.toTableFormat());
+        String[] r = arr[2].split(" ");
+        int client_id = Integer.parseInt(r[0]);
+        r = arr[3].split(" ");
+        int manager_id = Integer.parseInt(r[0]);
+
+        Contract newM = new Contract(arr[0],
+                Double.parseDouble(arr[1]),
+                clientService.findById(client_id),
+                managerService.findById(manager_id),
+                null,
+                new Date(),
+                new Date(),
+                false);
+        contractService.persist(newM);
+        model.addRow(newM.toTableFormat());
     }
 
     public void editR(String[] arr)
     {
-//        Contract M = contractService.findById(Integer.parseInt(arr[0]));
-//        M.setName(arr[1]);
-//        M.setSurname(arr[2]);
-//        contractService.update(M);
+        Contract C = contractService.findById(Integer.parseInt(arr[0]));
+        C.setDescription(arr[1]);
+        C.setPrice(Double.parseDouble(arr[2]));
+        String[] r = arr[2].split(" ");
+        int client_id = Integer.parseInt(r[0]);
+        C.setClient(clientService.findById(client_id));
+        r = arr[3].split(" ");
+        int manager_id = Integer.parseInt(r[0]);
+        C.setManager(managerService.findById(manager_id));
+        contractService.update(C);
+    }
+
+    public String[] getManagers()
+    {
+        List<Manager> managers = managerService.findAll();
+        String [] result = new String[managers.size()];
+        for (int i = 0; i < managers.size(); i++)
+            result[i] = managers.get(i).getID() + " " +  managers.get(i).getName() + " " + managers.get(i).getSurname();
+        return result;
+    }
+
+    public String[] getClients()
+    {
+        List<Client> clients = clientService.findAll();
+        String [] result = new String[clients.size()];
+        for (int i = 0; i < clients.size(); i++)
+            result[i] = clients.get(i).getID() + " " + clients.get(i).getName() + " " + clients.get(i).getSurname();
+        return result;
     }
 
 }

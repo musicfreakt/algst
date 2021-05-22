@@ -131,6 +131,12 @@ public class WorkerWindow
         // Размещение таблицы с данными
         window.add(scroll,BorderLayout.CENTER);
 
+        // Если не выделена строка, то прячем кнопки
+        dataWorkers.getSelectionModel().addListSelectionListener((e) -> {
+            boolean check = !dataWorkers.getSelectionModel().isSelectionEmpty();
+            edit.setVisible(check);
+            delete.setVisible(check);
+        });
 
         add.addActionListener((e) ->
         {
@@ -181,13 +187,6 @@ public class WorkerWindow
 //            if (model.getRowCount() != 0) {
 //                employs.print("dataWorkers.xml", "window/dataWorkers", "prod.jrxml", "otchetProd.pdf");
 //            }
-        });
-
-        // Если не выделена строка, то прячем кнопки
-        dataWorkers.getSelectionModel().addListSelectionListener((e) -> {
-            boolean check = !dataWorkers.getSelectionModel().isSelectionEmpty();
-            edit.setVisible(check);
-            delete.setVisible(check);
         });
 
         window.setVisible(true);

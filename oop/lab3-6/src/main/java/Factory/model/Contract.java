@@ -1,6 +1,6 @@
 package Factory.model;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
 
@@ -49,19 +49,25 @@ public class Contract
     @Column(name="end")
     private Date dateEnd;
 
+    /** Завершили ли выполнение договора */
+    @Column(name="is_end")
+    private boolean isEnd;
+
     public Contract() {}
 
     /**
      * Конструктор - создание нового объекта {@link Contract}
      */
-    public Contract(int id, String d, double p, List<Employee> w, Date b, Date e)
+    public Contract(String d, double p, Client c, Manager m, List<Employee> w, Date b, Date e, boolean i)
     {
-        this.id = id;
         this.description = d;
         this.price = p;
+        this.client = c;
+        this.manager = m;
         this.workers = w;
         this.dateBegin = b;
         this.dateEnd = e;
+        this.isEnd = i;
     }
 
     /**
@@ -217,9 +223,36 @@ public class Contract
         return workers;
     }
 
+    /**
+     * Метод получения значения поля {@link Contract#isEnd}
+     * @return возвращает состояние договора
+     */
+    public boolean getIsEnd()
+    {
+        return isEnd;
+    }
+
+    /**
+     * Функция определения значения поля {@link Contract#id}
+     * @param i - новое состояние
+     */
+    public void setIsEnd(boolean i)
+    {
+        isEnd = i;
+    }
+
     public String[] toTableFormat()
     {
-        return new String[] {String.valueOf(id)};
+        return new String[] {
+                String.valueOf(id),
+                description,
+                String.valueOf(price),
+                String.valueOf(client.getID()) + " " + client.getName() + " " + client.getSurname(),
+                String.valueOf(manager.getID()) + " " + manager.getName() + " " + manager.getSurname(),
+                String.valueOf(dateBegin),
+                String.valueOf(dateEnd),
+                String.valueOf(isEnd)
+        };
     }
 
 }

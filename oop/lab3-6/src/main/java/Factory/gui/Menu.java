@@ -21,7 +21,7 @@ public class Menu
         managerWindow.addActionListener((e) -> new ManagerWindow());
         clientWindow.addActionListener((e) -> new ClientWindow());
         contractWindow.addActionListener((e) -> new ContractWindow());
-        //    reportWindow.addActionListener((e)-> new report());
+//            reportWindow.addActionListener((e)-> new report());
         refWindow.addActionListener((e) -> new Ref(window, "Справка"));
 
         window.setLayout(new FlowLayout());

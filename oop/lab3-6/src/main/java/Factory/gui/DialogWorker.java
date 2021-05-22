@@ -154,7 +154,7 @@ public abstract class DialogWorker extends JDialog {
     }
 
     protected void checkerInt(int i, JTextField field){
-        Pattern c = Pattern.compile("^[+-]?(([1-9][0-9]*)|(0))([.,][0-9]+)?$");
+        Pattern c = Pattern.compile("^[+-]?(([1-9][0-9]*)|(0))$");
         Matcher rm = c.matcher(field.getText());
         Color color = Color.GREEN;
         if (rm.matches()) {

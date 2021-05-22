@@ -84,10 +84,10 @@ public class ManagerWindow
         print = new JButton("Печать");
 
         // Настройка подсказок
-        add.setToolTipText("Добавить информацию о рабочих");
-        delete.setToolTipText("Удалить информацию о рабочих");
-        edit.setToolTipText("Изменить информацию о рабочих");
-        print.setToolTipText("Распечатать информацию о рабочих");
+        add.setToolTipText("Добавить информацию о менеджерах");
+        delete.setToolTipText("Удалить информацию о менеджерах");
+        edit.setToolTipText("Изменить информацию о менеджерах");
+        print.setToolTipText("Распечатать информацию о менеджерах");
         // Добавление кнопок на панель инструментов
         toolBar = new JToolBar("Панель инструментов");
         toolBar.add(add);

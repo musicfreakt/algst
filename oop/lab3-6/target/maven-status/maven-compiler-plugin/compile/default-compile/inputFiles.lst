@@ -1,3 +1,4 @@
+/home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/EditDialogContract.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/AddDialogSpecialisation.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/model/Manager.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/model/Person.java
@@ -12,6 +13,7 @@
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/DialogSpecialisation.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/ClientWindow.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/EditDialogManager.java
+/home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/AddDialogContract.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/dao/ClientDAO.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/EditDialogClient.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/service/EmployeeService.java
@@ -28,6 +30,7 @@
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/AddDialogClient.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/DialogClient.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/dao/ContractDAO.java
+/home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/DialogContract.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/AddDialogManager.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/DialogWorker.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/service/ManagerService.java
