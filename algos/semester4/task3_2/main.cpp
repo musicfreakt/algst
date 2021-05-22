@@ -11,15 +11,16 @@
 #include "mycont.h"
 
 const int N = 52;
+int Tree::height = 0;
 size_t mycont::tags = 0;
 
 int main()
 {
     std::srand(time(nullptr));
-    int menu_item;
+    int menu_item = 2;
 
-    std::cout << "1) Test example\n2) Random data\n> ";
-    cin >> menu_item;
+    // std::cout << "1) Test example\n2) Random data\n> ";
+    // cin >> menu_item;
     if (menu_item == 1)
     {
         // в примере мощность множеств мала для большей наглядности
@@ -58,14 +59,18 @@ int main()
     }
     else
     {
-        mycont a(N), b(N), c(N), d(N), e(N), f;
+		mycont a(10);
 
-        a.display(); b.display(); c.display(); d.display(); e.display();
+		a.display(true);
 
-        cout << "\n\nSet operations example: \n\n";
-        f = (a - b) | c ^ d & e;
+        // mycont a(N), b(N), c(N), d(N), e(N), f;
 
-        f.display();
+        // a.display(); b.display(); c.display(); d.display(); e.display();
+
+        // cout << "\n\nSet operations example: \n\n";
+        // f = (a - b) | c ^ d & e;
+
+        // f.display();
 
 		// cout << "\n\nSequence operations example: \n\n";
 		// merge

@@ -8,13 +8,34 @@ struct Node
 	int key;
 	int N = 1;
 	bool next = false;
+	int duplicates;
 	Node *left, *right;
+
 	Node() : left(nullptr), right(nullptr) {}
 	Node(int k, Node * l = nullptr, Node * r = nullptr) : key(k), left(l), right(r) {}
 	~Node() { delete right; delete left; };
-	void display(int, int);
 	void out(int, int);
+	void display(int, int);
 };
+
+void Node::out(int row, int col)
+{
+	if ((row > MAXROW) || (col < 0) || (col > MAXCOL)) return;
+	try {
+		if (row > MAXOUT)
+			SCREEN[row].replace(col, 3, "+++");
+		else 
+		{
+			SCREEN[row].replace(col, 3, to_string(key));
+			if (next) 
+			{
+				if (right)SCREEN[row + 1].replace(col + 1, 3, to_string(right->key));
+				else SCREEN[row + 1].replace(col + 1, 3, "***");
+			}
+		}
+	}
+	catch (out_of_range) { cout << "Out: row=" << row << " col=" << col; }
+}
 
 using MyStack = stack<pair<Node*, int>>;
 
@@ -36,10 +57,12 @@ class Tree
 {
 	Node * root;
 	int count;
-	int height;
 	public:
+		static int height;
 		// конструкторы/деструкторы:
-		Tree() : root(nullptr), count(0) {}
+		Tree() : root(nullptr), count(0){}
+		Tree(const Tree &other): Tree() {for(auto x : other) insert(x);}
+        Tree(Tree && other): Tree() {swap(other);}
 		~Tree() { delete root; };
 
 		// доступ:
@@ -47,11 +70,11 @@ class Tree
 		tree_iter end() const { return tree_iter(nullptr); }
 		int size() const { return count; }
 		bool empty() const { return (root == nullptr); }
-		void swap(tree &);
+		void swap(Tree &);
 
 		// вставка/удаление
 		pair<tree_iter, bool> insert(int, tree_iter = tree_iter(nullptr));
-		tree_iter insert(const int& k, tree_iter where) { return insert(k, where).first; }
+		tree_iter insert(const tree_iter where, const int& k) { return insert(k, where).first; }
 		bool erase(int);
 		void clear() { count = 0; delete root; root = nullptr; }
 
@@ -61,7 +84,7 @@ class Tree
         Tree & operator= (Tree && other) {swap(other); return *this;}
 };
 
-tree_iter Tree::begin() 
+tree_iter Tree::begin() const
 {
 	stack<pair<Node*, int>>St;
 	Node* p(root);
@@ -99,7 +122,7 @@ tree_iter& tree_iter::operator++()
 	return (*this);
 }
 
-void tree::swap(tree & other)
+void Tree::swap(Tree & other)
 {
     std::swap(root, other.root);
     std::swap(height, other.height);
@@ -108,12 +131,15 @@ void tree::swap(tree & other)
 
 pair<tree_iter, bool> Tree::insert(int k, tree_iter where)
 {
-	Node *t{ root };
+	Node *t{ root }, *new_node{nullptr};
 	bool cont{ true }, up{ false };
 	stack<pair<Node*, int>> St;
-	if (!where.Ptr) {
 
-		if (t == nullptr) {
+	if (!where.Ptr) 
+	{
+
+		if (t == nullptr) 
+		{
 			root = new Node(k);
 			count = height = 1;
 			St.push(make_pair(root, 1));
@@ -122,62 +148,85 @@ pair<tree_iter, bool> Tree::insert(int k, tree_iter where)
 		else St.push(make_pair(root, 1));
 
 	}
-	else {
+	else 
+	{
 		t = where.Ptr;
 		St = move(where.St);
 	}
-	while (cont) {
+
+	while (cont) 
+	{
 		if (k == t->key)
 			return make_pair(tree_iter(t, move(St)), false);
-		if (k < t->key) {
-			if (t->left) {
+		if (k < t->key) 
+		{
+			if (t->left) 
+			{
 				St.push(make_pair(t, 2));
 				t = t->left;
 			}
-			else {
+			else 
+			{
 				t->left = new Node(k, nullptr, t->left);
+				new_node = t->left;
 				cont = false;
 			}
 		}
-		else if (!t->right) {
+		else if (!t->right) 
+		{
 			t->right = new Node(k);
-						t->next = true;
+			t->next = true;
+			new_node = t->right;
 			cont = false;
 		}
-		else if (t->next) {
-			if (k < t->right->key) {
-				if (t->right->left) {
+		else if (t->next) 
+		{
+			if (k < t->right->key) 
+			{
+				if (t->right->left) 
+				{
 					St.push(make_pair(t, 3));
 					t = t->right->left;
 				}
-				else {
+				else 
+				{
 					t->right->left = new Node(k, nullptr, t->right->left);
+					new_node = t->right->left;
 					cont = false;
 				}
 			}
-			else {
-				if (t->right->right) {
+			else 
+			{
+				if (t->right->right) 
+				{
 					St.push(make_pair(t, 4));
 					t = t->right->right;
 				}
-				else {
+				else 
+				{
 					t->right->right = new Node(k);
 					up = t->right->next = true;
+					new_node = t->right->right;
 					cont = false;
 				}
 			}
 		}
-		else if (t->right) {
+		else if (t->right) 
+		{
 			St.push(make_pair(t, 3));
 			t = t->right;
 		}
-		else {
+		else 
+		{
 			t->right = new Node(k);
 			t->next = true;
+			new_node = t->right;
 			cont = false;
 		}
-		while (up) {
-			swap(t->key, t->right->key);
+
+		while (up) 
+		{
+			std::swap(t->key, t->right->key);
 			Node * t1{ t->right };
 			t->next = t1->next = false;
 			t->right = t->right->right;
@@ -186,95 +235,100 @@ pair<tree_iter, bool> Tree::insert(int k, tree_iter where)
 			t->left = t1;
 			t1 = t;
 			t = St.top().first;
-			switch (St.top().second) {
-			case 1:
-				++height;
-				up = false;
-				break;
-			case 2:
-				swap(t->key, t1->key);
-				t->left = t1->left;
-				t1->left = t1->right;
-				t1->right = t->right;
-				t->right = t1;
-				up = t1->next = t->next;
-				break;
-			case 3:
-				if (t->next) {
-					t->right->left = t1->right;
+			new_node = t1;
+			switch (St.top().second) 
+			{
+				case 1:
+					++height;
+					up = false;
+					break;
+				case 2:
+					std::swap(t->key, t1->key);
+					t->left = t1->left;
+					t1->left = t1->right;
 					t1->right = t->right;
 					t->right = t1;
-					t1->next = true;
-				}
-				else {
-					t->next = true;
-					up = t1->next = false;
-					St.pop();
-				}
-				break;
-			case 4:
-				t->right->next = true;
-				t1->next = false;
+					up = t1->next = t->next;
+					break;
+				case 3:
+					if (t->next) 
+					{
+						t->right->left = t1->right;
+						t1->right = t->right;
+						t->right = t1;
+						t1->next = true;
+					}
+					else 
+					{
+						t->next = true;
+						up = t1->next = false;
+						St.pop();
+					}
+					break;
+				case 4:
+					t->right->next = true;
+					t1->next = false;
 			}
 			if (up) St.pop();
 		}
 	}
+
 	++count;
-	return make_pair(tree_iter(t, move(St)), true);
+	return make_pair(tree_iter(new_node, move(St)), true);
 };
 
-bool Tree::erase(int k)
-{
+// bool Tree::erase(int k)
+// {
 
-	Node *p{ nullptr }, *q{ root };
-	int a{ 0 };
-	bool cont{ q != nullptr };
+// 	Node *p{ nullptr }, *q{ root };
+// 	int a{ 0 };
+// 	bool cont{ q != nullptr };
 
-	while (cont && (k != q->key)) {
-		p = q;
-		if (a = k > q->key)
-			q = q->right;
-		else q = q->left;
-		cont = (q != nullptr);
-	}
-	if (cont) {
-		Node *r{ root };
+// 	while (cont && (k != q->key)) {
+// 		p = q;
+// 		if (a = k > q->key)
+// 			q = q->right;
+// 		else q = q->left;
+// 		cont = (q != nullptr);
+// 	}
+// 	if (cont) {
+// 		Node *r{ root };
 
-		if (r = q->right) {
-			if (r->left) {
-				p = q;
-				a = 1;
-				do {
-					p = r;
-					r = r->left;
-					a = 0;
-				} while (r->left);
-				q->key = r->key;
-				p->left = r->right;
-				q = r;
-			}
-			else {
-				(a ? r->right : r->left) = q->left;
-				if (p) (a ? p->right : p->left) = r;
-				else root = r;
-			}
-		}
-		else {
-			if (p) {
-				if (a) {
-					p->right = q->left; p->next = false;
-				}
-				else  p->left = q->left;
-			}
-			else root = q->left;
-		}
-		q->left = q->right = nullptr;
-		--count;
-		delete q;
-		return true;
-	}
-	else return false;
-}
+// 		if (r = q->right) {
+// 			if (r->left) {
+// 				p = q;
+// 				a = 1;
+// 				do {
+// 					p = r;
+// 					r = r->left;
+// 					a = 0;
+// 				} while (r->left);
+// 				q->key = r->key;
+// 				p->left = r->right;
+// 				q = r;
+// 			}
+// 			else {
+// 				(a ? r->right : r->left) = q->left;
+// 				if (p) (a ? p->right : p->left) = r;
+// 				else root = r;
+// 			}
+// 		}
+// 		else {
+// 			if (p) {
+// 				if (a) {
+// 					p->right = q->left; p->next = false;
+// 				}
+// 				else  p->left = q->left;
+// 			}
+// 			else root = q->left;
+// 		}
+// 		q->left = q->right = nullptr;
+// 		--count;
+// 		delete q;
+// 		return true;
+// 	}
+// 	else return false;
+// }
 
 Tree & Tree::operator= (const Tree & other)
 {
@@ -283,25 +337,6 @@ Tree & Tree::operator= (const Tree & other)
         temp.insert(x);
     swap(temp);
     return *this;
-}
-
-void Node::out(int row, int col)
-{
-	if ((row > MAXROW) || (col < 0) || (col > MAXCOL)) return;
-	try {
-		if (row > MAXOUT)
-			SCREEN[row].replace(col, 3, "+++");
-		else 
-		{
-			SCREEN[row].replace(col, 3, to_string(key));
-			if (next) 
-			{
-				if (right)SCREEN[row + 1].replace(col + 1, 3, to_string(right->key));
-				else SCREEN[row + 1].replace(col + 1, 3, "***");
-			}
-		}
-	}
-	catch (out_of_range) { cout << "Out: row=" << row << " col=" << col; }
 }
 
 void Tree::display()

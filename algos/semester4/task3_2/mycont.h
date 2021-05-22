@@ -84,7 +84,12 @@ class mycont
 mycont::mycont(int power) : mycont()
 {
     for(int i = 0; i < power; ++i)
-        seq_.push_back(set_.insert(std::rand()%(power*3)).first);
+    {
+        int a = std::rand()%(power*3);
+        cout << a << " ";
+        seq_.push_back(set_.insert(a).first);
+    }
+    cout << "\n";
 }
 
 mycont::mycont (mycont && source)
@@ -138,7 +143,7 @@ void mycont::merge(const mycont & other)
 { 
 	using std::sort;
 	Seq temp(other.seq_), res;
-	auto le = [ ] (MyIt a, MyIt b)->bool { return *a < *b; };
+	auto le = [ ] (Iterator a, Iterator b)->bool { return *a < *b; };
 	std::merge(seq_.begin(), seq_.end(), temp.begin( ), temp.end( ), 
         std::back_inserter(res), le);
     for (auto x : other.set_)
