@@ -14,6 +14,7 @@ import java.util.List;
 //import net.sf.jasperreports.engine.data.JRXmlDataSource;
 //import net.sf.jasperreports.engine.export.JRPdfExporter;
 
+
 public class ContractWindow
 {
     ContractWindow()
@@ -68,7 +69,6 @@ public class ContractWindow
 
     /** Логгер класса */
 //    private static final Logger log = Logger.getLogger(ContractWindow.class);
-
     private AddDialogContract addDialogContract;
     private EditDialogContract editDialogContract;
 

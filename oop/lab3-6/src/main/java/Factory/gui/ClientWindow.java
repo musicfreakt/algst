@@ -3,18 +3,33 @@ package Factory.gui;
 import Factory.model.*;
 import Factory.service.*;
 
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRXmlDataSource;
+import net.sf.jasperreports.engine.export.JRPdfExporter;
+import org.w3c.dom.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.io.*;
 import java.util.List;
-//import net.sf.jasperreports.engine.*;
-//import net.sf.jasperreports.engine.data.JRXmlDataSource;
-//import net.sf.jasperreports.engine.export.JRPdfExporter;
+import java.util.logging.*;
 
+
+/** Класс приложения, визуализирующий экранную форму с менеджерами */
 public class ClientWindow
 {
+    /** Стандартный конструктор */
     ClientWindow()
     {
         show();
@@ -44,6 +59,12 @@ public class ClientWindow
     /** Таблица */
     protected JTable dataClients;
 
+    /** Поле поискового запроса */
+    private JTextField textSearch;
+
+    /** Поиск */
+    private JButton search;
+
     /** Скролл */
     private JScrollPane scroll;
 
@@ -52,21 +73,28 @@ public class ClientWindow
 
     /** Поток 1 отвечает за редактирование данных */
     Thread t1 = new Thread();
+
     /** Поток 3 отвечает за формирование отчет */
     Thread t2 = new Thread();
 
     /** Логгер класса */
-//    private static final Logger log = Logger.getLogger(ClientWindow.class);
+    private static final Logger log = Logger.getLogger(ClientWindow.class.getName());
 
+    /** Диалог добавления данных */
     private AddDialogClient addDialogClient;
+
+    /** Диалог измения данных */
     private EditDialogClient editDialogClient;
 
+    /** Метод отображения окна */
     public void show()
     {
+        log.info("Открытие окна ManagerWindow");
         window = new JFrame("Список клиентов завода");
         window.setSize(1000,500);
         window.setLocation(310,130);
         window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        log.info("Добавление кнопок к окну ClientWindow");
         // Создание кнопок и прикрепление иконок
         add = new JButton("Добавить");
         delete = new JButton("Удалить");
@@ -89,7 +117,7 @@ public class ClientWindow
         window.add(toolBar,BorderLayout.NORTH);
         // Создание таблицы с данными
         String[] columns = {"ID", "Имя", "Фамилия", "Компания"};
-
+        log.info("Добавление таблицы с данными к окну ClientWindow");
         List<Client> clientsList = clientService.findAll();
         String [][] data = new String[clientsList.size()][4];
         for (int i = 0; i < clientsList.size(); i++)
@@ -125,34 +153,59 @@ public class ClientWindow
         // Размещение таблицы с данными
         window.add(scroll,BorderLayout.CENTER);
 
+        // Подготовка компонентов поиска
+        textSearch = new JTextField();
+        textSearch.setColumns(20);
+        search = new JButton("Поиск");
+        window.getRootPane().setDefaultButton(search);
+        // remove the binding for pressed
+        window.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke("ENTER"), "none");
+        // retarget the binding for released
+        window.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke("released ENTER"), "press");
+        // Добавление компонентов на панель
+        JPanel searchPanel = new JPanel();
+        searchPanel.add(textSearch);
+        searchPanel.add(search);
+
+        // Размещение панели поиска внизу окна
+        window.add(searchPanel,BorderLayout.SOUTH);
 
         add.addActionListener((e) -> {
+            log.info("Старт Add listener");
             addDialogClient = new AddDialogClient(window, ClientWindow.this, "Добавление записи");
             addDialogClient.setVisible(true);
         });
 
         add.setMnemonic(KeyEvent.VK_A);
         delete.addActionListener((e) -> {
+            log.info("Старт Delete listener");
             if (dataClients.getRowCount() > 0) {
                 if (dataClients.getSelectedRow() != -1) {
                     try {
                         clientService.delete(Integer.parseInt(dataClients.getValueAt(dataClients.getSelectedRow(), 0).toString()));
                         model.removeRow(dataClients.convertRowIndexToModel(dataClients.getSelectedRow()));
                         JOptionPane.showMessageDialog(window, "Вы удалили строку");
+                        log.info("Была удалена строка данных");
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(null, "Ошибка");
+                        log.log(Level.SEVERE, "Исключение: ", ex);
                     }
                 } else {
                     JOptionPane.showMessageDialog(null, "Вы не выбрали строку для удаления");
+                    log.log(Level.WARNING, "Исключение: не выбрана строка для удаление");
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего удалять");
+                log.log(Level.WARNING, "Исключение: нет записей. нечего удалять");
             }
         });
 
         delete.setMnemonic(KeyEvent.VK_D);
 
         edit.addActionListener((e)-> {
+            log.info("Старт Edit listener");
             if (model.getRowCount() != 0) {
                 if (dataClients.getSelectedRow() != -1) {
                     t1 = new Thread(() -> {
@@ -163,18 +216,28 @@ public class ClientWindow
                     t1.start();
                 } else {
                     JOptionPane.showMessageDialog(null, "Не выбрана строка. Нечего редактировать");
+                    log.log(Level.WARNING, "Исключение: не выбрана строка для удаление");
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего редактировать");
+                log.log(Level.WARNING, "Исключение: нет записей. нечего удалять");
             }
         });
         edit.setMnemonic(KeyEvent.VK_E);
 
         print.addActionListener((e)->{
-//            if (model.getRowCount() != 0)
-//            {
-//                employs.print("dataClients.xml", "window/dataClients", "prod.jrxml", "otchetProd.pdf");
-//            }
+            log.info("Старт Print listener");
+            if (model.getRowCount() != 0) {
+                try {
+                    makeXml();
+                    ManagerWindow.print("dataClients.xml", "window/dataClients", "clients.jrxml", "reportClients.pdf");
+                }
+                catch (Exception ex)
+                {
+                    JOptionPane.showMessageDialog(null, "Ошибка");
+                    log.log(Level.SEVERE, "Исключение: ", ex);
+                }
+            }
         });
 
         // Если не выделена строка, то прячем кнопки
@@ -184,94 +247,104 @@ public class ClientWindow
             delete.setVisible(check);
         });
 
+        search.addActionListener((e) -> {
+            if (model.getRowCount() != 0) {
+                if (!textSearch.getText().isEmpty())
+                    log.info("Запуск нового поиска по ключевому слову: " + textSearch.getText());
+                else
+                    log.info("Сброс ключевого слова поиска");
+                TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(((DefaultTableModel) model));
+                sorter.setStringConverter(new TableStringConverter() {
+                    @Override
+                    public String toString(TableModel model, int row, int column) {
+                        return model.getValueAt(row, column).toString().toLowerCase();
+                    }
+                });
+                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + textSearch.getText().toLowerCase()));
+                dataClients.setRowSorter(sorter);
+            }
+        });
+
         window.setVisible(true);
     }
 
-//    /**
-//     * Метод генерации отчетов в форматах DOCX и HTML.
-//     * P.S генерация в формате PDF возможна, но символы кириллицы отображаться не будут.
-//     * @param datasource Имя файла XML с данными
-//     * @param xpath Директория до полей с данными. Ex.: "BookList/Books" - Fields
-//     * @param template Имя файла шаблона .jrxml
-//     * @param resultpath Имя файла, в который будет помещен отчет
-//     */
-//    public static void print(String datasource, String xpath, String template, String resultpath){
-//        try {
-//            // Указание источника XML-данных
-//            JRDataSource jr = new JRXmlDataSource(datasource, xpath);
-//            // Создание отчета на базе шаблона
-//            JasperReport report = JasperCompileClient.compileReport(template);
-//            // Заполнение отчета данными
-//            JasperPrint print = JasperFillClient.fillReport(report, null, jr);
-//            //JasperExportClient.exportReportToHtmlFile(print,resultpath);
-//            if(resultpath.toLowerCase().endsWith("pdf")) {
-//                JRExporter exporter;
-//                exporter = new JRPdfExporter();
-//                exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME,resultpath);
-//                exporter.setParameter(JRExporterParameter.JASPER_PRINT,print);
-//                exporter.exportReport();
-//            }
-//            else
-//                JasperExportClient.exportReportToHtmlFile(print,resultpath);
-//            JOptionPane.showMessageDialog(null,"3 поток закончил работу. Отчет создан");
-//        }
-//        catch (JRException e){
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    /**
-//     * Метод чтения данных из файла
-//     * @param filename Имя файла
-//     */
-//    public  void read(String filename){
-//        try{
-//            BufferedReader reader = new BufferedReader(new FileReader(filename));
-//            for(int i = 0; i<model.getRowCount();i++)
-//                model.removeRow(0);
-//            String temp;
-//            do{
-//                temp = reader.readLine();
-//                if(temp!=null){
-//                    String[] temp2 = temp.split(";");
-//                    model.addRow(temp2);
-//                }
-//            }while(temp!=null);
-//            reader.close();
-//
-//        }
-//        catch (FileNotFoundException e){
-//            e.printStackTrace();
-//        }
-//        catch (IOException e){
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    /**
-//     * Метод записи данных в файл
-//     * @param filename Имя файла
-//     */
-//    public void write(String filename){
-//        try{
-//            BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-//            for(int i = 0; i<model.getRowCount();i++) {
-//                for (int j = 0; j < model.getColumnCount(); j++) {
-//                    writer.write((String) model.getValueAt(i, j));
-//                    if(j!=model.getColumnCount()-1)
-//                        writer.write(";");
-//                }
-//                if(i!=model.getRowCount()-1)
-//                    writer.write("\r\n");
-//            }
-//            writer.close();
-//        }
-//        catch (IOException e){
-//            e.printStackTrace();
-//        }
-//    }
+    /** Метод загрузки данных в XML файл */
+    public void makeXml() {
+        try {
+            // Создание парсера документа
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            // Создание пустого документа
+            Document doc = builder.newDocument();
+            // Создание корневого элемента window и добавление его в документ
+            Node window = doc.createElement("window");
+            doc.appendChild(window);
+            // Создание дочерних элементов dataEmploy и присвоение значений атрибутам
+            for (int i = 0; i < model.getRowCount(); i++) {
+                Element dataManager = doc.createElement("dataClients");
+                window.appendChild(dataManager);
+                dataManager.setAttribute("name", (String) model.getValueAt(i, 0));
+                dataManager.setAttribute("surname", (String) model.getValueAt(i, 1));
+                dataManager.setAttribute("company", (String) model.getValueAt(i, 2));
+            }
+            try {
+                // Создание преобразователя документа
+                Transformer trans = TransformerFactory.newInstance().newTransformer();
+                // Создание файла с именем dataEmploy.xml для записи документа
+                java.io.FileWriter fw = new FileWriter("dataClients.xml");
+                // Запись документа в файл
+                trans.transform(new DOMSource(doc), new StreamResult(fw));
+            } catch (TransformerConfigurationException e) {
+                e.printStackTrace();
+            } catch (TransformerException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
 
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * Метод генерации отчетов в форматах DOCX и HTML.
+     * @param datasource Имя файла XML с данными
+     * @param xpath Директория до полей с данными
+     * @param template Имя файла шаблона .jrxml
+     * @param resultpath Имя файла, в который будет помещен отчет
+     */
+    public static void print(String datasource, String xpath, String template, String resultpath)
+    {
+        try
+        {
+            // Указание источника XML-данных
+            JRDataSource jr = new JRXmlDataSource(datasource, xpath);
+            // Создание отчета на базе шаблона
+            JasperReport report = JasperCompileManager.compileReport(template);
+            // Заполнение отчета данными
+            JasperPrint print = JasperFillManager.fillReport(report, null, jr);
+
+            if(resultpath.toLowerCase().endsWith("pdf")) {
+                JRExporter exporter;
+                exporter = new JRPdfExporter();
+                exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME,resultpath);
+                exporter.setParameter(JRExporterParameter.JASPER_PRINT,print);
+                exporter.exportReport();
+            }
+            else
+                JasperExportManager.exportReportToHtmlFile(print,resultpath);
+            JOptionPane.showMessageDialog(null,"2 поток закончил работу. Отчет создан");
+        }
+        catch (JRException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Вспомогательный метод добавления данных в таблицу
+     * @param arr - данные, полученные от пользователя
+     */
     public void addR(String[] arr)
     {
         Client newC = new Client(arr[0], arr[1], arr[2]);
@@ -279,6 +352,10 @@ public class ClientWindow
         model.addRow(newC.toTableFormat());
     }
 
+    /**
+     * Вспомогательный метод изменения данных в таблице
+     * @param arr - данные, полученные от пользователя
+     */
     public void editR(String[] arr)
     {
         Client C = clientService.findById(Integer.parseInt(arr[0]));

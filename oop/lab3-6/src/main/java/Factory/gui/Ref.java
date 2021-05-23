@@ -3,7 +3,7 @@ package Factory.gui;
 import javax.swing.*;
 import java.awt.*;
 
-// Класс окна справки
+/** Класс окна справки */
 public class Ref extends JDialog
 {
     public Ref(JFrame owner, String title)

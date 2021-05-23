@@ -31,6 +31,7 @@ Factory/gui/DialogContract.class
 Factory/model/Employee.class
 Factory/gui/DialogWorker$1.class
 Factory/gui/ManagerWindow.class
+Factory/gui/WorkerWindow$3.class
 Factory/service/ClientService.class
 Factory/gui/DialogClient.class
 Factory/gui/ManagerWindow$1.class
@@ -43,6 +44,7 @@ Factory/gui/WorkerWindow.class
 Factory/service/EmployeeService.class
 Factory/gui/DialogWorker.class
 Factory/dao/SpecialisationDAO.class
+Factory/gui/SpecialisationWindow$3.class
 Factory/gui/EditDialogSpecialisation.class
 Factory/gui/DialogManager$2.class
 Factory/gui/SpecialisationWindow.class

@@ -4,23 +4,11 @@ import Factory.model.*;
 import Factory.service.*;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.List;
-
-//import javax.xml.parsers.DocumentBuilderFactory;
-//import javax.xml.parsers.ParserConfigurationException;
-//import javax.xml.transform.Transformer;
-//import javax.xml.transform.TransformerConfigurationException;
-//import javax.xml.transform.TransformerException;
-//import javax.xml.transform.TransformerFactory;
-//import javax.xml.transform.dom.DOMSource;
-//import javax.xml.transform.stream.StreamResult;
-//import net.sf.jasperreports.engine.*;
-//import net.sf.jasperreports.engine.data.JRXmlDataSource;
-//import net.sf.jasperreports.engine.export.JRPdfExporter;
+import java.util.logging.*;
 
 public class SpecialisationWindow
 {
@@ -53,6 +41,12 @@ public class SpecialisationWindow
     /** Таблица */
     protected JTable dataSpecialisations;
 
+    /** Поле поискового запроса */
+    private JTextField textSearch;
+
+    /** Поиск */
+    private JButton search;
+
     /** Скролл */
     private JScrollPane scroll;
 
@@ -65,19 +59,20 @@ public class SpecialisationWindow
     Thread t2 = new Thread();
 
     /** Логгер класса */
-//    private static final Logger log = Logger.getLogger(SpecialisationWindow.class);
-
+    private static final Logger log = Logger.getLogger(SpecialisationWindow.class.getName());
 
     private AddDialogSpecialisation addDialogSpecialisation;
     private EditDialogSpecialisation editDialogSpecialisation;
 
     public void show()
     {
+        log.info("Открытие окна SpecialisationWindow");
         window = new JFrame("Список менеджеров завода");
         window.setSize(1000,500);
         window.setLocation(310,130);
         window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         // Создание кнопок и прикрепление иконок
+        log.info("Добавление кнопок к окну SpecialisationWindow");
         add = new JButton("Добавить");
         delete = new JButton("Удалить");
         edit = new JButton("Редактировать");
@@ -98,6 +93,7 @@ public class SpecialisationWindow
         window.setLayout(new BorderLayout());
         window.add(toolBar,BorderLayout.NORTH);
         // Создание таблицы с данными
+        log.info("Добавление таблицы с данными к окну SpecialisationWindow");
         String[] columns = {"ID", "Название должности"};
 
         List<Specialisation> specialisationsList = specialisationService.findAll();
@@ -135,6 +131,24 @@ public class SpecialisationWindow
         // Размещение таблицы с данными
         window.add(scroll,BorderLayout.CENTER);
 
+        textSearch = new JTextField();
+        textSearch.setColumns(20);
+        search = new JButton("Поиск");
+        window.getRootPane().setDefaultButton(search);
+// remove the binding for pressed
+        window.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke("ENTER"), "none");
+// retarget the binding for released
+        window.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke("released ENTER"), "press");
+        // Добавление компонентов на панель
+        JPanel searchPanel = new JPanel();
+        searchPanel.add(textSearch);
+        searchPanel.add(search);
+
+        // Размещение панели поиска внизу окна
+        window.add(searchPanel,BorderLayout.SOUTH);
+
         // Если не выделена строка, то прячем кнопки
         dataSpecialisations.getSelectionModel().addListSelectionListener((e) -> {
             boolean check = !dataSpecialisations.getSelectionModel().isSelectionEmpty();
@@ -143,32 +157,39 @@ public class SpecialisationWindow
         });
 
         add.addActionListener((e) -> {
+            log.info("Старт Add listener");
             addDialogSpecialisation = new AddDialogSpecialisation(window, SpecialisationWindow.this, "Добавление записи");
             addDialogSpecialisation.setVisible(true);
         });
 
         add.setMnemonic(KeyEvent.VK_A);
         delete.addActionListener((e) -> {
+            log.info("Старт Delete listener");
             if (dataSpecialisations.getRowCount() > 0) {
                 if (dataSpecialisations.getSelectedRow() != -1) {
                     try {
                         specialisationService.delete(Integer.parseInt(dataSpecialisations.getValueAt(dataSpecialisations.getSelectedRow(), 0).toString()));
                         model.removeRow(dataSpecialisations.convertRowIndexToModel(dataSpecialisations.getSelectedRow()));
                         JOptionPane.showMessageDialog(window, "Вы удалили строку");
+                        log.info("Была удалена строка данных");
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(null, "Ошибка");
+                        log.log(Level.SEVERE, "Исключение: ", ex);
                     }
                 } else {
                     JOptionPane.showMessageDialog(null, "Вы не выбрали строку для удаления");
+                    log.log(Level.WARNING, "Исключение: не выбрана строка для удаление");
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего удалять");
+                log.log(Level.WARNING, "Исключение: нет записей. нечего удалять");
             }
         });
 
         delete.setMnemonic(KeyEvent.VK_D);
 
         edit.addActionListener((e)-> {
+            log.info("Старт Edit listener");
             if (model.getRowCount() != 0) {
                 if (dataSpecialisations.getSelectedRow() != -1) {
                     t1 = new Thread(() -> {
@@ -179,98 +200,35 @@ public class SpecialisationWindow
                     t1.start();
                 } else {
                     JOptionPane.showMessageDialog(null, "Не выбрана строка. Нечего редактировать");
+                    log.log(Level.WARNING, "Исключение: не выбрана строка для редактирования");
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего редактировать");
+                log.log(Level.WARNING, "Исключение: нет записей. нечего редактировать");
             }
         });
         edit.setMnemonic(KeyEvent.VK_E);
 
-        print.addActionListener((e)->{
-//            if (model.getRowCount() != 0)
-//            {
-//                SpecialisationWindow.print();
-//            }
+        search.addActionListener((e) -> {
+            if (model.getRowCount() != 0) {
+                if (!textSearch.getText().isEmpty())
+                    log.info("Запуск нового поиска по ключевому слову: " + textSearch.getText());
+                else
+                    log.info("Сброс ключевого слова поиска");
+                TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(((DefaultTableModel) model));
+                sorter.setStringConverter(new TableStringConverter() {
+                    @Override
+                    public String toString(TableModel model, int row, int column) {
+                        return model.getValueAt(row, column).toString().toLowerCase();
+                    }
+                });
+                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + textSearch.getText().toLowerCase()));
+                dataSpecialisations.setRowSorter(sorter);
+            }
         });
 
         window.setVisible(true);
     }
-
-
-//    /**
-//     * Метод загрузки данных в XML файл
-//     */
-//    public void makeXml() {
-//        try {
-//            // Создание парсера документа
-//            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-//            // Создание пустого документа
-//            Document doc = builder.newDocument();
-//            // Создание корневого элемента window и добавление его в документ
-//            Node window = doc.createElement("window");
-//            doc.appendChild(window);
-//            // Создание дочерних элементов dataEmploy и присвоение значений атрибутам
-//            for (int i = 0; i < model.getRowCount(); i++) {
-//                Element dataSpecialisation = doc.createElement("dataSpecialisation");
-//                window.appendChild(dataSpecialisation);
-//                dataSpecialisation.setAttribute("name", (String) model.getValueAt(i, 0));
-//                dataSpecialisation.setAttribute("surname", (String) model.getValueAt(i, 1));
-//            }
-//            try {
-//                // Создание преобразователя документа
-//                Transformer trans = TransformerFactory.newInstance().newTransformer();
-//                // Создание файла с именем dataEmploy.xml для записи документа
-//                java.io.FileWriter fw = new FileWriter("dataSpecialisation.xml");
-//                // Запись документа в файл
-//                trans.transform(new DOMSource(doc), new StreamResult(fw));
-//            } catch (TransformerConfigurationException e) {
-//                e.printStackTrace();
-//            } catch (TransformerException e) {
-//                e.printStackTrace();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//
-//        } catch (ParserConfigurationException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//    /**
-//     * Метод генерации отчетов в форматах DOCX и HTML.
-//     * P.S генерация в формате PDF возможна, но символы кириллицы отображаться не будут.
-//     * @param datasource Имя файла XML с данными
-//     * @param xpath Директория до полей с данными. Ex.: "BookList/Books" - Fields
-//     * @param template Имя файла шаблона .jrxml
-//     * @param resultpath Имя файла, в который будет помещен отчет
-//     */
-//    public static void print(String datasource, String xpath, String template, String resultpath)
-//    {
-//        try
-//        {
-//            // Указание источника XML-данных
-//            JRDataSource jr = new JRXmlDataSource(datasource, xpath);
-//            // Создание отчета на базе шаблона
-//            JasperReport report = JasperCompileSpecialisation.compileReport(template);
-//            // Заполнение отчета данными
-//            JasperPrint print = JasperFillSpecialisation.fillReport(report, null, jr);
-//
-//            if(resultpath.toLowerCase().endsWith("pdf")) {
-//                JRExporter exporter;
-//                exporter = new JRPdfExporter();
-//                exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME,resultpath);
-//                exporter.setParameter(JRExporterParameter.JASPER_PRINT,print);
-//                exporter.exportReport();
-//            }
-//            else
-//                JasperExportSpecialisation.exportReportToHtmlFile(print,resultpath);
-//            JOptionPane.showMessageDialog(null,"2 поток закончил работу. Отчет создан");
-//        }
-//        catch (JRException e)
-//        {
-//            e.printStackTrace();
-//        }
-//    }
 
     public void addR(String name)
     {
