@@ -52,6 +52,9 @@ public class ManagerWindow
     /** Печать */
     private JButton print;
 
+    /** Показать всех клиентов */
+    private JButton clients;
+
     /** Панель инструментов */
     private JToolBar toolBar;
 
@@ -98,18 +101,21 @@ public class ManagerWindow
         delete = new JButton("Удалить");
         edit = new JButton("Редактировать");
         print = new JButton("Печать");
+        clients = new JButton("Клиенты");
 
         // Настройка подсказок
         add.setToolTipText("Добавить информацию о менеджерах");
         delete.setToolTipText("Удалить информацию о менеджерах");
         edit.setToolTipText("Изменить информацию о менеджерах");
         print.setToolTipText("Распечатать информацию о менеджерах");
+        clients.setToolTipText("Показать клиентов менеджера");
         // Добавление кнопок на панель инструментов
         toolBar = new JToolBar("Панель инструментов");
         toolBar.add(add);
         toolBar.add(delete);
         toolBar.add(edit);
         toolBar.add(print);
+        toolBar.add(clients);
         // Размещение панели инструментов
         window.setLayout(new BorderLayout());
         window.add(toolBar,BorderLayout.NORTH);

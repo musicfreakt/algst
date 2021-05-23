@@ -3,20 +3,33 @@ package Factory.gui;
 import Factory.model.*;
 import Factory.service.*;
 
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRXmlDataSource;
+import net.sf.jasperreports.engine.export.JRPdfExporter;
+import org.w3c.dom.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.util.Date;
+import java.io.*;
 import java.util.List;
-//import net.sf.jasperreports.engine.*;
-//import net.sf.jasperreports.engine.data.JRXmlDataSource;
-//import net.sf.jasperreports.engine.export.JRPdfExporter;
+import java.util.Date;
+import java.util.logging.*;
 
-
+/** Класс приложения, визуализирующий экранную форму с договорами */
 public class ContractWindow
 {
+    /** Стандартный конструктор */
     ContractWindow()
     {
         show();
@@ -43,11 +56,20 @@ public class ContractWindow
     /** Завершить */
     private JButton end;
 
+    /** Показать описание */
+    private JButton description;
+
     /** Панель инструментов */
     private JToolBar toolBar;
 
     /** Таблица */
     protected JTable dataContracts;
+
+    /** Поле поискового запроса */
+    private JTextField textSearch;
+
+    /** Поиск */
+    private JButton search;
 
     /** Скролл */
     private JScrollPane scroll;
@@ -61,28 +83,35 @@ public class ContractWindow
     /** Сервис Клиентов */
     private ClientService clientService = new ClientService();
 
-
     /** Поток 1 отвечает за редактирование данных */
     Thread t1 = new Thread();
+
     /** Поток 2 отвечает за формирование отчет */
     Thread t2 = new Thread();
 
     /** Логгер класса */
-//    private static final Logger log = Logger.getLogger(ContractWindow.class);
+    private static final Logger log = Logger.getLogger(ContractWindow.class.getName());
+
+    /** Диалог добавления данных */
     private AddDialogContract addDialogContract;
+
+    /** Диалог измения данных */
     private EditDialogContract editDialogContract;
 
     public void show()
     {
+        log.info("Открытие окна ContractWindow");
         window = new JFrame("Список договоров завода");
         window.setSize(1000,500);
         window.setLocation(310,130);
         window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         // Создание кнопок и прикрепление иконок
+        log.info("Добавление кнопок к окну ContractWindow");
         add = new JButton("Добавить");
         delete = new JButton("Удалить");
         edit = new JButton("Редактировать");
         print = new JButton("Печать");
+        description = new JButton("Описание");
         end = new JButton("Завершить");
 
         // Настройка подсказок
@@ -90,19 +119,23 @@ public class ContractWindow
         delete.setToolTipText("Удалить контракт");
         edit.setToolTipText("Изменить контракт");
         print.setToolTipText("Распечатать контракты");
+        description.setToolTipText("Показать описание контракта");
+        end.setToolTipText("Завершить выполнение контракта");
         // Добавление кнопок на панель инструментов
         toolBar = new JToolBar("Панель инструментов");
         toolBar.add(add);
         toolBar.add(delete);
         toolBar.add(edit);
         toolBar.add(print);
+        toolBar.add(description);
         toolBar.add(end);
         // Размещение панели инструментов
         window.setLayout(new BorderLayout());
         window.add(toolBar,BorderLayout.NORTH);
+
         // Создание таблицы с данными
         String[] columns = {"ID", "Описание", "Цена", "Клиент", "Менеджер", "Дата подписания", "Дата окончания работ", "Состояние"};
-
+        log.info("Добавление таблицы с данными к окну ContractWindow");
         List<Contract> contractsList = contractService.findAll();
         String [][] data = new String[contractsList.size()][5];
         for (int i = 0; i < contractsList.size(); i++)
@@ -133,46 +166,73 @@ public class ContractWindow
 
         });
 
-        scroll = new JScrollPane(this.dataContracts);
-
-        // Размещение таблицы с данными
-        window.add(scroll,BorderLayout.CENTER);
-
         // Если не выделена строка, то прячем кнопки
         dataContracts.getSelectionModel().addListSelectionListener((e) -> {
             boolean check = !dataContracts.getSelectionModel().isSelectionEmpty();
             edit.setVisible(check);
             delete.setVisible(check);
             end.setVisible(check);
+            description.setVisible(check);
         });
 
+        scroll = new JScrollPane(this.dataContracts);
+
+        // Размещение таблицы с данными
+        window.add(scroll,BorderLayout.CENTER);
+
+        // Подготовка компонентов поиска
+        textSearch = new JTextField();
+        textSearch.setColumns(20);
+        search = new JButton("Поиск");
+        window.getRootPane().setDefaultButton(search);
+        // remove the binding for pressed
+        window.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke("ENTER"), "none");
+        // retarget the binding for released
+        window.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke("released ENTER"), "press");
+        // Добавление компонентов на панель
+        JPanel searchPanel = new JPanel();
+        searchPanel.add(textSearch);
+        searchPanel.add(search);
+
+        // Размещение панели поиска внизу окна
+        window.add(searchPanel,BorderLayout.SOUTH);
+
         add.addActionListener((e) -> {
+            log.info("Старт Add listener");
             addDialogContract = new AddDialogContract(window, ContractWindow.this, "Добавление записи");
             addDialogContract.setVisible(true);
         });
 
         add.setMnemonic(KeyEvent.VK_A);
         delete.addActionListener((e) -> {
+            log.info("Старт Delete listener");
             if (dataContracts.getRowCount() > 0) {
                 if (dataContracts.getSelectedRow() != -1) {
                     try {
                         contractService.delete(Integer.parseInt(dataContracts.getValueAt(dataContracts.getSelectedRow(), 0).toString()));
                         model.removeRow(dataContracts.convertRowIndexToModel(dataContracts.getSelectedRow()));
                         JOptionPane.showMessageDialog(window, "Вы удалили строку");
+                        log.info("Была удалена строка данных");
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(null, "Ошибка");
+                        log.log(Level.SEVERE, "Исключение: ", ex);
                     }
                 } else {
                     JOptionPane.showMessageDialog(null, "Вы не выбрали строку для удаления");
+                    log.log(Level.WARNING, "Исключение: не выбрана строка для удаление");
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего удалять");
+                log.log(Level.WARNING, "Исключение: нет записей. нечего удалять");
             }
         });
 
         delete.setMnemonic(KeyEvent.VK_D);
 
         edit.addActionListener((e)-> {
+            log.info("Старт Edit listener");
             if (model.getRowCount() != 0) {
                 if (dataContracts.getSelectedRow() != -1) {
                     t1 = new Thread(() -> {
@@ -183,130 +243,181 @@ public class ContractWindow
                     t1.start();
                 } else {
                     JOptionPane.showMessageDialog(null, "Не выбрана строка. Нечего редактировать");
+                    log.log(Level.WARNING, "Исключение: не выбрана строка для редактирования");
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего редактировать");
+                log.log(Level.WARNING, "Исключение: нет записей. нечего редактировать");
             }
         });
         edit.setMnemonic(KeyEvent.VK_E);
 
         end.addActionListener((e) -> {
+            log.info("Старт End listener");
             if (dataContracts.getRowCount() > 0) {
                 if (dataContracts.getSelectedRow() != -1) {
                     try
                     {
                         contractService.setEnd(Integer.parseInt(dataContracts.getValueAt(dataContracts.getSelectedRow(), 0).toString()));
-//                        model.removeRow(dataContracts.convertRowIndexToModel(dataContracts.getSelectedRow())); // todo: сделать изменение
+                        // todo: сделать изменение
                         JOptionPane.showMessageDialog(window, "Вы отметили договор завершеным");
                     } catch (Exception ex)
                     {
                         JOptionPane.showMessageDialog(null, "Ошибка");
+                        log.log(Level.SEVERE, "Исключение: ", ex);
                     }
-                } else
-                    JOptionPane.showMessageDialog(null, "Вы не выбрали строку для удаления");
-            } else
-                JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего удалять");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Вы не выбрали договор для завершения");
+                    log.log(Level.WARNING, "Исключение: не выбрана строка для завершения");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего завершать");
+                log.log(Level.WARNING, "Исключение: нет записей. нечего завершать");
+            }
+        });
+
+        end.setMnemonic(KeyEvent.VK_D);
+
+        description.addActionListener((e) -> {
+            log.info("Старт Description listener");
+            if (dataContracts.getRowCount() > 0) {
+                if (dataContracts.getSelectedRow() != -1) {
+                    try
+                    {
+                        JOptionPane.showMessageDialog(window, dataContracts.getValueAt(dataContracts.getSelectedRow(), 1).toString());
+                    }
+                    catch (Exception ex)
+                    {
+                        JOptionPane.showMessageDialog(null, "Ошибка");
+                        log.log(Level.SEVERE, "Исключение: ", ex);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Вы не выбрали договор");
+                    log.log(Level.WARNING, "Исключение: не выбрана строка");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей");
+                log.log(Level.WARNING, "Исключение: нет записей");
+            }
         });
 
         end.setMnemonic(KeyEvent.VK_D);
 
         print.addActionListener((e)->{
-//            if (model.getRowCount() != 0)
-//            {
-//                employs.print("dataContracts.xml", "window/dataContracts", "prod.jrxml", "otchetProd.pdf");
-//            }
+            log.info("Старт Print listener");
+            if (model.getRowCount() != 0) {
+                try {
+                    makeXml();
+                    ContractWindow.print("dataContracts.xml", "window/dataContracts", "contracts.jrxml", "reportContracts.pdf");
+                }
+                catch (Exception ex)
+                {
+                    JOptionPane.showMessageDialog(null, "Ошибка");
+                    log.log(Level.SEVERE, "Исключение: ", ex);
+                }
+            }
         });
 
-
+        search.addActionListener((e) -> {
+            if (model.getRowCount() != 0) {
+                if (!textSearch.getText().isEmpty())
+                    log.info("Запуск нового поиска по ключевому слову: " + textSearch.getText());
+                else
+                    log.info("Сброс ключевого слова поиска");
+                TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(((DefaultTableModel) model));
+                sorter.setStringConverter(new TableStringConverter() {
+                    @Override
+                    public String toString(TableModel model, int row, int column) {
+                        return model.getValueAt(row, column).toString().toLowerCase();
+                    }
+                });
+                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + textSearch.getText().toLowerCase()));
+                dataContracts.setRowSorter(sorter);
+            }
+        });
 
         window.setVisible(true);
     }
 
-//    /**
-//     * Метод генерации отчетов в форматах DOCX и HTML.
-//     * P.S генерация в формате PDF возможна, но символы кириллицы отображаться не будут.
-//     * @param datasource Имя файла XML с данными
-//     * @param xpath Директория до полей с данными. Ex.: "BookList/Books" - Fields
-//     * @param template Имя файла шаблона .jrxml
-//     * @param resultpath Имя файла, в который будет помещен отчет
-//     */
-//    public static void print(String datasource, String xpath, String template, String resultpath){
-//        try {
-//            // Указание источника XML-данных
-//            JRDataSource jr = new JRXmlDataSource(datasource, xpath);
-//            // Создание отчета на базе шаблона
-//            JasperReport report = JasperCompileContract.compileReport(template);
-//            // Заполнение отчета данными
-//            JasperPrint print = JasperFillContract.fillReport(report, null, jr);
-//            //JasperExportContract.exportReportToHtmlFile(print,resultpath);
-//            if(resultpath.toLowerCase().endsWith("pdf")) {
-//                JRExporter exporter;
-//                exporter = new JRPdfExporter();
-//                exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME,resultpath);
-//                exporter.setParameter(JRExporterParameter.JASPER_PRINT,print);
-//                exporter.exportReport();
-//            }
-//            else
-//                JasperExportContract.exportReportToHtmlFile(print,resultpath);
-//            JOptionPane.showMessageDialog(null,"3 поток закончил работу. Отчет создан");
-//        }
-//        catch (JRException e){
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    /**
-//     * Метод чтения данных из файла
-//     * @param filename Имя файла
-//     */
-//    public  void read(String filename){
-//        try{
-//            BufferedReader reader = new BufferedReader(new FileReader(filename));
-//            for(int i = 0; i<model.getRowCount();i++)
-//                model.removeRow(0);
-//            String temp;
-//            do{
-//                temp = reader.readLine();
-//                if(temp!=null){
-//                    String[] temp2 = temp.split(";");
-//                    model.addRow(temp2);
-//                }
-//            }while(temp!=null);
-//            reader.close();
-//
-//        }
-//        catch (FileNotFoundException e){
-//            e.printStackTrace();
-//        }
-//        catch (IOException e){
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    /**
-//     * Метод записи данных в файл
-//     * @param filename Имя файла
-//     */
-//    public void write(String filename){
-//        try{
-//            BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-//            for(int i = 0; i<model.getRowCount();i++) {
-//                for (int j = 0; j < model.getColumnCount(); j++) {
-//                    writer.write((String) model.getValueAt(i, j));
-//                    if(j!=model.getColumnCount()-1)
-//                        writer.write(";");
-//                }
-//                if(i!=model.getRowCount()-1)
-//                    writer.write("\r\n");
-//            }
-//            writer.close();
-//        }
-//        catch (IOException e){
-//            e.printStackTrace();
-//        }
-//    }
+    /** Метод загрузки данных в XML файл */
+    public void makeXml() {
+        try {
+            // Создание парсера документа
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            // Создание пустого документа
+            Document doc = builder.newDocument();
+            // Создание корневого элемента window и добавление его в документ
+            Node window = doc.createElement("window");
+            doc.appendChild(window);
+            // Создание дочерних элементов dataEmploy и присвоение значений атрибутам
+            for (int i = 0; i < model.getRowCount(); i++) {
+                Element dataManager = doc.createElement("dataContracts");
+                window.appendChild(dataManager);
+                dataManager.setAttribute("description", (String) model.getValueAt(i, 1));
+                dataManager.setAttribute("price", (String) model.getValueAt(i, 2));
+                dataManager.setAttribute("client", (String) model.getValueAt(i, 3));
+                dataManager.setAttribute("manager", (String) model.getValueAt(i, 4));
+                dataManager.setAttribute("dateBegin", (String) model.getValueAt(i, 5));
+                dataManager.setAttribute("dateEnd", (String) model.getValueAt(i, 6));
+                dataManager.setAttribute("isEnd", (String) model.getValueAt(i, 7));
+            }
+            try {
+                // Создание преобразователя документа
+                Transformer trans = TransformerFactory.newInstance().newTransformer();
+                // Создание файла с именем dataEmploy.xml для записи документа
+                java.io.FileWriter fw = new FileWriter("dataClients.xml");
+                // Запись документа в файл
+                trans.transform(new DOMSource(doc), new StreamResult(fw));
+            } catch (TransformerConfigurationException e) {
+                e.printStackTrace();
+            } catch (TransformerException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
 
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Метод генерации отчетов в форматах DOCX и HTML.
+     * @param datasource Имя файла XML с данными
+     * @param xpath Директория до полей с данными.
+     * @param template Имя файла шаблона .jrxml
+     * @param resultpath Имя файла, в который будет помещен отчет
+     */
+    public static void print(String datasource, String xpath, String template, String resultpath){
+        try {
+            // Указание источника XML-данных
+            JRDataSource jr = new JRXmlDataSource(datasource, xpath);
+            // Создание отчета на базе шаблона
+            JasperReport report = JasperCompileManager.compileReport(template);
+            // Заполнение отчета данными
+            JasperPrint print = JasperFillManager.fillReport(report, null, jr);
+            //JasperExportContract.exportReportToHtmlFile(print,resultpath);
+            if(resultpath.toLowerCase().endsWith("pdf")) {
+                JRExporter exporter;
+                exporter = new JRPdfExporter();
+                exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME,resultpath);
+                exporter.setParameter(JRExporterParameter.JASPER_PRINT,print);
+                exporter.exportReport();
+            }
+            else
+                JasperExportManager.exportReportToHtmlFile(print,resultpath);
+            JOptionPane.showMessageDialog(null,"2 поток закончил работу. Отчет создан");
+        }
+        catch (JRException e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Вспомогательный метод добавления данных в таблицу
+     * @param arr - данные, полученные от пользователя
+     */
     public void addR(String[] arr, Date begin, Date end)
     {
         String[] r = arr[2].split(" ");
@@ -326,6 +437,11 @@ public class ContractWindow
         model.addRow(newM.toTableFormat());
     }
 
+
+    /**
+     * Вспомогательный метод изменения данных в таблице
+     * @param arr - данные, полученные от пользователя
+     */
     public void editR(String[] arr)
     {
         Contract C = contractService.findById(Integer.parseInt(arr[0]));
@@ -339,6 +455,7 @@ public class ContractWindow
         C.setManager(managerService.findById(manager_id));
         contractService.update(C);
     }
+
 
     public String[] getManagers()
     {

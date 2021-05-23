@@ -230,7 +230,7 @@ public class ClientWindow
             if (model.getRowCount() != 0) {
                 try {
                     makeXml();
-                    ManagerWindow.print("dataClients.xml", "window/dataClients", "clients.jrxml", "reportClients.pdf");
+                    ClientWindow.print("dataClients.xml", "window/dataClients", "clients.jrxml", "reportClients.pdf");
                 }
                 catch (Exception ex)
                 {
@@ -282,9 +282,9 @@ public class ClientWindow
             for (int i = 0; i < model.getRowCount(); i++) {
                 Element dataManager = doc.createElement("dataClients");
                 window.appendChild(dataManager);
-                dataManager.setAttribute("name", (String) model.getValueAt(i, 0));
-                dataManager.setAttribute("surname", (String) model.getValueAt(i, 1));
-                dataManager.setAttribute("company", (String) model.getValueAt(i, 2));
+                dataManager.setAttribute("name", (String) model.getValueAt(i, 1));
+                dataManager.setAttribute("surname", (String) model.getValueAt(i, 2));
+                dataManager.setAttribute("company", (String) model.getValueAt(i, 3));
             }
             try {
                 // Создание преобразователя документа
@@ -306,6 +306,7 @@ public class ClientWindow
             e.printStackTrace();
         }
     }
+
     /**
      * Метод генерации отчетов в форматах DOCX и HTML.
      * @param datasource Имя файла XML с данными

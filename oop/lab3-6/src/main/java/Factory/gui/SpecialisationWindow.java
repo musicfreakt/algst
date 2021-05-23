@@ -35,6 +35,9 @@ public class SpecialisationWindow
     /** Печать */
     private JButton print;
 
+//    /** Работники */
+//    private JButton employees;
+
     /** Панель инструментов */
     private JToolBar toolBar;
 
