@@ -1,5 +1,7 @@
 package Factory.model;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.*;
@@ -241,17 +243,23 @@ public class Contract
         isEnd = i;
     }
 
+    /**
+     * Функция получения всей информации об объекте
+     * @return  - массив строк с данными
+     */
     public String[] toTableFormat()
     {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
         return new String[] {
                 String.valueOf(id),
                 description,
                 String.valueOf(price),
                 String.valueOf(client.getID()) + " " + client.getName() + " " + client.getSurname(),
                 String.valueOf(manager.getID()) + " " + manager.getName() + " " + manager.getSurname(),
-                String.valueOf(dateBegin),
-                String.valueOf(dateEnd),
-                String.valueOf(isEnd)
+                df.format(dateBegin),
+                df.format(dateEnd),
+                isEnd ? "Выполнено" : "В процессе"
         };
     }
 

@@ -99,6 +99,10 @@ public class Specialisation
         employees.remove(e);
     }
 
+    /**
+     * Функция получения всей информации об объекте
+     * @return  - массив строк с данными
+     */
     public String[] toTableFormat()
     {
         return new String[] {String.valueOf(getID()), getName()};

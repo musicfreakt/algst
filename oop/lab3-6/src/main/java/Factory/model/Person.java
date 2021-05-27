@@ -91,5 +91,9 @@ public abstract class Person
         surname = newSurname;
     }
 
+    /**
+     * Функция получения всей информации об объекте
+     * @return  - массив строк с данными
+     */
     public abstract String[] toTableFormat();
 }

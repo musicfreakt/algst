@@ -3,9 +3,6 @@ package Factory.gui;
 import Factory.model.*;
 import Factory.service.*;
 
-import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.data.JRXmlDataSource;
-import net.sf.jasperreports.engine.export.JRPdfExporter;
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -305,10 +302,12 @@ public class ContractWindow
 
         print.addActionListener((e)->{
             log.info("Старт Print listener");
-            if (model.getRowCount() != 0) {
-                try {
+            if (model.getRowCount() != 0)
+            {
+                try
+                {
                     makeXml();
-                    ContractWindow.print("dataContracts.xml", "window/dataContracts", "contracts.jrxml", "reportContracts.pdf");
+                    ReportService.print("dataContracts.xml", "window/dataContracts", "contracts.jrxml", "reportContracts.pdf");
                 }
                 catch (Exception ex)
                 {
@@ -383,38 +382,6 @@ public class ContractWindow
     }
 
     /**
-     * Метод генерации отчетов в форматах DOCX и HTML.
-     * @param datasource Имя файла XML с данными
-     * @param xpath Директория до полей с данными.
-     * @param template Имя файла шаблона .jrxml
-     * @param resultpath Имя файла, в который будет помещен отчет
-     */
-    public static void print(String datasource, String xpath, String template, String resultpath){
-        try {
-            // Указание источника XML-данных
-            JRDataSource jr = new JRXmlDataSource(datasource, xpath);
-            // Создание отчета на базе шаблона
-            JasperReport report = JasperCompileManager.compileReport(template);
-            // Заполнение отчета данными
-            JasperPrint print = JasperFillManager.fillReport(report, null, jr);
-            //JasperExportContract.exportReportToHtmlFile(print,resultpath);
-            if(resultpath.toLowerCase().endsWith("pdf")) {
-                JRExporter exporter;
-                exporter = new JRPdfExporter();
-                exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME,resultpath);
-                exporter.setParameter(JRExporterParameter.JASPER_PRINT,print);
-                exporter.exportReport();
-            }
-            else
-                JasperExportManager.exportReportToHtmlFile(print,resultpath);
-            JOptionPane.showMessageDialog(null,"2 поток закончил работу. Отчет создан");
-        }
-        catch (JRException e){
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Вспомогательный метод добавления данных в таблицу
      * @param arr - данные, полученные от пользователя
      */
@@ -437,7 +404,6 @@ public class ContractWindow
         model.addRow(newM.toTableFormat());
     }
 
-
     /**
      * Вспомогательный метод изменения данных в таблице
      * @param arr - данные, полученные от пользователя
@@ -455,7 +421,6 @@ public class ContractWindow
         C.setManager(managerService.findById(manager_id));
         contractService.update(C);
     }
-
 
     public String[] getManagers()
     {

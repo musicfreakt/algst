@@ -82,6 +82,10 @@ public class Client extends Person
         c.setClient(null);
     }
 
+    /**
+     * Функция получения всей информации об объекте
+     * @return  - массив строк с данными
+     */
     public String[] toTableFormat()
     {
         return new String[] {String.valueOf(id), name, surname, company};

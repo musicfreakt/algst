@@ -1,10 +1,11 @@
 package Factory.gui;
 
-import org.jdatepicker.impl.*;
+import Factory.service.DateLabelFormatter;
 
-import javax.swing.*;
+import org.jdatepicker.impl.*;
 import java.util.Date;
 import java.util.Properties;
+import javax.swing.*;
 
 /**
  * Класс окна Добавления данных
@@ -18,7 +19,7 @@ public class AddDialogContract extends DialogContract {
                         price.getText(),
                         (String) clients.getSelectedItem(),
                         (String) managers.getSelectedItem()};
-        parent.addR(arr, (Date) dataBegin.getModel().getValue(), (Date) dataEnd.getModel().getValue());
+        parent.addR(arr,(Date) dataBegin.getModel().getValue(), (Date) dataEnd.getModel().getValue());
 
         JOptionPane.showMessageDialog(null, "Вы добавили новый договор");
     }
@@ -39,8 +40,8 @@ public class AddDialogContract extends DialogContract {
         p.put("text.year", "Year");
         JDatePanelImpl datePanel1 = new JDatePanelImpl(model1, p);
         JDatePanelImpl datePanel2 = new JDatePanelImpl(model2, p);
-        dataBegin = new JDatePickerImpl(datePanel1, null);
-        dataEnd = new JDatePickerImpl(datePanel2, null);
+        dataBegin = new JDatePickerImpl(datePanel1, new DateLabelFormatter());
+        dataEnd = new JDatePickerImpl(datePanel2, new DateLabelFormatter());
     }
 
     public AddDialogContract(JFrame owner, ContractWindow parent, String title)

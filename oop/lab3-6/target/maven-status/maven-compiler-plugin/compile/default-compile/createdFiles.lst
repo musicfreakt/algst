@@ -6,6 +6,7 @@ Factory/gui/Ref.class
 Factory/gui/AddDialogWorker.class
 Factory/service/ManagerService.class
 Factory/gui/WorkerWindow$1.class
+Factory/service/DateLabelFormatter.class
 Factory/service/ContractService.class
 Factory/dao/ManagerDAO.class
 Factory/gui/DialogManager.class
@@ -43,6 +44,7 @@ Factory/service/SpecialisationService.class
 Factory/gui/WorkerWindow.class
 Factory/service/EmployeeService.class
 Factory/gui/ClientWindow$3.class
+Factory/service/ReportService.class
 Factory/gui/DialogWorker.class
 Factory/dao/SpecialisationDAO.class
 Factory/gui/SpecialisationWindow$3.class

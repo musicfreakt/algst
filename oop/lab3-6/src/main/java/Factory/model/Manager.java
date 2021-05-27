@@ -58,14 +58,12 @@ public class Manager extends Person
         c.setManager(null);
     }
 
+    /**
+     * Функция получения всей информации об объекте
+     * @return  - массив строк с данными
+     */
     public String[] toTableFormat()
     {
         return new String[] {String.valueOf(id), name, surname};
-    }
-
-    @Override
-    public String toString()
-    {
-        return name + " " + surname;
     }
 }
