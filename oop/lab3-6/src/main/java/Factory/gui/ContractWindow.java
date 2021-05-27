@@ -256,7 +256,7 @@ public class ContractWindow
                     try
                     {
                         contractService.setEnd(Integer.parseInt(dataContracts.getValueAt(dataContracts.getSelectedRow(), 0).toString()));
-                        // todo: сделать изменение
+                        dataContracts.setValueAt("Выполнено" ,dataContracts.getSelectedRow(), 7);
                         JOptionPane.showMessageDialog(window, "Вы отметили договор завершеным");
                     } catch (Exception ex)
                     {
@@ -408,17 +408,19 @@ public class ContractWindow
      * Вспомогательный метод изменения данных в таблице
      * @param arr - данные, полученные от пользователя
      */
-    public void editR(String[] arr)
+    public void editR(String[] arr, Date begin, Date end)
     {
         Contract C = contractService.findById(Integer.parseInt(arr[0]));
         C.setDescription(arr[1]);
         C.setPrice(Double.parseDouble(arr[2]));
-        String[] r = arr[2].split(" ");
+        String[] r = arr[3].split(" ");
         int client_id = Integer.parseInt(r[0]);
         C.setClient(clientService.findById(client_id));
-        r = arr[3].split(" ");
+        r = arr[4].split(" ");
         int manager_id = Integer.parseInt(r[0]);
         C.setManager(managerService.findById(manager_id));
+        C.setDateBegin(begin);
+        C.setDateEnd(end);
         contractService.update(C);
     }
 

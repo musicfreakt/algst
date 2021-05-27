@@ -85,7 +85,7 @@ public abstract class DialogContract extends JDialog
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(10, 2, 2, 2));
 
-        panel.setSize(300, 500);
+        panel.setSize(300, 300);
 
         // adds to the GridLayout
         panel.add(descriptionLab);
