@@ -1,5 +1,6 @@
 package Factory.gui;
 
+import Factory.exceptions.EmptyFileException;
 import Factory.model.*;
 import Factory.service.*;
 
@@ -234,14 +235,15 @@ public class WorkerWindow
         
         print.addActionListener((e)->{
             log.info("Старт Print listener");
-            if (model.getRowCount() != 0) {
-                try {
-                    makeXml();
-                    ReportService.print("dataWorkers.xml", "window/dataWorkers", "workers.jrxml", "reportWorkers.pdf");
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Ошибка");
-                    log.log(Level.SEVERE, "Исключение: ", ex);
-                }
+            try
+            {
+                checkList();
+                makeXml();
+                ReportService.print("dataWorkers.xml", "window/dataWorkers", "workers.jrxml", "reportWorkers.pdf");
+                JOptionPane.showMessageDialog(null,"2 поток закончил работу. Отчет создан");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
+                log.log(Level.SEVERE, "Исключение: ", ex);
             }
         });
 
@@ -264,6 +266,16 @@ public class WorkerWindow
         });
 
         window.setVisible(true);
+    }
+
+    /**
+     * Метод проверки списка на отсутсвие записей
+     * @throws EmptyFileException моё исключение
+     */
+    private void checkList() throws EmptyFileException
+    {
+        if(model.getRowCount() == 0)
+            throw new EmptyFileException();
     }
 
     /** Метод загрузки данных в XML файл */
