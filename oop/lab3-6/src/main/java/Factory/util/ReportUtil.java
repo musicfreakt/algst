@@ -1,4 +1,4 @@
-package Factory.service;
+package Factory.util;
 
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRXmlDataSource;
@@ -7,7 +7,7 @@ import net.sf.jasperreports.engine.export.JRPdfExporter;
 /**
  * Класс для генерации отчетов
  */
-public class ReportService
+public class ReportUtil
 {
     /**
      * Метод генерации отчетов в форматах DOCX и HTML.

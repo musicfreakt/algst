@@ -2,11 +2,10 @@ package Factory.dao;
 import Factory.model.*;
 
 import javax.persistence.Query;
+
+import Factory.util.HibernateSessionFactoryUtil;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
 import java.util.List;
 
 public class SpecialisationDAO
@@ -18,13 +17,13 @@ public class SpecialisationDAO
 
     public Session openCurrentSession()
     {
-        currentSession = getSessionFactory().openSession();
+        currentSession = HibernateSessionFactoryUtil.getSessionFactory().openSession();
         return currentSession;
     }
 
     public Session openCurrentSessionwithTransaction()
     {
-        currentSession = getSessionFactory().openSession();
+        currentSession = HibernateSessionFactoryUtil.getSessionFactory().openSession();
         currentTransaction = currentSession.beginTransaction();
         return currentSession;
     }
@@ -38,21 +37,6 @@ public class SpecialisationDAO
     {
         currentTransaction.commit();
         currentSession.close();
-    }
-
-    private static SessionFactory getSessionFactory()
-    {
-        Configuration configuration = new Configuration()
-                .configure("hibernate.cfg.xml")
-                .addAnnotatedClass(Person.class)
-                .addAnnotatedClass(Manager.class)
-                .addAnnotatedClass(Specialisation.class)
-                .addAnnotatedClass(Employee.class)
-                .addAnnotatedClass(Client.class)
-                .addAnnotatedClass(Contract.class);
-        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder()
-                .applySettings(configuration.getProperties());
-        return configuration.buildSessionFactory(builder.build());
     }
 
     public Session getCurrentSession() {

@@ -4,6 +4,7 @@ import Factory.exceptions.EmptyFileException;
 import Factory.model.*;
 import Factory.service.*;
 
+import Factory.util.ReportUtil;
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -228,7 +229,7 @@ public class ClientWindow
             try {
                 checkList();
                 makeXml();
-                ReportService.print("dataClients.xml", "window/dataClients", "clients.jrxml", "reportClients.pdf");
+                ReportUtil.print("dataClients.xml", "window/dataClients", "clients.jrxml", "reportClients.pdf");
                 JOptionPane.showMessageDialog(null,"2 поток закончил работу. Отчет создан");
             }
             catch (Exception ex)

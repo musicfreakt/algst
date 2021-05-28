@@ -4,6 +4,7 @@ import Factory.exceptions.EmptyFileException;
 import Factory.model.*;
 import Factory.service.*;
 
+import Factory.util.ReportUtil;
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -239,7 +240,7 @@ public class WorkerWindow
             {
                 checkList();
                 makeXml();
-                ReportService.print("dataWorkers.xml", "window/dataWorkers", "workers.jrxml", "reportWorkers.pdf");
+                ReportUtil.print("dataWorkers.xml", "window/dataWorkers", "workers.jrxml", "reportWorkers.pdf");
                 JOptionPane.showMessageDialog(null,"2 поток закончил работу. Отчет создан");
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());

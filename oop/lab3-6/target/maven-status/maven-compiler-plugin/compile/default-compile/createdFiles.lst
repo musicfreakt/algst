@@ -12,6 +12,7 @@ Factory/dao/ManagerDAO.class
 Factory/gui/DialogManager.class
 Factory/gui/SpecialisationWindow$1.class
 Factory/model/Contract.class
+Factory/exceptions/EmptyFileException.class
 Factory/gui/ContractWindow$2.class
 Factory/gui/ManagerWindow$2.class
 Factory/gui/DialogSpecialisation$1.class
@@ -37,6 +38,7 @@ Factory/service/ClientService.class
 Factory/gui/DialogClient.class
 Factory/gui/ManagerWindow$1.class
 Factory/gui/DialogClient$2.class
+Factory/util/ReportUtil.class
 Factory/dao/ContractDAO.class
 Factory/model/Client.class
 Factory/gui/ContractWindow$1.class
@@ -44,7 +46,6 @@ Factory/service/SpecialisationService.class
 Factory/gui/WorkerWindow.class
 Factory/service/EmployeeService.class
 Factory/gui/ClientWindow$3.class
-Factory/service/ReportService.class
 Factory/gui/DialogWorker.class
 Factory/dao/SpecialisationDAO.class
 Factory/gui/SpecialisationWindow$3.class
@@ -61,5 +62,6 @@ Factory/dao/EmployeeDAO.class
 Factory/gui/DialogWorker$3.class
 Factory/gui/Menu.class
 Factory/gui/ClientWindow$2.class
+Factory/util/HibernateSessionFactoryUtil.class
 Factory/gui/AddDialogManager.class
 Factory/gui/ContractWindow$3.class

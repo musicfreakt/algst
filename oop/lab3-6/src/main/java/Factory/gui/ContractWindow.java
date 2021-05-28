@@ -4,6 +4,7 @@ import Factory.model.*;
 import Factory.service.*;
 import Factory.exceptions.*;
 
+import Factory.util.ReportUtil;
 import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -307,7 +308,7 @@ public class ContractWindow
             {
                 checkList();
                 makeXml();
-                ReportService.print("dataContracts.xml", "window/dataContracts", "contracts.jrxml", "reportContracts.pdf");
+                ReportUtil.print("dataContracts.xml", "window/dataContracts", "contracts.jrxml", "reportContracts.pdf");
                 JOptionPane.showMessageDialog(null,"2 поток закончил работу. Отчет создан");
             }
             catch (Exception ex)
