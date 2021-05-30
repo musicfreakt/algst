@@ -51,6 +51,9 @@ public class WorkerWindow
     /** Печать */
     private JButton print;
 
+    /** Работа */
+    private JButton work;
+
     /** Панель инструментов */
     private JToolBar toolBar;
 
@@ -100,18 +103,21 @@ public class WorkerWindow
         delete = new JButton("Удалить");
         edit = new JButton("Редактировать");
         print = new JButton("Печать");
+        work = new JButton("Работа");
 
         // Настройка подсказок
         add.setToolTipText("Добавить информацию о рабочих");
         delete.setToolTipText("Удалить информацию о рабочих");
         edit.setToolTipText("Изменить информацию о рабочих");
         print.setToolTipText("Распечатать информацию о рабочих");
+        work.setToolTipText("Показать договоры, которые выполняют рабочие");
         // Добавление кнопок на панель инструментов
         toolBar = new JToolBar("Панель инструментов");
         toolBar.add(add);
         toolBar.add(delete);
         toolBar.add(edit);
         toolBar.add(print);
+        toolBar.add(work);
         // Размещение панели инструментов
         window.setLayout(new BorderLayout());
         window.add(toolBar,BorderLayout.NORTH);
@@ -178,6 +184,7 @@ public class WorkerWindow
             boolean check = !dataWorkers.getSelectionModel().isSelectionEmpty();
             edit.setVisible(check);
             delete.setVisible(check);
+            work.setVisible(check);
         });
 
         add.addActionListener((e) ->
@@ -247,6 +254,34 @@ public class WorkerWindow
                 log.log(Level.SEVERE, "Исключение: ", ex);
             }
         });
+
+        work.addActionListener((e) -> {
+            log.info("Старт work listener");
+            if (dataWorkers.getRowCount() > 0) {
+                if (dataWorkers.getSelectedRow() != -1) {
+                    try
+                    {
+                        new WorkerContractWindow(Integer.parseInt(dataWorkers.getValueAt(dataWorkers.getSelectedRow(), 0).toString()));
+                    }
+                    catch (Exception ex)
+                    {
+                        JOptionPane.showMessageDialog(null, "Ошибка");
+                        log.log(Level.SEVERE, "Исключение: ", ex);
+                    }
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(null, "Вы не выбрали строку");
+                    log.log(Level.WARNING, "Исключение: не выбрана строка");
+                }
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей");
+                log.log(Level.WARNING, "Исключение: нет записей");
+            }
+        });
+
 
         search.addActionListener((e) -> {
             if (model.getRowCount() != 0) {

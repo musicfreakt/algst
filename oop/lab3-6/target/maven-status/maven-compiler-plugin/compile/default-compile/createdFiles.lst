@@ -5,8 +5,8 @@ Factory/model/Manager.class
 Factory/gui/Ref.class
 Factory/gui/AddDialogWorker.class
 Factory/service/ManagerService.class
+Factory/gui/WorkerContractWindow$3.class
 Factory/gui/WorkerWindow$1.class
-Factory/service/DateLabelFormatter.class
 Factory/service/ContractService.class
 Factory/dao/ManagerDAO.class
 Factory/gui/DialogManager.class
@@ -24,12 +24,15 @@ Factory/gui/DialogWorker$2.class
 Factory/gui/AddDialogSpecialisation.class
 Factory/model/Person.class
 Factory/gui/DialogSpecialisation.class
+Factory/util/DateLabelFormatter.class
 Factory/gui/AddDialogContract.class
 Factory/gui/DialogManager$1.class
 Factory/gui/AddDialogClient.class
 Factory/gui/ClientWindow.class
+Factory/gui/AddDialogWorkerContract$1.class
 Factory/gui/SpecialisationWindow$2.class
 Factory/gui/DialogContract.class
+Factory/gui/AddDialogWorkerContract.class
 Factory/model/Employee.class
 Factory/gui/DialogWorker$1.class
 Factory/gui/ManagerWindow.class
@@ -45,8 +48,10 @@ Factory/gui/ContractWindow$1.class
 Factory/service/SpecialisationService.class
 Factory/gui/WorkerWindow.class
 Factory/service/EmployeeService.class
+Factory/gui/WorkerContractWindow.class
 Factory/gui/ClientWindow$3.class
 Factory/gui/DialogWorker.class
+Factory/gui/WorkerContractWindow$1.class
 Factory/dao/SpecialisationDAO.class
 Factory/gui/SpecialisationWindow$3.class
 Factory/gui/EditDialogSpecialisation.class
@@ -65,3 +70,4 @@ Factory/gui/ClientWindow$2.class
 Factory/util/HibernateSessionFactoryUtil.class
 Factory/gui/AddDialogManager.class
 Factory/gui/ContractWindow$3.class
+Factory/gui/WorkerContractWindow$2.class

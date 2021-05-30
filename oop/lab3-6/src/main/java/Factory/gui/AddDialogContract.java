@@ -1,6 +1,6 @@
 package Factory.gui;
 
-import Factory.service.DateLabelFormatter;
+import Factory.util.DateLabelFormatter;
 
 import org.jdatepicker.impl.*;
 import java.util.Date;

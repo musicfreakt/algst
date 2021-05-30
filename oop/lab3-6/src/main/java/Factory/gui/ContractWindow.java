@@ -300,7 +300,7 @@ public class ContractWindow
             }
         });
 
-        end.setMnemonic(KeyEvent.VK_D);
+        description.setMnemonic(KeyEvent.VK_D);
 
         print.addActionListener((e)->{
             log.info("Старт Print listener");

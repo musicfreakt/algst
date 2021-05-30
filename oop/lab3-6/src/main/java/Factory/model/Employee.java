@@ -23,7 +23,7 @@ public class Employee extends Person
     private Specialisation specialisation;
 
     /** Контракты, в которых участвует рабочий */
-    @ManyToMany(cascade = { CascadeType.ALL })
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "employees_contracts",
             joinColumns = { @JoinColumn(name = "workers_id") },
