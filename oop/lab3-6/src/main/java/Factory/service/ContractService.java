@@ -66,10 +66,26 @@ public class ContractService
         return contracts;
     }
 
+//    public List<Contract> findOutdated(int id)
+//    {
+//        contractDao.openCurrentSession();
+//        List<Contract> contracts = contractDao.findOutdated(id);
+//        contractDao.closeCurrentSession();
+//        return contracts;
+//    }
+
     public List<Contract> findTimePeriod(Date btime, Date etime)
     {
         contractDao.openCurrentSession();
         List<Contract> contracts = contractDao.findTimePeriod(btime, etime);
+        contractDao.closeCurrentSession();
+        return contracts;
+    }
+
+    public List<Contract> findTimePeriod(Date btime, Date etime, int id)
+    {
+        contractDao.openCurrentSession();
+        List<Contract> contracts = contractDao.findTimePeriod(btime, etime, id);
         contractDao.closeCurrentSession();
         return contracts;
     }

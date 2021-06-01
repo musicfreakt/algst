@@ -84,10 +84,28 @@ public class ContractDAO
         return (List<Contract>) getCurrentSession().createQuery("FROM contracts c WHERE c.isEnd = 0 and c.dateEnd <= current_date").list();
     }
 
+//    public List<Contract> findOutdated(int id)
+//    {
+//        Query<Contract> q = getCurrentSession().createQuery("FROM contracts c WHERE c.id = :id and c.isEnd = 0 and c.dateEnd <= current_date");
+//        q.setParameter("id", id);
+//        return q.list();
+//    }
+
+
     @SuppressWarnings("unchecked")
     public List<Contract> findTimePeriod(Date btime, Date etime)
     {
         Query<Contract> q = getCurrentSession().createQuery("FROM contracts c WHERE c.dateBegin BETWEEN :btime AND :etime");
+        q.setParameter("btime", btime);
+        q.setParameter("etime", etime);
+        return q.list();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Contract> findTimePeriod(Date btime, Date etime, int id)
+    {
+        Query<Contract> q = getCurrentSession().createQuery("SELECT c FROM contracts c JOIN c.workers w WHERE w.id = :id AND c.dateBegin BETWEEN :btime AND :etime");
+        q.setParameter("id", id);
         q.setParameter("btime", btime);
         q.setParameter("etime", etime);
         return q.list();

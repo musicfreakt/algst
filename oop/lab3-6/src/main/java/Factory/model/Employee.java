@@ -26,11 +26,14 @@ public class Employee extends Person
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "employees_contracts",
-            joinColumns = { @JoinColumn(name = "workers_id") },
-            inverseJoinColumns = { @JoinColumn(name = "contracts_id") }
+            joinColumns = { @JoinColumn(name = "workers_id", referencedColumnName = "id" )},
+            inverseJoinColumns = { @JoinColumn(name = "contracts_id", referencedColumnName = "id") }
     )
     private List<Contract> contracts;
 
+    /**
+     * Стандартный контруктор
+     */
     public Employee(){}
 
     /**
@@ -45,6 +48,7 @@ public class Employee extends Person
         super(name, lastName);
         this.exp = exp;
         this.specialisation = specialisation;
+        this.contracts = null;
     }
 
     /**

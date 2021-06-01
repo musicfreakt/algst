@@ -29,13 +29,16 @@ public class DialogTimePeriodSelection extends JDialog {
         setVisible(false);
         parent.setDate((Date) dataBegin.getModel().getValue(), (Date) dataEnd.getModel().getValue());
     }
+    public void progress(WorkerContractWindow parent)
+    {
+        setVisible(false);
+        parent.setDate((Date) dataBegin.getModel().getValue(), (Date) dataEnd.getModel().getValue());
+    }
 
     /**
      * Инициализация
-     *
-     * @param parent - Объект класса приложения
      */
-    public void init(ContractWindow parent)
+    public void init()
     {
         UtilDateModel model1 = new UtilDateModel();
         UtilDateModel model2 = new UtilDateModel();
@@ -50,21 +53,11 @@ public class DialogTimePeriodSelection extends JDialog {
     }
 
     /**
-     * Основной конструктор
-     *
-     * @param owner - JFrame приложения
-     * @param parent - Объект класса приложения
-     * @param title - Title окна
+     * Показать интерфейс
      */
-    public DialogTimePeriodSelection(JFrame owner, ContractWindow parent, String title) {
-        super(owner, title, true);
-        // Инит кнопок
-        init(parent);
-        ok.addActionListener((e) -> progress(parent));
-        cancel.addActionListener((e) -> dispose());
-
+    public void display()
+    {
         JPanel mainp = new JPanel();
-
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(2, 2, 2, 2));
 
@@ -91,4 +84,31 @@ public class DialogTimePeriodSelection extends JDialog {
         this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
                 .put(KeyStroke.getKeyStroke("released ENTER"), "press");
     }
+
+    /**
+     * Основной конструктор
+     *
+     * @param owner - JFrame приложения
+     * @param parent - Объект класса приложения
+     * @param title - Title окна
+     */
+    public DialogTimePeriodSelection(JFrame owner, ContractWindow parent, String title)
+    {
+        super(owner, title, true);
+        // Инит кнопок
+        init();
+        ok.addActionListener((e) -> progress(parent));
+        cancel.addActionListener((e) -> dispose());
+        display();
+    }
+    public DialogTimePeriodSelection(JFrame owner, WorkerContractWindow parent, String title)
+    {
+        super(owner, title, true);
+        // Инит кнопок
+        init();
+        ok.addActionListener((e) -> progress(parent));
+        cancel.addActionListener((e) -> dispose());
+        display();
+    }
+
 }

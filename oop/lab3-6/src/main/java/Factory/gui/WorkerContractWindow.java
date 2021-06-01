@@ -4,18 +4,6 @@ import Factory.model.*;
 import Factory.service.*;
 import Factory.exceptions.*;
 
-import Factory.util.ReportUtil;
-import org.w3c.dom.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
@@ -68,6 +56,15 @@ public class WorkerContractWindow
     /** Поиск */
     private JButton search;
 
+    /** Показать просроченные договоры */
+    private JButton outdated;
+
+    /** Показать договоры за указанный период */
+    private JButton time;
+
+    /** Сбросить */
+    private JButton drop;
+
     /** Скролл */
     private JScrollPane scroll;
 
@@ -85,6 +82,15 @@ public class WorkerContractWindow
 
     /** Диалог добавления данных */
     private AddDialogWorkerContract addDialog;
+
+    /** Диалог изменения временного промежутка */
+    private DialogTimePeriodSelection dialogTimePeriodSelection;
+
+    /** Начало временного отрезка для сортировки */
+    private Date dateBegin;
+
+    /** Конец временного отрезка для сортировки */
+    private Date dateEnd;
 
     public void show()
     {
@@ -164,6 +170,11 @@ public class WorkerContractWindow
         textSearch = new JTextField();
         textSearch.setColumns(20);
         search = new JButton("Поиск");
+        outdated = new JButton("Просроченные");
+        time = new JButton("Период");
+        drop = new JButton("Сброс");
+        outdated.setToolTipText("Показать просроченные договоры");
+        time.setToolTipText("Показать договоры за определенный промежуток времени");
         window.getRootPane().setDefaultButton(search);
         // remove the binding for pressed
         window.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
@@ -175,6 +186,9 @@ public class WorkerContractWindow
         JPanel searchPanel = new JPanel();
         searchPanel.add(textSearch);
         searchPanel.add(search);
+        searchPanel.add(outdated);
+        searchPanel.add(time);
+        searchPanel.add(drop);
 
         // Размещение панели поиска внизу окна
         window.add(searchPanel,BorderLayout.SOUTH);
@@ -274,6 +288,101 @@ public class WorkerContractWindow
             }
         });
 
+//        outdated.addActionListener((e) -> {
+//            log.info("Старт outdated listener");
+//            if (dataContracts.getRowCount() > 0)
+//            {
+//                try
+//                {
+//                    List<Contract> contractList = contractService.findOutdated(workerId);
+//                    String [][] d = new String[contractList.size()][5];
+//                    for (int i = 0; i < contractList.size(); i++)
+//                    {
+//                        d[i] = contractList.get(i).toTableFormat();
+//                    }
+//
+//                    model.setDataVector(d, columns);
+//                    model.fireTableDataChanged();
+//                }
+//                catch (Exception ex)
+//                {
+//                    JOptionPane.showMessageDialog(null, "Ошибка");
+//                    log.log(Level.SEVERE, "Исключение: ", ex);
+//                }
+//            } else {
+//                JOptionPane.showMessageDialog(null, "В данном окне нет записей");
+//                log.log(Level.WARNING, "Исключение: нет записей");
+//            }
+//        });
+//
+//        outdated.setMnemonic(KeyEvent.VK_D);
+//
+        time.addActionListener((e) -> {
+            log.info("Старт time listener");
+            if (dataContracts.getRowCount() > 0)
+            {
+                try
+                {
+                    dialogTimePeriodSelection = new DialogTimePeriodSelection(window, WorkerContractWindow.this, "Установка периода времени");
+                    dialogTimePeriodSelection.setVisible(true);
+
+                    if (dateBegin != null && dateEnd != null)
+                    {
+                        if (dateBegin.getTime() > dateEnd.getTime())
+                            throw new UnacceptableTimePeriod();
+
+                        List<Contract> contractList = contractService.findTimePeriod(dateBegin, dateEnd, workerId);
+                        String[][] d = new String[contractList.size()][5];
+                        for (int i = 0; i < contractList.size(); i++) {
+                            d[i] = contractList.get(i).toTableFormat();
+                        }
+
+                        model.setDataVector(d, columns);
+                        model.fireTableDataChanged();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    JOptionPane.showMessageDialog(null, "Ошибка:" + ex.toString());
+                    log.log(Level.SEVERE, "Исключение: ", ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей");
+                log.log(Level.WARNING, "Исключение: нет записей");
+            }
+        });
+
+        time.setMnemonic(KeyEvent.VK_D);
+
+        drop.addActionListener((e) -> {
+            log.info("Старт drop listener");
+            if (dataContracts.getRowCount() > 0)
+            {
+                try
+                {
+                    List<Contract> contractList = (workerService.findById(workerId)).getContracts();
+                    String [][] d = new String[contractList.size()][5];
+                    for (int i = 0; i < contractList.size(); i++)
+                    {
+                        d[i] = contractList.get(i).toTableFormat();
+                    }
+
+                    model.setDataVector(d, columns);
+                    model.fireTableDataChanged();
+                }
+                catch (Exception ex)
+                {
+                    JOptionPane.showMessageDialog(null, "Ошибка");
+                    log.log(Level.SEVERE, "Исключение: ", ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей");
+                log.log(Level.WARNING, "Исключение: нет записей");
+            }
+        });
+
+        drop.setMnemonic(KeyEvent.VK_D);
+
         window.setVisible(true);
     }
 
@@ -339,6 +448,17 @@ public class WorkerContractWindow
         Contract c = contractService.findById(ID);
         (workerService.findById(workerId)).addContract(c);
         model.addRow(c.toTableFormat());
+    }
+
+    /**
+     * Вспомогательный метод получения даты для поиска
+     * @param begin - начало временного отрезка
+     * @param end - конец временного отрезка
+     */
+    public void setDate(Date begin, Date end)
+    {
+        dateBegin = begin;
+        dateEnd = end;
     }
 
 //    public String[] getManagers()
