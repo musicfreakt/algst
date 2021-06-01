@@ -2,6 +2,8 @@ package Factory.service;
 
 import Factory.dao.ContractDAO;
 import Factory.model.*;
+
+import java.util.Date;
 import java.util.List;
 
 public class ContractService
@@ -60,6 +62,14 @@ public class ContractService
     {
         contractDao.openCurrentSession();
         List<Contract> contracts = contractDao.findOutdated();
+        contractDao.closeCurrentSession();
+        return contracts;
+    }
+
+    public List<Contract> findTimePeriod(Date btime, Date etime)
+    {
+        contractDao.openCurrentSession();
+        List<Contract> contracts = contractDao.findTimePeriod(btime, etime);
         contractDao.closeCurrentSession();
         return contracts;
     }

@@ -107,6 +107,15 @@ public class ContractWindow
     /** Диалог измения данных */
     private EditDialogContract editDialogContract;
 
+    /** Диалог изменения временного промежутка */
+    private DialogTimePeriodSelection dialogTimePeriodSelection;
+
+    /** Начало временного отрезка для сортировки */
+    private Date dateBegin;
+
+    /** Конец временного отрезка для сортировки */
+    private Date dateEnd;
+
     public void show()
     {
         log.info("Открытие окна ContractWindow");
@@ -390,35 +399,42 @@ public class ContractWindow
 
         outdated.setMnemonic(KeyEvent.VK_D);
 
-//        time.addActionListener((e) -> {
-//            log.info("Старт time listener");
-//            if (dataContracts.getRowCount() > 0)
-//            {
-//                try
-//                {
-//
-//                    List<Contract> contractList = contractService.findAll();
-//                    String [][] d = new String[contractList.size()][5];
-//                    for (int i = 0; i < contractList.size(); i++)
-//                    {
-//                        d[i] = contractList.get(i).toTableFormat();
-//                    }
-//
-//                    model.setDataVector(d, columns);
-//                    model.fireTableDataChanged();
-//                }
-//                catch (Exception ex)
-//                {
-//                    JOptionPane.showMessageDialog(null, "Ошибка");
-//                    log.log(Level.SEVERE, "Исключение: ", ex);
-//                }
-//            } else {
-//                JOptionPane.showMessageDialog(null, "В данном окне нет записей");
-//                log.log(Level.WARNING, "Исключение: нет записей");
-//            }
-//        });
-//
-//        time.setMnemonic(KeyEvent.VK_D);
+        time.addActionListener((e) -> {
+            log.info("Старт time listener");
+            if (dataContracts.getRowCount() > 0)
+            {
+                try
+                {
+                    dialogTimePeriodSelection = new DialogTimePeriodSelection(window, ContractWindow.this, "Установка периода времени");
+                    dialogTimePeriodSelection.setVisible(true);
+
+                    if (dateBegin != null && dateEnd != null)
+                    {
+                        if (dateBegin.getTime() > dateEnd.getTime())
+                            throw new UnacceptableTimePeriod();
+
+                        List<Contract> contractList = contractService.findTimePeriod(dateBegin, dateEnd);
+                        String[][] d = new String[contractList.size()][5];
+                        for (int i = 0; i < contractList.size(); i++) {
+                            d[i] = contractList.get(i).toTableFormat();
+                        }
+
+                        model.setDataVector(d, columns);
+                        model.fireTableDataChanged();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    JOptionPane.showMessageDialog(null, "Ошибка:" + ex.toString());
+                    log.log(Level.SEVERE, "Исключение: ", ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей");
+                log.log(Level.WARNING, "Исключение: нет записей");
+            }
+        });
+
+        time.setMnemonic(KeyEvent.VK_D);
 
         drop.addActionListener((e) -> {
             log.info("Старт drop listener");
@@ -547,6 +563,17 @@ public class ContractWindow
         C.setDateBegin(begin);
         C.setDateEnd(end);
         contractService.update(C);
+    }
+
+    /**
+     * Вспомогательный метод получения даты для поиска
+     * @param begin - начало временного отрезка
+     * @param end - конец временного отрезка
+     */
+    public void setDate(Date begin, Date end)
+    {
+        dateBegin = begin;
+        dateEnd = end;
     }
 
     public String[] getManagers()

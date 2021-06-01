@@ -4,6 +4,9 @@ import Factory.model.*;
 import Factory.util.HibernateSessionFactoryUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
+
+import java.util.Date;
 import java.util.List;
 
 public class ContractDAO
@@ -79,6 +82,15 @@ public class ContractDAO
     public List<Contract> findOutdated()
     {
         return (List<Contract>) getCurrentSession().createQuery("FROM contracts c WHERE c.isEnd = 0 and c.dateEnd <= current_date").list();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Contract> findTimePeriod(Date btime, Date etime)
+    {
+        Query<Contract> q = getCurrentSession().createQuery("FROM contracts c WHERE c.dateBegin BETWEEN :btime AND :etime");
+        q.setParameter("btime", btime);
+        q.setParameter("etime", etime);
+        return q.list();
     }
 
     public void deleteAll() {
