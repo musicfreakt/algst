@@ -48,9 +48,18 @@ public class ContractService
         contractDao.closeCurrentSessionwithTransaction();
     }
 
-    public List<Contract> findAll() {
+    public List<Contract> findAll()
+    {
         contractDao.openCurrentSession();
         List<Contract> contracts = contractDao.findAll();
+        contractDao.closeCurrentSession();
+        return contracts;
+    }
+
+    public List<Contract> findOutdated()
+    {
+        contractDao.openCurrentSession();
+        List<Contract> contracts = contractDao.findOutdated();
         contractDao.closeCurrentSession();
         return contracts;
     }

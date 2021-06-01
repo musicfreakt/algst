@@ -75,6 +75,12 @@ public class ContractDAO
         return (List<Contract>) getCurrentSession().createQuery("SELECT c FROM contracts c").list();
     }
 
+    @SuppressWarnings("unchecked")
+    public List<Contract> findOutdated()
+    {
+        return (List<Contract>) getCurrentSession().createQuery("FROM contracts c WHERE c.isEnd = 0 and c.dateEnd <= current_date").list();
+    }
+
     public void deleteAll() {
         List<Contract> entityList = findAll();
         for (Contract entity : entityList)

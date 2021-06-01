@@ -1,15 +1,16 @@
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/EditDialogContract.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/AddDialogSpecialisation.java
+/home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/WorkerContractWindow.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/model/Manager.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/model/Person.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/AddDialogWorker.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/dao/SpecialisationDAO.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/service/ContractService.java
+/home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/util/DateLabelFormatter.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/SpecialisationWindow.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/model/Client.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/model/Employee.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/model/Contract.java
-/home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/service/DateLabelFormatter.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/dao/ManagerDAO.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/DialogSpecialisation.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/ClientWindow.java
@@ -40,4 +41,5 @@
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/EditDialogSpecialisation.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/util/HibernateSessionFactoryUtil.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/Ref.java
+/home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/AddDialogWorkerContract.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/DialogManager.java

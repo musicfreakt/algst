@@ -58,6 +58,12 @@ public class ContractWindow
     /** Показать описание */
     private JButton description;
 
+    /** Показать просроченные договоры */
+    private JButton outdated;
+
+    /** Статус нажатия кнопки */
+    private boolean outdatedStatus;
+
     /** Панель инструментов */
     private JToolBar toolBar;
 
@@ -100,6 +106,7 @@ public class ContractWindow
     public void show()
     {
         log.info("Открытие окна ContractWindow");
+
         window = new JFrame("Список договоров завода");
         window.setSize(1000,500);
         window.setLocation(310,130);
@@ -112,6 +119,7 @@ public class ContractWindow
         print = new JButton("Печать");
         description = new JButton("Описание");
         end = new JButton("Завершить");
+        outdated = new JButton("Просроченные");
 
         // Настройка подсказок
         add.setToolTipText("Добавить контракт");
@@ -120,6 +128,8 @@ public class ContractWindow
         print.setToolTipText("Распечатать контракты");
         description.setToolTipText("Показать описание контракта");
         end.setToolTipText("Завершить выполнение контракта");
+        outdated.setToolTipText("Показать просроченные договоры");
+
         // Добавление кнопок на панель инструментов
         toolBar = new JToolBar("Панель инструментов");
         toolBar.add(add);
@@ -128,6 +138,7 @@ public class ContractWindow
         toolBar.add(print);
         toolBar.add(description);
         toolBar.add(end);
+        toolBar.add(outdated);
         // Размещение панели инструментов
         window.setLayout(new BorderLayout());
         window.add(toolBar,BorderLayout.NORTH);
@@ -317,6 +328,48 @@ public class ContractWindow
                 log.log(Level.SEVERE, "Исключение: ", ex);
             }
         });
+
+        print.setMnemonic(KeyEvent.VK_D);
+
+        outdated.addActionListener((e) -> {
+            log.info("Старт outdated listener");
+            if (dataContracts.getRowCount() > 0)
+            {
+                try
+                {
+                    List<Contract> contractList = null;
+                    if (!outdatedStatus)
+                    {
+                        contractList = contractService.findOutdated();
+                        outdatedStatus = true;
+                    }
+                    else
+                    {
+                        contractList = contractService.findAll();
+                        outdatedStatus = false;
+                    }
+                    String [][] d = new String[contractList.size()][5];
+                    for (int i = 0; i < contractList.size(); i++)
+                    {
+                        d[i] = contractList.get(i).toTableFormat();
+                    }
+
+                    model.setDataVector(d, columns);
+                    model.fireTableDataChanged();
+                }
+                catch (Exception ex)
+                {
+                    JOptionPane.showMessageDialog(null, "Ошибка");
+                    log.log(Level.SEVERE, "Исключение: ", ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей");
+                log.log(Level.WARNING, "Исключение: нет записей");
+            }
+        });
+
+        outdated.setMnemonic(KeyEvent.VK_D);
+
 
         search.addActionListener((e) -> {
             if (model.getRowCount() != 0) {
