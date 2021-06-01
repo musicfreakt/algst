@@ -288,35 +288,35 @@ public class WorkerContractWindow
             }
         });
 
-//        outdated.addActionListener((e) -> {
-//            log.info("Старт outdated listener");
-//            if (dataContracts.getRowCount() > 0)
-//            {
-//                try
-//                {
-//                    List<Contract> contractList = contractService.findOutdated(workerId);
-//                    String [][] d = new String[contractList.size()][5];
-//                    for (int i = 0; i < contractList.size(); i++)
-//                    {
-//                        d[i] = contractList.get(i).toTableFormat();
-//                    }
-//
-//                    model.setDataVector(d, columns);
-//                    model.fireTableDataChanged();
-//                }
-//                catch (Exception ex)
-//                {
-//                    JOptionPane.showMessageDialog(null, "Ошибка");
-//                    log.log(Level.SEVERE, "Исключение: ", ex);
-//                }
-//            } else {
-//                JOptionPane.showMessageDialog(null, "В данном окне нет записей");
-//                log.log(Level.WARNING, "Исключение: нет записей");
-//            }
-//        });
-//
-//        outdated.setMnemonic(KeyEvent.VK_D);
-//
+        outdated.addActionListener((e) -> {
+            log.info("Старт outdated listener");
+            if (dataContracts.getRowCount() > 0)
+            {
+                try
+                {
+                    List<Contract> contractList = contractService.findOutdated(workerId);
+                    String [][] d = new String[contractList.size()][5];
+                    for (int i = 0; i < contractList.size(); i++)
+                    {
+                        d[i] = contractList.get(i).toTableFormat();
+                    }
+
+                    model.setDataVector(d, columns);
+                    model.fireTableDataChanged();
+                }
+                catch (Exception ex)
+                {
+                    JOptionPane.showMessageDialog(null, "Ошибка");
+                    log.log(Level.SEVERE, "Исключение: ", ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей");
+                log.log(Level.WARNING, "Исключение: нет записей");
+            }
+        });
+
+        outdated.setMnemonic(KeyEvent.VK_D);
+
         time.addActionListener((e) -> {
             log.info("Старт time listener");
             if (dataContracts.getRowCount() > 0)

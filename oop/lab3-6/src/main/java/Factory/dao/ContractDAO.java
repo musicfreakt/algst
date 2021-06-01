@@ -84,12 +84,12 @@ public class ContractDAO
         return (List<Contract>) getCurrentSession().createQuery("FROM contracts c WHERE c.isEnd = 0 and c.dateEnd <= current_date").list();
     }
 
-//    public List<Contract> findOutdated(int id)
-//    {
-//        Query<Contract> q = getCurrentSession().createQuery("FROM contracts c WHERE c.id = :id and c.isEnd = 0 and c.dateEnd <= current_date");
-//        q.setParameter("id", id);
-//        return q.list();
-//    }
+    public List<Contract> findOutdated(int id)
+    {
+        Query<Contract> q = getCurrentSession().createQuery("SELECT c FROM contracts c JOIN c.workers w WHERE w.id = :id and c.isEnd = 0 and c.dateEnd <= current_date");
+        q.setParameter("id", id);
+        return q.list();
+    }
 
 
     @SuppressWarnings("unchecked")
