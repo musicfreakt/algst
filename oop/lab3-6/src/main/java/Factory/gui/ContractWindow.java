@@ -58,11 +58,6 @@ public class ContractWindow
     /** Показать описание */
     private JButton description;
 
-    /** Показать просроченные договоры */
-    private JButton outdated;
-
-    /** Статус нажатия кнопки */
-    private boolean outdatedStatus;
 
     /** Панель инструментов */
     private JToolBar toolBar;
@@ -75,6 +70,15 @@ public class ContractWindow
 
     /** Поиск */
     private JButton search;
+
+    /** Показать просроченные договоры */
+    private JButton outdated;
+
+    /** Показать договоры за указанный период */
+    private JButton time;
+
+    /** Сбросить */
+    private JButton drop;
 
     /** Скролл */
     private JScrollPane scroll;
@@ -119,7 +123,7 @@ public class ContractWindow
         print = new JButton("Печать");
         description = new JButton("Описание");
         end = new JButton("Завершить");
-        outdated = new JButton("Просроченные");
+
 
         // Настройка подсказок
         add.setToolTipText("Добавить контракт");
@@ -128,7 +132,7 @@ public class ContractWindow
         print.setToolTipText("Распечатать контракты");
         description.setToolTipText("Показать описание контракта");
         end.setToolTipText("Завершить выполнение контракта");
-        outdated.setToolTipText("Показать просроченные договоры");
+
 
         // Добавление кнопок на панель инструментов
         toolBar = new JToolBar("Панель инструментов");
@@ -138,7 +142,6 @@ public class ContractWindow
         toolBar.add(print);
         toolBar.add(description);
         toolBar.add(end);
-        toolBar.add(outdated);
         // Размещение панели инструментов
         window.setLayout(new BorderLayout());
         window.add(toolBar,BorderLayout.NORTH);
@@ -194,6 +197,11 @@ public class ContractWindow
         textSearch = new JTextField();
         textSearch.setColumns(20);
         search = new JButton("Поиск");
+        outdated = new JButton("Просроченные");
+        time = new JButton("Период");
+        drop = new JButton("Сброс");
+        outdated.setToolTipText("Показать просроченные договоры");
+        time.setToolTipText("Показать договоры за определенный промежуток времени");
         window.getRootPane().setDefaultButton(search);
         // remove the binding for pressed
         window.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
@@ -205,6 +213,9 @@ public class ContractWindow
         JPanel searchPanel = new JPanel();
         searchPanel.add(textSearch);
         searchPanel.add(search);
+        searchPanel.add(outdated);
+        searchPanel.add(time);
+        searchPanel.add(drop);
 
         // Размещение панели поиска внизу окна
         window.add(searchPanel,BorderLayout.SOUTH);
@@ -331,23 +342,32 @@ public class ContractWindow
 
         print.setMnemonic(KeyEvent.VK_D);
 
+        search.addActionListener((e) -> {
+            if (model.getRowCount() != 0) {
+                if (!textSearch.getText().isEmpty())
+                    log.info("Запуск нового поиска по ключевому слову: " + textSearch.getText());
+                else
+                    log.info("Сброс ключевого слова поиска");
+                TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(((DefaultTableModel) model));
+                sorter.setStringConverter(new TableStringConverter() {
+                    @Override
+                    public String toString(TableModel model, int row, int column) {
+                        return model.getValueAt(row, column).toString().toLowerCase();
+                    }
+                });
+                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + textSearch.getText().toLowerCase()));
+                dataContracts.setRowSorter(sorter);
+            }
+        });
+
+
         outdated.addActionListener((e) -> {
             log.info("Старт outdated listener");
             if (dataContracts.getRowCount() > 0)
             {
                 try
                 {
-                    List<Contract> contractList = null;
-                    if (!outdatedStatus)
-                    {
-                        contractList = contractService.findOutdated();
-                        outdatedStatus = true;
-                    }
-                    else
-                    {
-                        contractList = contractService.findAll();
-                        outdatedStatus = false;
-                    }
+                    List<Contract> contractList = contractService.findOutdated();
                     String [][] d = new String[contractList.size()][5];
                     for (int i = 0; i < contractList.size(); i++)
                     {
@@ -370,24 +390,65 @@ public class ContractWindow
 
         outdated.setMnemonic(KeyEvent.VK_D);
 
+//        time.addActionListener((e) -> {
+//            log.info("Старт time listener");
+//            if (dataContracts.getRowCount() > 0)
+//            {
+//                try
+//                {
+//
+//                    List<Contract> contractList = contractService.findAll();
+//                    String [][] d = new String[contractList.size()][5];
+//                    for (int i = 0; i < contractList.size(); i++)
+//                    {
+//                        d[i] = contractList.get(i).toTableFormat();
+//                    }
+//
+//                    model.setDataVector(d, columns);
+//                    model.fireTableDataChanged();
+//                }
+//                catch (Exception ex)
+//                {
+//                    JOptionPane.showMessageDialog(null, "Ошибка");
+//                    log.log(Level.SEVERE, "Исключение: ", ex);
+//                }
+//            } else {
+//                JOptionPane.showMessageDialog(null, "В данном окне нет записей");
+//                log.log(Level.WARNING, "Исключение: нет записей");
+//            }
+//        });
+//
+//        time.setMnemonic(KeyEvent.VK_D);
 
-        search.addActionListener((e) -> {
-            if (model.getRowCount() != 0) {
-                if (!textSearch.getText().isEmpty())
-                    log.info("Запуск нового поиска по ключевому слову: " + textSearch.getText());
-                else
-                    log.info("Сброс ключевого слова поиска");
-                TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(((DefaultTableModel) model));
-                sorter.setStringConverter(new TableStringConverter() {
-                    @Override
-                    public String toString(TableModel model, int row, int column) {
-                        return model.getValueAt(row, column).toString().toLowerCase();
+        drop.addActionListener((e) -> {
+            log.info("Старт drop listener");
+            if (dataContracts.getRowCount() > 0)
+            {
+                try
+                {
+                    List<Contract> contractList = contractService.findAll();
+                    String [][] d = new String[contractList.size()][5];
+                    for (int i = 0; i < contractList.size(); i++)
+                    {
+                        d[i] = contractList.get(i).toTableFormat();
                     }
-                });
-                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + textSearch.getText().toLowerCase()));
-                dataContracts.setRowSorter(sorter);
+
+                    model.setDataVector(d, columns);
+                    model.fireTableDataChanged();
+                }
+                catch (Exception ex)
+                {
+                    JOptionPane.showMessageDialog(null, "Ошибка");
+                    log.log(Level.SEVERE, "Исключение: ", ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей");
+                log.log(Level.WARNING, "Исключение: нет записей");
             }
         });
+
+        drop.setMnemonic(KeyEvent.VK_D);
+
 
         window.setVisible(true);
     }
