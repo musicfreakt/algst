@@ -115,13 +115,13 @@ public class WorkerContractWindow
         log.info("Добавление кнопок к окну WorkerContractWindow");
         add = new JButton("Добавить");
         delete = new JButton("Удалить");
-//        print = new JButton("Печать");
+        print = new JButton("Печать");
         description = new JButton("Описание");
 
         // Настройка подсказок
         add.setToolTipText("Добавить контракт");
         delete.setToolTipText("Удалить контракт");
-//        print.setToolTipText("Распечатать контракты");
+        print.setToolTipText("Распечатать контракты");
         description.setToolTipText("Показать описание контракта");
         // Добавление кнопок на панель инструментов
         toolBar = new JToolBar("Панель инструментов");
@@ -152,6 +152,8 @@ public class WorkerContractWindow
             }
         };
         this.dataContracts = new JTable(model);
+        RowSorter<TableModel> sort = new TableRowSorter<TableModel>(model);
+        dataContracts.setRowSorter(sort);
         dataContracts.setFont(new Font(Font.SERIF,Font.BOLD,14));
         dataContracts.setIntercellSpacing(new Dimension(0,1));
         dataContracts.setRowHeight(dataContracts.getRowHeight()+10);
@@ -219,8 +221,10 @@ public class WorkerContractWindow
                 if (dataContracts.getSelectedRow() != -1) {
                     try
                     {
-                        (workerService.findById(workerId)).removeContract(contractService.findById(Integer.parseInt(dataContracts.getValueAt(dataContracts.getSelectedRow(), 0).toString())));
+                        Contract c = contractService.findById(Integer.parseInt(dataContracts.getValueAt(dataContracts.getSelectedRow(), 0).toString()));
+                        (workerService.findById(workerId)).removeContract(c);
                         model.removeRow(dataContracts.convertRowIndexToModel(dataContracts.getSelectedRow()));
+                        contractService.update(c);
                         JOptionPane.showMessageDialog(window, "Вы удалили строку");
                         log.info("Была удалена строка данных");
                     }
@@ -460,6 +464,7 @@ public class WorkerContractWindow
         Contract c = contractService.findById(ID);
         (workerService.findById(workerId)).addContract(c);
         model.addRow(c.toTableFormat());
+        contractService.update(c);
     }
 
     /**

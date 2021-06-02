@@ -33,6 +33,7 @@ public class AddDialogWorkerContract extends JDialog
         catch (Exception ex)
         {
             JOptionPane.showMessageDialog(null, "Ошибка" + ex.toString());
+
         }
     };
 

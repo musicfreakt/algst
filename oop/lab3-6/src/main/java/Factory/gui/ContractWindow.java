@@ -189,6 +189,8 @@ public class ContractWindow
             }
         };
         this.dataContracts = new JTable(model);
+        RowSorter<TableModel> sort = new TableRowSorter<TableModel>(model);
+        dataContracts.setRowSorter(sort);
         dataContracts.setFont(new Font(Font.SERIF,Font.BOLD,14));
         dataContracts.setIntercellSpacing(new Dimension(0,1));
         dataContracts.setRowHeight(dataContracts.getRowHeight()+10);

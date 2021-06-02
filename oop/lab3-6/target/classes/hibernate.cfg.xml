@@ -16,8 +16,8 @@
 
         <mapping class="Factory.model.Person"/>
         <mapping class="Factory.model.Manager"/>
-        <mapping class="Factory.model.Specialisation"/>
         <mapping class="Factory.model.Employee"/>
+        <mapping class="Factory.model.Specialisation"/>
         <mapping class="Factory.model.Client"/>
         <mapping class="Factory.model.Contract"/>
 

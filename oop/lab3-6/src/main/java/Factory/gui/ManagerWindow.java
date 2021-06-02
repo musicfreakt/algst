@@ -139,6 +139,8 @@ public class ManagerWindow
             }
         };
         this.dataManagers = new JTable(model);
+        RowSorter<TableModel> sort = new TableRowSorter<TableModel>(model);
+        dataManagers.setRowSorter(sort);
         dataManagers.setFont(new Font(Font.SERIF,Font.BOLD,14));
         dataManagers.setIntercellSpacing(new Dimension(0,1));
         dataManagers.setRowHeight(dataManagers.getRowHeight()+10);

@@ -141,6 +141,8 @@ public class WorkerWindow
             }
         };
         this.dataWorkers = new JTable(model);
+        RowSorter<TableModel> sort = new TableRowSorter<TableModel>(model);
+        dataWorkers.setRowSorter(sort);
         dataWorkers.setFont(new Font(Font.SERIF,Font.BOLD,14));
         dataWorkers.setIntercellSpacing(new Dimension(0,1));
         dataWorkers.setRowHeight(dataWorkers.getRowHeight()+10);

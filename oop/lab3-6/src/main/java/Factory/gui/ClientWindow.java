@@ -154,6 +154,8 @@ public class ClientWindow
             }
         };
         this.dataClients = new JTable(model);
+        RowSorter<TableModel> sort = new TableRowSorter<TableModel>(model);
+        dataClients.setRowSorter(sort);
         dataClients.setFont(new Font(Font.SERIF,Font.BOLD,14));
         dataClients.setIntercellSpacing(new Dimension(0,1));
         dataClients.setRowHeight(dataClients.getRowHeight()+10);

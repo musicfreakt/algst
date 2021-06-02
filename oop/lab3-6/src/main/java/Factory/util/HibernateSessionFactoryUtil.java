@@ -18,8 +18,8 @@ public class HibernateSessionFactoryUtil
             Configuration configuration = new Configuration()
                     .configure("hibernate.cfg.xml")
                     .addAnnotatedClass(Person.class)
-                    .addAnnotatedClass(Specialisation.class)
                     .addAnnotatedClass(Employee.class)
+                    .addAnnotatedClass(Specialisation.class)
                     .addAnnotatedClass(Manager.class)
                     .addAnnotatedClass(Client.class)
                     .addAnnotatedClass(Contract.class);

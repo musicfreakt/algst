@@ -17,11 +17,44 @@ public class Menu
         JButton contractWindow = new JButton("Список договоров завода");
         JButton refWindow = new JButton("Открыть справку о программе");
 
-        specialisationWindow.addActionListener((e) -> new SpecialisationWindow());
-        workerWindow.addActionListener((e) -> new WorkerWindow());
-        managerWindow.addActionListener((e) -> new ManagerWindow());
-        clientWindow.addActionListener((e) -> new ClientWindow());
-        contractWindow.addActionListener((e) -> new ContractWindow());
+        specialisationWindow.addActionListener((e) -> {
+            try {
+                new SpecialisationWindow();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
+            }
+        });
+
+        workerWindow.addActionListener((e) -> {
+            try {
+                new WorkerWindow();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
+            }
+        });
+
+        managerWindow.addActionListener((e) -> {
+            try {
+                new ManagerWindow();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
+            }
+        });
+        clientWindow.addActionListener((e) -> {
+            try {
+                new ClientWindow();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
+            }
+        });
+        contractWindow.addActionListener((e) -> {
+            try {
+                new ContractWindow();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
+            }
+        });
+
         refWindow.addActionListener((e) -> new Ref(window, "Справка"));
 
         window.setLayout(new FlowLayout());

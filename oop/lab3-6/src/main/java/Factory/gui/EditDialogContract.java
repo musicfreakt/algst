@@ -6,6 +6,7 @@ import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
 import javax.swing.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
@@ -44,8 +45,18 @@ public class EditDialogContract extends DialogContract
         price = new JTextField(parent.dataContracts.getValueAt(row, 2).toString(), 20);
         clients = new JComboBox(parent.getClients());
         managers = new JComboBox(parent.getManagers());
-        UtilDateModel model1 = new UtilDateModel();
-        UtilDateModel model2 = new UtilDateModel();
+        String dateValue = parent.dataContracts.getValueAt(row, 5).toString();
+        Date date1 = null;
+        Date date2 = null;
+        try {
+            date1 = new SimpleDateFormat("yyyy-mm-dd").parse(dateValue);
+            dateValue = parent.dataContracts.getValueAt(row, 6).toString();
+            date2 = new SimpleDateFormat("yyyy-mm-dd").parse(dateValue);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        UtilDateModel model1 = new UtilDateModel(date1);
+        UtilDateModel model2 = new UtilDateModel(date2);
         Properties p = new Properties();
         p.put("text.today", "Today");
         p.put("text.month", "Month");

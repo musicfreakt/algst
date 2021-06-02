@@ -83,7 +83,7 @@ public abstract class DialogContract extends JDialog
         JPanel mainp = new JPanel();
 
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(10, 2, 2, 2));
+        panel.setLayout(new GridLayout(6, 2, 2, 2));
 
         panel.setSize(300, 300);
 
@@ -108,7 +108,7 @@ public abstract class DialogContract extends JDialog
         but.add(cancel);
         add(BorderLayout.SOUTH, but);
         setLocation(500, 250);
-        setSize(500, 600);
+        setSize(500, 250);
         this.getRootPane().setDefaultButton(ok);
 // remove the binding for pressed
         this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)

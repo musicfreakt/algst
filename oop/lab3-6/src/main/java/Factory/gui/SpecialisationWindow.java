@@ -106,6 +106,8 @@ public class SpecialisationWindow
             }
         };
         this.dataSpecialisations = new JTable(model);
+        RowSorter<TableModel> sort = new TableRowSorter<TableModel>(model);
+        dataSpecialisations.setRowSorter(sort);
         dataSpecialisations.setFont(new Font(Font.SERIF,Font.BOLD,14));
         dataSpecialisations.setIntercellSpacing(new Dimension(0,1));
         dataSpecialisations.setRowHeight(dataSpecialisations.getRowHeight()+10);
