@@ -6,6 +6,8 @@ import Factory.service.*;
 
 import Factory.util.ReportUtil;
 import org.w3c.dom.*;
+
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -18,6 +20,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import javax.swing.*;
 import javax.swing.table.*;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.*;
@@ -260,9 +263,21 @@ public class ClientWindow
             log.info("Старт Print listener");
             t2 = new Thread(() -> {
                 try {
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setDialogTitle("Select where you want to save the report");
+                    FileFilter pdf = new FileNameExtensionFilter("PDF file(.pdf)", "pdf");
+                    fileChooser.addChoosableFileFilter(pdf);
+                    fileChooser.setCurrentDirectory(new File("."));
+                    String resultpath = "reportClients.pdf";
+                    int returnVal = fileChooser.showSaveDialog(null);
+                    if(returnVal == JFileChooser.APPROVE_OPTION)
+                    {
+                        File file = fileChooser.getSelectedFile();
+                        resultpath = file.getAbsolutePath();
+                    }
                     checkList();
                     makeXml();
-                    ReportUtil.print("dataClients.xml", "window/dataClients", "clients.jrxml", "reportClients.pdf");
+                    ReportUtil.print("dataClients.xml", "window/dataClients", "clients.jrxml", resultpath);
                     JOptionPane.showMessageDialog(null, "2 поток закончил работу. Отчет создан");
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());

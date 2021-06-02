@@ -6,6 +6,9 @@ import Factory.service.*;
 
 import Factory.util.ReportUtil;
 import org.w3c.dom.*;
+
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -247,9 +250,21 @@ public class WorkerWindow
             log.info("Старт Print listener");
             t2 = new Thread(() -> {
                 try {
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setDialogTitle("Select where you want to save the report");
+                    FileFilter pdf = new FileNameExtensionFilter("PDF file(.pdf)", "pdf");
+                    fileChooser.addChoosableFileFilter(pdf);
+                    fileChooser.setCurrentDirectory(new File("."));
+                    String resultpath = "reportWorkers.pdf";
+                    int returnVal = fileChooser.showSaveDialog(null);
+                    if(returnVal == JFileChooser.APPROVE_OPTION)
+                    {
+                        File file = fileChooser.getSelectedFile();
+                        resultpath = file.getAbsolutePath();
+                    }
                     checkList();
                     makeXml();
-                    ReportUtil.print("dataWorkers.xml", "window/dataWorkers", "workers.jrxml", "reportWorkers.pdf");
+                    ReportUtil.print("dataWorkers.xml", "window/dataWorkers", "workers.jrxml", resultpath);
                     JOptionPane.showMessageDialog(null, "2 поток закончил работу. Отчет создан");
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
