@@ -330,10 +330,10 @@ public class WorkerWindow
             for (int i = 0; i < model.getRowCount(); i++) {
                 Element dataEmploy = doc.createElement("dataWorkers");
                 window.appendChild(dataEmploy);
-                dataEmploy.setAttribute("name", (String) model.getValueAt(i, 0));
-                dataEmploy.setAttribute("surname", (String) model.getValueAt(i, 1));
-                dataEmploy.setAttribute("exp", (String) model.getValueAt(i, 2));
-                dataEmploy.setAttribute("specialisation", (String) model.getValueAt(i, 3));
+                dataEmploy.setAttribute("name", (String) model.getValueAt(i, 1));
+                dataEmploy.setAttribute("surname", (String) model.getValueAt(i, 2));
+                dataEmploy.setAttribute("exp", (String) model.getValueAt(i, 3));
+                dataEmploy.setAttribute("specialisation", (String) model.getValueAt(i, 4));
             }
             try
             {

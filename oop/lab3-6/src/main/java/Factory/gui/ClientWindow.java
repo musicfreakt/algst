@@ -204,6 +204,7 @@ public class ClientWindow
             log.info("Старт Add listener");
             addDialogClient = new AddDialogClient(window, ClientWindow.this, "Добавление записи");
             addDialogClient.setVisible(true);
+            log.info("Завершение Add listener");
         });
 
         add.setMnemonic(KeyEvent.VK_A);
@@ -338,7 +339,8 @@ public class ClientWindow
             Node window = doc.createElement("window");
             doc.appendChild(window);
             // Создание дочерних элементов dataEmploy и присвоение значений атрибутам
-            for (int i = 0; i < model.getRowCount(); i++) {
+            for (int i = 0; i < model.getRowCount(); i++)
+            {
                 Element dataManager = doc.createElement("dataClients");
                 window.appendChild(dataManager);
                 dataManager.setAttribute("name", (String) model.getValueAt(i, 1));

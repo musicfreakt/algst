@@ -166,7 +166,7 @@ public class ContractWindow
         window.add(toolBar,BorderLayout.NORTH);
 
         // Создание таблицы с данными
-        String[] columns = {"ID", "Описание", "Цена", "Клиент", "Менеджер", "Дата подписания", "Дата окончания работ", "Состояние"};
+        String[] columns = {"ID", "Описание", "Прибыль", "Клиент", "Менеджер", "Дата подписания", "Дата окончания работ", "Состояние"};
         log.info("Добавление таблицы с данными к окну ContractWindow");
         List<Contract> contractsList;
 
@@ -521,7 +521,7 @@ public class ContractWindow
                 // Создание преобразователя документа
                 Transformer trans = TransformerFactory.newInstance().newTransformer();
                 // Создание файла с именем dataEmploy.xml для записи документа
-                java.io.FileWriter fw = new FileWriter("dataClients.xml");
+                java.io.FileWriter fw = new FileWriter("dataContracts.xml");
                 // Запись документа в файл
                 trans.transform(new DOMSource(doc), new StreamResult(fw));
             } catch (TransformerConfigurationException e) {
