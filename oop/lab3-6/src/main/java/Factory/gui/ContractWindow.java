@@ -31,8 +31,18 @@ public class ContractWindow
     /** Стандартный конструктор */
     ContractWindow()
     {
+        this.clientID = -1;
         show();
     }
+
+    /** Стандартный конструктор */
+    ContractWindow(int id)
+    {
+        this.clientID = id;
+        show();
+    }
+
+    private int clientID;
 
     /** Окно приложения */
     private JFrame window;
@@ -158,7 +168,13 @@ public class ContractWindow
         // Создание таблицы с данными
         String[] columns = {"ID", "Описание", "Цена", "Клиент", "Менеджер", "Дата подписания", "Дата окончания работ", "Состояние"};
         log.info("Добавление таблицы с данными к окну ContractWindow");
-        List<Contract> contractsList = contractService.findAll();
+        List<Contract> contractsList;
+
+        if (clientID == -1)
+            contractsList = contractService.findAll();
+        else
+            contractsList = contractService.findByClientId(clientID);
+
         String [][] data = new String[contractsList.size()][5];
         for (int i = 0; i < contractsList.size(); i++)
         {

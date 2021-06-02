@@ -91,6 +91,12 @@ public class ContractDAO
         return q.list();
     }
 
+    public List<Contract> findByClientId(int id)
+    {
+        Query<Contract> q = getCurrentSession().createQuery("SELECT c FROM contracts c WHERE c.client.id = :id");
+        q.setParameter("id", id);
+        return q.list();
+    }
 
     @SuppressWarnings("unchecked")
     public List<Contract> findTimePeriod(Date btime, Date etime)

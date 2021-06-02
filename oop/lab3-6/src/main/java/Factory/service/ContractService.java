@@ -66,6 +66,14 @@ public class ContractService
         return contracts;
     }
 
+    public List<Contract> findByClientId(int id)
+    {
+        contractDao.openCurrentSession();
+        List<Contract> contracts = contractDao.findByClientId(id);
+        contractDao.closeCurrentSession();
+        return contracts;
+    }
+
     public List<Contract> findOutdated(int id)
     {
         contractDao.openCurrentSession();

@@ -32,12 +32,6 @@ public class SpecialisationWindow
     /** Изменить */
     private JButton edit;
 
-    /** Печать */
-    private JButton print;
-
-//    /** Работники */
-//    private JButton employees;
-
     /** Панель инструментов */
     private JToolBar toolBar;
 
@@ -79,19 +73,16 @@ public class SpecialisationWindow
         add = new JButton("Добавить");
         delete = new JButton("Удалить");
         edit = new JButton("Редактировать");
-        print = new JButton("Печать");
 
         // Настройка подсказок
         add.setToolTipText("Добавить информацию о рабочих");
         delete.setToolTipText("Удалить информацию о рабочих");
         edit.setToolTipText("Изменить информацию о рабочих");
-        print.setToolTipText("Распечатать информацию о рабочих");
         // Добавление кнопок на панель инструментов
         toolBar = new JToolBar("Панель инструментов");
         toolBar.add(add);
         toolBar.add(delete);
         toolBar.add(edit);
-        toolBar.add(print);
         // Размещение панели инструментов
         window.setLayout(new BorderLayout());
         window.add(toolBar,BorderLayout.NORTH);

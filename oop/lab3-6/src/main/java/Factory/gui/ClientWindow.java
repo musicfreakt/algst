@@ -275,11 +275,11 @@ public class ClientWindow
             if (model.getRowCount() != 0) {
                 if (dataClients.getSelectedRow() != -1)
                 {
-                    try {
-                        
-                        JOptionPane.showMessageDialog(window, "Вы удалили строку");
-                        log.info("Была удалена строка данных");
-                    } catch (Exception ex) {
+                    try
+                    {
+                        new ContractWindow(Integer.parseInt(dataClients.getValueAt(dataClients.getSelectedRow(), 0).toString()));
+                    }
+                    catch (Exception ex) {
                         JOptionPane.showMessageDialog(null, "Ошибка:" + ex.toString());
                         log.log(Level.SEVERE, "Исключение: ", ex);
                     }
