@@ -7,11 +7,11 @@
 #include <algorithm>
 
 #include "screen.h"
-#include "1-2tree.h"
+#include "mycont.h"
 
 const int N = 10; // 52
-int Tree::height = 0;
-int Tree::tags = 0;
+int mycont::height = 0;
+int mycont::tags = 0;
 
 void createkeys(vector<int>& a, int n) 
 {
@@ -27,156 +27,49 @@ void createkeys(vector<int>& a, int n)
     }
 }
 
-
 int main()
 {
     std::srand(time(nullptr));
     
+    vector<int> A, B, C, D, E;
+    createkeys(A, N);
+    createkeys(B, N);
+    createkeys(C, N);
+    createkeys(D, N);
+    createkeys(E, N);
+
+    mycont a(A.begin(), A.end()),
+    b(B.begin(), B.end()),
+    c(C.begin(), C.end()),
+    d(D.begin(), D.end()),
+    e(E.begin(), E.end()),
+    f;
+
+    cout << "ПРИМЕР РАБОТЫ С МНОЖЕСТВОМ:\n";
+    a.display(); b.display(); c.display(); d.display(); e.display();
+
+    cout << "ВЫЧИСЛЕНИЕ (a - b) | c ^ d & e";
+    f = (a - b) | c ^ d & e;
+
+    f.display(true);
+    cout << "ПРИМЕР РАБОТЫ С ПОСЛЕДОВАТЕЛЬНОСТЬЮ:\n";
+
+    a.display();
+    b.display();
+    cout << "СЦЕПЛЕНИЕ a.concat(b)\n";
+    a.concat(b);
+    a.display();
+
+    c.display();
+    d.display();
+    cout << "СЛИЯНИЕ с.merge(d)\n";
+    c.merge(d);
+    c.display();
+
+    e.display();
+    cout << "УКОРАЧИВАНИЕ e.erase(1, 3)\n";
+    e.erase(1, 3);
+    e.display();
+
     return 0;
 }
-
-// // Выражение A & B ^ C & D & E
-
-// int k = 0, l = 0, N = 0;
-
-// vector<int> A, B, C, D, E;
-
-// int p = rand() % (10) + 5;
-
-// cout << "Подготовка множеств длины " << p << endl;
-
-// createkeys(A, p);
-
-// createkeys(B, p);
-
-// createkeys(C, p);
-
-// createkeys(D, p);
-
-// createkeys(E, p);
-
-// cout << "Множества успешно созданы" << endl;
-
-// system("pause");
-
-// Tree first, second, third, fourth, fifth, answer1, answer2, answer3, answer4;
-
-// for (auto x : A) {
-
-// first.insert(x);
-
-// }
-
-// first.Display("keys A");
-
-// system("pause");
-
-// for (auto x : B) {
-
-// second.insert(x);
-
-// }
-
-// second.Display("keys B");
-
-// system("pause");
-
-// for (auto x : C) {
-
-// third.insert(x);
-
-// }
-
-// third.Display("keys C");
-
-// system("pause");
-
-// for (auto x : D) {
-
-// fourth.insert(x);
-
-// }
-
-// fourth.Display("keys D");
-
-// system("pause");
-
-// for (auto x : E) {
-
-// fifth.insert(x);
-
-// }
-
-// fifth.Display("keys E");
-
-// system("pause");
-
-// answer1 = first & second;
-
-// answer1.Display("A & B");
-
-// system("pause");
-
-// answer2 = third & fourth;
-
-// answer2.Display("C & D");
-
-// system("pause");
-
-// answer3 = answer2 & fifth;
-
-// answer3.Display("C & D & E");
-
-// system("pause");
-
-// answer4 = answer1 ^ answer3;
-
-// answer4.Display("A & B ^ C & D & E");
-
-// system("pause");
-
-// size_t pos;
-
-// pos = rand() % (first.Power() + 1 ) + 1;
-
-// cout << "операция CHANGE будет выполняться с позиции: " << pos << endl;
-
-// first.CHANGE(second, pos);
-
-// first.Display("A CHANGE B");
-
-// system("pause");
-
-// cout << "Операция EXCL будет использовать CHANGE вместо множества B: " << endl;
-
-// first.EXCL(second);
-
-// first.Display("A EXCL B");
-
-// system("pause");
-
-// pos = rand() % (third.Power() + 1) + 0;
-
-// cout << "операция SUBST будет выполняться с позиции: " << pos << endl;
-
-// third.SUBST(fourth, pos);
-
-// string subs = "C SUBST D (" + to_string(pos) + ")";
-
-// third.Display(subs);
-
-// system("pause");
-
-// pos = rand() % (4) + 1;
-
-// cout << "операция MUL будет выполняться " << pos << " раз(а)" << endl;
-
-// fifth.MUL(pos);
-
-// string mul = "E MUL (" + to_string(pos) + ")";
-
-// fifth.Display(mul);
-
-// return 0;
-
-// } 

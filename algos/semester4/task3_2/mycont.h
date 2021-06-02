@@ -1,23 +1,23 @@
-#ifndef TREE_H
-#define TREE_H
+#ifndef MYCONT_H
+#define MYCONT_H
 
 using namespace std;
 
-struct Node 
+struct node 
 {
 	int key;
 	int N = 1;
 	bool next = false;
-	Node *left, *right;
+	node *left, *right;
 
-	Node() : left(nullptr), right(nullptr) {}
-	Node(int k, Node * l = nullptr, Node * r = nullptr) : key(k), left(l), right(r) {}
-	~Node() { delete right; delete left; };
+	node() : left(nullptr), right(nullptr) {}
+	node(int k, node * l = nullptr, node * r = nullptr) : key(k), left(l), right(r) {}
+	~node() { delete right; delete left; };
 	void out(int, int);
 	void display(int, int);
 };
 
-void Node::out(int row, int col)
+void node::out(int row, int col)
 {
 	if ((row > MAXROW) || (col < 0) || (col > MAXCOL)) return;
 	try {
@@ -36,24 +36,24 @@ void Node::out(int row, int col)
 	catch (out_of_range) { cout << "Out: row=" << row << " col=" << col; }
 }
 
-using MyStack = stack<pair<Node*, int>>;
+using MyStack = stack<pair<node*, int>>;
 
-struct tree_iter : public std::iterator<std::forward_iterator_tag, int>
+struct Iterator : public std::iterator<std::forward_iterator_tag, int>
 {
-	tree_iter(Node *p) : Ptr(p) {}
-	tree_iter(Node *p, MyStack St) : Ptr(p), St(St) {}
-	bool operator == (const tree_iter & Other) const { return Ptr == Other.Ptr; }
-	bool operator != (const tree_iter & Other) const { return !(*this == Other); }
-	tree_iter & operator++();
-	tree_iter operator++(int) { tree_iter temp(*this); ++*this; return temp; }
+	Iterator(node *p) : Ptr(p) {}
+	Iterator(node *p, MyStack St) : Ptr(p), St(St) {}
+	bool operator == (const Iterator & Other) const { return Ptr == Other.Ptr; }
+	bool operator != (const Iterator & Other) const { return !(*this == Other); }
+	Iterator & operator++();
+	Iterator operator++(int) { Iterator temp(*this); ++*this; return temp; }
 	pointer operator->() { return &Ptr->key; }
 	reference operator*() { return Ptr->key; }
-	Node * Ptr;
+	node * Ptr;
 	MyStack St;
 };
 
 // ИТЕРАТОР ВСТАВКИ (нужны присваивание, разыменование , инкремент)
-template<typename Container, typename Iter = tree_iter>
+template<typename Container, typename Iter = Iterator>
 class outiterator: public iterator<output_iterator_tag, typename Container::value_type>
 {
     protected:
@@ -81,11 +81,11 @@ inline outiterator<Container, Iter> outinserter(Container& c, Iter It)
     return outiterator<Container, Iter>(c, It);
 }
 
-class Tree 
+class mycont 
 {
 	static int tags;
 	char tag;
-	Node * root;
+	node * root;
 	int count;
 
 	vector <int> keys;
@@ -95,59 +95,68 @@ class Tree
         using key_compare = less<int>;
 		static int height;
 		
-		Tree() : root(nullptr), count(0), tag('A' + tags++) {}
-		Tree(const Tree &other): Tree() {for(auto x : other) insert(x);}
-        Tree(Tree && other): Tree() {swap(other);}
-		~Tree() { delete root; };
+		mycont() : root(nullptr), count(0), tag('A' + tags++) {}
+		mycont(const mycont &other): mycont() {for(auto x : other) insert(x);}
+        mycont(mycont && other): mycont() {swap(other);}
+		template <typename iter>
+        mycont(iter, iter);
+		~mycont() { delete root; };
 
-		tree_iter begin() const;
-		tree_iter end() const { return tree_iter(nullptr); }
+		Iterator begin() const;
+		Iterator end() const { return Iterator(nullptr); }
 		int size() const { return count; }
 		bool empty() const { return (root == nullptr); }
 		size_t power() const { return keys.size(); } 
-		void swap(Tree &);
+		void swap(mycont &);
 
-		pair<tree_iter, bool> insert(int, tree_iter = tree_iter(nullptr));
-		tree_iter insert(const tree_iter where, const int& k) { return insert(k, where).first; }
+		pair<Iterator, bool> insert(int, Iterator = Iterator(nullptr));
+		Iterator insert(const Iterator where, const int& k) { return insert(k, where).first; }
 		bool erase(int);
 		void clear() { count = 0; delete root; root = nullptr; }
 
-		void display();	
-		Tree & operator= (const Tree &);
-        Tree & operator= (Tree &&);
+		void display(bool);	
+		mycont & operator= (const mycont &);
+        mycont & operator= (mycont &&);
 
-        void merge(const Tree&);
-        void concat(const Tree&);
+        void merge(const mycont&);
+        void concat(const mycont&);
         void erase(int, int);
 
-        Tree& operator &= (const Tree &);
-        Tree operator & (const Tree & other) const
-        { Tree result(*this); return (result &= other); }
-        Tree& operator |= (const Tree &);
-        Tree operator | (const Tree & other) const
-        { Tree result(*this); return (result |= other); }
-        Tree& operator -= (const Tree &);
-        Tree operator - (const Tree & other) const
-        {Tree result(*this); return (result -= other);}
-        Tree& operator ^= (const Tree &);
-        Tree operator ^ (const Tree & other) const
-        {Tree result(*this); return (result ^= other);}
+        mycont& operator &= (const mycont &);
+        mycont operator & (const mycont & other) const
+        { mycont result(*this); return (result &= other); }
+        mycont& operator |= (const mycont &);
+        mycont operator | (const mycont & other) const
+        { mycont result(*this); return (result |= other); }
+        mycont& operator -= (const mycont &);
+        mycont operator - (const mycont & other) const
+        {mycont result(*this); return (result -= other);}
+        mycont& operator ^= (const mycont &);
+        mycont operator ^ (const mycont & other) const
+        {mycont result(*this); return (result ^= other);}
 };
 
-tree_iter Tree::begin() const
+template <typename iter>
+mycont::mycont(iter b, iter e): mycont()
 {
-	stack<pair<Node*, int>>St;
-	Node* p(root);
+    for (auto i = b; i != e; ++i)
+        insert(*i);
+}
+
+Iterator mycont::begin() const
+{
+	stack<pair<node*, int>>St;
+	node* p(root);
 	if (p) {
 		while (p->left) {
 			St.push(make_pair(p, 0));
 			p = p->left;
 		}
 	}
-	return tree_iter(p, St);
+	return Iterator(p, St);
 }
 
-tree_iter& tree_iter::operator++()
+Iterator& Iterator::operator++()
 {
 	if (!Ptr) 
 	{
@@ -163,7 +172,7 @@ tree_iter& tree_iter::operator++()
 		}
 	}
 	else {
-		pair<Node*, int> pp(Ptr, 1);
+		pair<node*, int> pp(Ptr, 1);
 		while (!St.empty() && pp.second) { pp = St.top(); St.pop(); }
 		if (pp.second)
 			Ptr = nullptr;
@@ -172,7 +181,7 @@ tree_iter& tree_iter::operator++()
 	return (*this);
 }
 
-void Tree::swap(Tree & other)
+void mycont::swap(mycont & other)
 {
     std::swap(root, other.root);
     std::swap(height, other.height);
@@ -180,21 +189,21 @@ void Tree::swap(Tree & other)
 	std::swap(keys, other.keys);
 }
 
-pair<tree_iter, bool> Tree::insert(int k, tree_iter where)
+pair<Iterator, bool> mycont::insert(int k, Iterator where)
 {
-	Node *t{ root }, *new_node{nullptr};
+	node *t{ root }, *new_node{nullptr};
 	bool cont{ true }, up{ false };
-	stack<pair<Node*, int>> St;
+	stack<pair<node*, int>> St;
 
 	if (!where.Ptr) 
 	{
 		if (t == nullptr) 
 		{
-			root = new Node(k);
+			root = new node(k);
 			keys.push_back(k);
 			count = height = 1;
 			St.push(make_pair(root, 1));
-			return make_pair(tree_iter(root, move(St)), true);
+			return make_pair(Iterator(root, move(St)), true);
 		}
 		else St.push(make_pair(root, 1));
 	}
@@ -207,7 +216,10 @@ pair<tree_iter, bool> Tree::insert(int k, tree_iter where)
 	while (cont) 
 	{
 		if (k == t->key)
-			return make_pair(tree_iter(t, move(St)), false);
+		{
+			keys.push_back(k);
+			return make_pair(Iterator(t, move(St)), false);
+		}
 		if (k < t->key) 
 		{
 			if (t->left) 
@@ -217,7 +229,7 @@ pair<tree_iter, bool> Tree::insert(int k, tree_iter where)
 			}
 			else 
 			{
-				t->left = new Node(k, nullptr, t->left);
+				t->left = new node(k, nullptr, t->left);
 				keys.push_back(k);
 				new_node = t->left;
 				cont = false;
@@ -225,7 +237,7 @@ pair<tree_iter, bool> Tree::insert(int k, tree_iter where)
 		}
 		else if (!t->right) 
 		{
-			t->right = new Node(k);
+			t->right = new node(k);
 			keys.push_back(k);
 			t->next = true;
 			new_node = t->right;
@@ -242,7 +254,7 @@ pair<tree_iter, bool> Tree::insert(int k, tree_iter where)
 				}
 				else 
 				{
-					t->right->left = new Node(k, nullptr, t->right->left);
+					t->right->left = new node(k, nullptr, t->right->left);
 					keys.push_back(k);
 					new_node = t->right->left;
 					cont = false;
@@ -257,7 +269,7 @@ pair<tree_iter, bool> Tree::insert(int k, tree_iter where)
 				}
 				else 
 				{
-					t->right->right = new Node(k);
+					t->right->right = new node(k);
 					keys.push_back(k);
 					up = t->right->next = true;
 					new_node = t->right->right;
@@ -272,7 +284,7 @@ pair<tree_iter, bool> Tree::insert(int k, tree_iter where)
 		}
 		else 
 		{
-			t->right = new Node(k);
+			t->right = new node(k);
 			keys.push_back(k);
 			t->next = true;
 			new_node = t->right;
@@ -282,7 +294,7 @@ pair<tree_iter, bool> Tree::insert(int k, tree_iter where)
 		while (up) 
 		{
 			std::swap(t->key, t->right->key);
-			Node * t1{ t->right };
+			node * t1{ t->right };
 			t->next = t1->next = false;
 			t->right = t->right->right;
 			t1->right = t1->left;
@@ -330,19 +342,19 @@ pair<tree_iter, bool> Tree::insert(int k, tree_iter where)
 	}
 
 	++count;
-	return make_pair(tree_iter(new_node, move(St)), true);
+	return make_pair(Iterator(new_node, move(St)), true);
 };
 
 
-Tree & Tree::operator= (const Tree & other)
+mycont & mycont::operator= (const mycont & other)
 {
-    Tree temp;
-	std::copy(other.begin(), other.end(), outinserter(temp, tree_iter(nullptr)));
+    mycont temp;
+	std::copy(other.begin(), other.end(), outinserter(temp, Iterator(nullptr)));
     swap(temp);
     return *this;
 }
 
-Tree& Tree::operator=(Tree&& other)
+mycont& mycont::operator=(mycont&& other)
 {
 	swap(other);
 	for (auto x : other.keys)
@@ -350,21 +362,29 @@ Tree& Tree::operator=(Tree&& other)
 	return *this;
 }
 
-void Tree::display()
+void mycont::display(bool flag = false)
 {
-	clrscr();
-	height = 0;
-	if (root) root->display(0, FIRSTCOL - SHIFT);
-	SCREEN[0] = "1-2-Tree (n=" + to_string(count) + " h=" + to_string(height) + 
-		 + ") -------------------------------------> ";
-	SCREEN[0] += (root) ? to_string(root->key) : " <Empty>";
-	SCREEN[0].resize(MAXCOL, '.');
-	showscr();
+	if (flag)
+	{
+		clrscr();
+		cout << endl;
+		height = 0;
+		if (root) root->display(0, FIRSTCOL - SHIFT);
+		SCREEN[0] = "1-2-mycont (n=" + to_string(count) + " h=" + to_string(height) + 
+			+ ") -------------------------------------> ";
+		SCREEN[0] += (root) ? to_string(root->key) : " <Empty>";
+		SCREEN[0].resize(MAXCOL, '.');
+		showscr();
+	}
 
-	cout << "< "; for (auto x : keys) cout << x << " "; cout << ">\n\n"; 
+	cout << "МНОЖЕСТВО( " << tag << " ) : ";
+	for (auto x = begin(); x != end(); ++x)
+		cout << *x << " ";
+
+	cout << "\nПОСЛЕДОВАТЕЛЬНОСТЬ ( " << tag << " ): < "; for (auto x : keys) cout << x << " "; cout << ">\n\n"; 
 }
 
-void Node::display(int level, int col)
+void node::display(int level, int col)
 {
 	int row{ level * 2 };
 	this->out(row, col);
@@ -376,57 +396,57 @@ void Node::display(int level, int col)
 	}
 	else
 		if (right) right->display(level + 1, col + (OFFSET[level + 1]));
-	if (level > Tree::height) Tree::height = level;
+	if (level > mycont::height) mycont::height = level;
 }
 
-Tree& Tree::operator&= (const Tree & other)
+mycont& mycont::operator&= (const mycont & other)
 {
-    Tree temp;
+    mycont temp;
     set_intersection(begin(), end(),
         other.begin(), other.end(),
-        outinserter(temp, tree_iter(nullptr)));
+        outinserter(temp, Iterator(nullptr)));
     swap(temp);
 	return *this;
 }
 
-Tree& Tree::operator|= (const Tree & other)
+mycont& mycont::operator|= (const mycont & other)
 {
-    Tree temp;
+    mycont temp;
     set_union(begin(), end(),
         other.begin(), other.end(),
-        outinserter(temp, tree_iter(nullptr)));
+        outinserter(temp, Iterator(nullptr)));
     swap(temp);
 	return *this;
 }
 
-Tree& Tree::operator-= (const Tree & other)
+mycont& mycont::operator-= (const mycont & other)
 {
-    Tree temp;
+    mycont temp;
     set_difference(begin(), end(),
         other.begin(), other.end(),
-        outinserter(temp, tree_iter(nullptr)));
+        outinserter(temp, Iterator(nullptr)));
     swap(temp);
 	return *this;
 }
 
-Tree& Tree::operator^= (const Tree & other)
+mycont& mycont::operator^= (const mycont & other)
 {
-    Tree temp;
+    mycont temp;
     set_symmetric_difference(begin(), end(),
         other.begin(), other.end(),
-        outinserter(temp, tree_iter(nullptr)));
+        outinserter(temp, Iterator(nullptr)));
     swap(temp);
 	return *this;
 }
 
-void Tree::erase(int left, int right)
+void mycont::erase(int left, int right)
 {
     int p = power();
     left = std::min(left, p);
     right = std::min(right+1, p);
     if(left <= right)
     {
-        Tree temp;
+        mycont temp;
         for(int i = 0; i < left; ++i)
 			temp.insert(keys[i]);
         for(int i = right; i < p; ++i)
@@ -435,17 +455,16 @@ void Tree::erase(int left, int right)
     }
 }
 
-void Tree::concat(const Tree & other)
+void mycont::concat(const mycont & other)
 {
     for(auto x : other.keys)
         insert(x);
 }
 
-void Tree::merge(const Tree & other) 
+void mycont::merge(const mycont & other) 
 { 
 	using std::sort;
 	vector <int> temp(other.keys), res;
-	// auto le = [ ] ( a, b)->bool { return *a < *b; };
 	std::merge(keys.begin(), keys.end(), temp.begin(), temp.end(), 
         std::back_inserter(res));
     for (auto x : other.keys)
