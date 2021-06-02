@@ -256,17 +256,18 @@ public class ClientWindow
 
         print.addActionListener((e)->{
             log.info("Старт Print listener");
-            try {
-                checkList();
-                makeXml();
-                ReportUtil.print("dataClients.xml", "window/dataClients", "clients.jrxml", "reportClients.pdf");
-                JOptionPane.showMessageDialog(null,"2 поток закончил работу. Отчет создан");
-            }
-            catch (Exception ex)
-            {
-                JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
-                log.log(Level.SEVERE, "Исключение: ", ex);
-            }
+            t2 = new Thread(() -> {
+                try {
+                    checkList();
+                    makeXml();
+                    ReportUtil.print("dataClients.xml", "window/dataClients", "clients.jrxml", "reportClients.pdf");
+                    JOptionPane.showMessageDialog(null, "2 поток закончил работу. Отчет создан");
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
+                    log.log(Level.SEVERE, "Исключение: ", ex);
+                }
+            });
+            t2.start();
         });
 
         print.setMnemonic(KeyEvent.VK_E);

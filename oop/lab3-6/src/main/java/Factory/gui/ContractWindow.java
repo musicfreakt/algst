@@ -68,7 +68,6 @@ public class ContractWindow
     /** Показать описание */
     private JButton description;
 
-
     /** Панель инструментов */
     private JToolBar toolBar;
 
@@ -282,7 +281,6 @@ public class ContractWindow
             if (model.getRowCount() != 0) {
                 if (dataContracts.getSelectedRow() != -1) {
                     t1 = new Thread(() -> {
-                        JOptionPane.showMessageDialog(null,"1 поток запущен");
                         editDialogContract = new EditDialogContract(window, ContractWindow.this, "Редактирование");
                         editDialogContract.setVisible(true);
                     });
@@ -351,18 +349,18 @@ public class ContractWindow
 
         print.addActionListener((e)->{
             log.info("Старт Print listener");
-            try
-            {
-                checkList();
-                makeXml();
-                ReportUtil.print("dataContracts.xml", "window/dataContracts", "contracts.jrxml", "reportContracts.pdf");
-                JOptionPane.showMessageDialog(null,"2 поток закончил работу. Отчет создан");
-            }
-            catch (Exception ex)
-            {
-                JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
-                log.log(Level.SEVERE, "Исключение: ", ex);
-            }
+            t2 = new Thread(() -> {
+                try {
+                    checkList();
+                    makeXml();
+                    ReportUtil.print("dataContracts.xml", "window/dataContracts", "contracts.jrxml", "reportContracts.pdf");
+                    JOptionPane.showMessageDialog(null, "2 поток закончил работу. Отчет создан");
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
+                    log.log(Level.SEVERE, "Исключение: ", ex);
+                }
+            });
+            t2.start();
         });
 
         print.setMnemonic(KeyEvent.VK_D);

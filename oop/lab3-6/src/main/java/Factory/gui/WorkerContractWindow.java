@@ -3,6 +3,18 @@ package Factory.gui;
 import Factory.model.*;
 import Factory.service.*;
 import Factory.exceptions.*;
+import Factory.util.ReportUtil;
+
+import org.w3c.dom.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -38,8 +50,8 @@ public class WorkerContractWindow
     /** Удалить */
     private JButton delete;
 
-//    /** Печать */
-//    private JButton print;
+    /** Печать */
+    private JButton print;
 
     /** Показать описание */
     private JButton description;
@@ -74,8 +86,8 @@ public class WorkerContractWindow
     /** Сервис контрактов */
     private ContractService contractService = new ContractService();
 
-//    /** Поток 2 отвечает за формирование отчет */
-//    Thread t2 = new Thread();
+    /** Поток 2 отвечает за формирование отчет */
+    Thread t2 = new Thread();
 
     /** Логгер класса */
     private static final Logger log = Logger.getLogger(WorkerContractWindow.class.getName());
@@ -115,7 +127,7 @@ public class WorkerContractWindow
         toolBar = new JToolBar("Панель инструментов");
         toolBar.add(add);
         toolBar.add(delete);
-//        toolBar.add(print);
+        toolBar.add(print);
         toolBar.add(description);
         // Размещение панели инструментов
         window.setLayout(new BorderLayout());
@@ -159,6 +171,7 @@ public class WorkerContractWindow
             boolean check = !dataContracts.getSelectionModel().isSelectionEmpty();
             delete.setVisible(check);
             description.setVisible(check);
+            print.setVisible(check);
         });
 
         scroll = new JScrollPane(this.dataContracts);
@@ -195,7 +208,6 @@ public class WorkerContractWindow
 
         add.addActionListener((e) -> {
             log.info("Старт Add listener");
-
             addDialog = new AddDialogWorkerContract(window, WorkerContractWindow.this, "Добавление записи");
             addDialog.setVisible(true);
         });
@@ -254,21 +266,21 @@ public class WorkerContractWindow
 
         description.setMnemonic(KeyEvent.VK_D);
 
-//        print.addActionListener((e)->{
-//            log.info("Старт Print listener");
-//            try
-//            {
-//                checkList();
-//                makeXml();
-//                ReportUtil.print("dataContracts.xml", "window/dataContracts", "contracts.jrxml", "reportContracts.pdf");
-//                JOptionPane.showMessageDialog(null,"2 поток закончил работу. Отчет создан");
-//            }
-//            catch (Exception ex)
-//            {
-//                JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
-//                log.log(Level.SEVERE, "Исключение: ", ex);
-//            }
-//        });
+        print.addActionListener((e)->{
+            log.info("Старт Print listener");
+            t2 = new Thread(() -> {
+                try {
+                    checkList();
+                    makeXml();
+                    ReportUtil.print("dataContracts.xml", "window/dataContracts", "contracts.jrxml", "reportContracts.pdf");
+                    JOptionPane.showMessageDialog(null, "2 поток закончил работу. Отчет создан");
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
+                    log.log(Level.SEVERE, "Исключение: ", ex);
+                }
+            });
+            t2.start();
+        });
 
         search.addActionListener((e) -> {
             if (model.getRowCount() != 0) {
@@ -386,58 +398,58 @@ public class WorkerContractWindow
         window.setVisible(true);
     }
 
-//    /**
-//     * Метод проверки списка на отсутсвие записей
-//     * @throws EmptyFileException моё исключение
-//     */
-//    private void checkList() throws EmptyFileException
-//    {
-//        if(model.getRowCount() == 0)
-//            throw new EmptyFileException();
-//    }
-//
-//    /** Метод загрузки данных в XML файл */
-//    public void makeXml() {
-//        try {
-//            // Создание парсера документа
-//            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-//            // Создание пустого документа
-//            Document doc = builder.newDocument();
-//            // Создание корневого элемента window и добавление его в документ
-//            Node window = doc.createElement("window");
-//            doc.appendChild(window);
-//            // Создание дочерних элементов dataEmploy и присвоение значений атрибутам
-//            for (int i = 0; i < model.getRowCount(); i++) {
-//                Element dataManager = doc.createElement("dataContracts");
-//                window.appendChild(dataManager);
-//                dataManager.setAttribute("description", (String) model.getValueAt(i, 1));
-//                dataManager.setAttribute("price", (String) model.getValueAt(i, 2));
-//                dataManager.setAttribute("client", (String) model.getValueAt(i, 3));
-//                dataManager.setAttribute("manager", (String) model.getValueAt(i, 4));
-//                dataManager.setAttribute("dateBegin", (String) model.getValueAt(i, 5));
-//                dataManager.setAttribute("dateEnd", (String) model.getValueAt(i, 6));
-//                dataManager.setAttribute("isEnd", (String) model.getValueAt(i, 7));
-//            }
-//            try {
-//                // Создание преобразователя документа
-//                Transformer trans = TransformerFactory.newInstance().newTransformer();
-//                // Создание файла с именем dataEmploy.xml для записи документа
-//                java.io.FileWriter fw = new FileWriter("dataClients.xml");
-//                // Запись документа в файл
-//                trans.transform(new DOMSource(doc), new StreamResult(fw));
-//            } catch (TransformerConfigurationException e) {
-//                e.printStackTrace();
-//            } catch (TransformerException e) {
-//                e.printStackTrace();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//
-//        } catch (ParserConfigurationException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    /**
+     * Метод проверки списка на отсутсвие записей
+     * @throws EmptyFileException моё исключение
+     */
+    private void checkList() throws EmptyFileException
+    {
+        if(model.getRowCount() == 0)
+            throw new EmptyFileException();
+    }
+
+    /** Метод загрузки данных в XML файл */
+    public void makeXml() {
+        try {
+            // Создание парсера документа
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            // Создание пустого документа
+            Document doc = builder.newDocument();
+            // Создание корневого элемента window и добавление его в документ
+            Node window = doc.createElement("window");
+            doc.appendChild(window);
+            // Создание дочерних элементов dataEmploy и присвоение значений атрибутам
+            for (int i = 0; i < model.getRowCount(); i++) {
+                Element dataManager = doc.createElement("dataContracts");
+                window.appendChild(dataManager);
+                dataManager.setAttribute("description", (String) model.getValueAt(i, 1));
+                dataManager.setAttribute("price", (String) model.getValueAt(i, 2));
+                dataManager.setAttribute("client", (String) model.getValueAt(i, 3));
+                dataManager.setAttribute("manager", (String) model.getValueAt(i, 4));
+                dataManager.setAttribute("dateBegin", (String) model.getValueAt(i, 5));
+                dataManager.setAttribute("dateEnd", (String) model.getValueAt(i, 6));
+                dataManager.setAttribute("isEnd", (String) model.getValueAt(i, 7));
+            }
+            try {
+                // Создание преобразователя документа
+                Transformer trans = TransformerFactory.newInstance().newTransformer();
+                // Создание файла с именем dataEmploy.xml для записи документа
+                java.io.FileWriter fw = new FileWriter("dataClients.xml");
+                // Запись документа в файл
+                trans.transform(new DOMSource(doc), new StreamResult(fw));
+            } catch (TransformerConfigurationException e) {
+                e.printStackTrace();
+            } catch (TransformerException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Вспомогательный метод добавления данных в таблицу
@@ -461,22 +473,5 @@ public class WorkerContractWindow
         dateEnd = end;
     }
 
-//    public String[] getManagers()
-//    {
-//        List<Manager> managers = managerService.findAll();
-//        String [] result = new String[managers.size()];
-//        for (int i = 0; i < managers.size(); i++)
-//            result[i] = managers.get(i).getID() + " " +  managers.get(i).getName() + " " + managers.get(i).getSurname();
-//        return result;
-//    }
-//
-//    public String[] getClients()
-//    {
-//        List<Client> clients = clientService.findAll();
-//        String [] result = new String[clients.size()];
-//        for (int i = 0; i < clients.size(); i++)
-//            result[i] = clients.get(i).getID() + " " + clients.get(i).getName() + " " + clients.get(i).getSurname();
-//        return result;
-//    }
 
 }

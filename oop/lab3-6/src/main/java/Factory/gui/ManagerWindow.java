@@ -239,16 +239,18 @@ public class ManagerWindow
 
         print.addActionListener((e)->{
             log.info("Старт Print listener");
-            try
-            {
-                checkList();
-                makeXml();
-                ReportUtil.print("dataManagers.xml", "window/dataManagers", "managers.jrxml", "reportManagers.pdf");
-                JOptionPane.showMessageDialog(null,"2 поток закончил работу. Отчет создан");
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
-                log.log(Level.SEVERE, "Исключение: ", ex);
-            }
+            t2 = new Thread(() -> {
+                try {
+                    checkList();
+                    makeXml();
+                    ReportUtil.print("dataManagers.xml", "window/dataManagers", "managers.jrxml", "reportManagers.pdf");
+                    JOptionPane.showMessageDialog(null, "2 поток закончил работу. Отчет создан");
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
+                    log.log(Level.SEVERE, "Исключение: ", ex);
+                }
+            });
+            t2.start();
         });
 
         clients.addActionListener(e -> {
