@@ -2,7 +2,10 @@ package Factory.util;
 
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRXmlDataSource;
-import net.sf.jasperreports.engine.export.JRPdfExporter;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
+
+import java.io.File;
 
 /**
  * Класс для генерации отчетов
@@ -10,37 +13,21 @@ import net.sf.jasperreports.engine.export.JRPdfExporter;
 public class ReportUtil
 {
     /**
-     * Метод генерации отчетов в форматах DOCX и HTML.
+     * Метод генерации отчетов в формате PDF.
      * @param datasource Имя файла XML с данными
      * @param xpath Директория до полей с данными
      * @param template Имя файла шаблона .jrxml
      * @param resultpath Имя файла, в который будет помещен отчет
      */
-    public static void print(String datasource, String xpath, String template, String resultpath)
+    public static void print(String datasource, String xpath, String template, String resultpath) throws JRException
     {
-        try
-        {
-            // Указание источника XML-данных
-            JRDataSource jr = new JRXmlDataSource(datasource, xpath);
-            // Создание отчета на базе шаблона
-            JasperReport report = JasperCompileManager.compileReport(template);
-            // Заполнение отчета данными
-            JasperPrint print = JasperFillManager.fillReport(report, null, jr);
+        File reportPattern = new File(template);
 
-            if(resultpath.toLowerCase().endsWith("pdf")) {
-                JRExporter exporter;
-                exporter = new JRPdfExporter();
-                exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME,resultpath);
-                exporter.setParameter(JRExporterParameter.JASPER_PRINT,print);
-                exporter.exportReport();
-            }
-            else
-                JasperExportManager.exportReportToHtmlFile(print,resultpath);
-        }
-        catch (JRException e)
-        {
-            e.printStackTrace();
-        }
+        JasperDesign jasperDesign = JRXmlLoader.load(reportPattern);
+        JasperReport jasperReport = JasperCompileManager.compileReport(jasperDesign);
+        JRDataSource jr = new JRXmlDataSource(datasource, xpath);
+        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, null, jr);
+        JasperExportManager.exportReportToPdfFile(jasperPrint, resultpath);
     }
 }
 

@@ -316,11 +316,12 @@ public class ManagerWindow
             Node window = doc.createElement("window");
             doc.appendChild(window);
             // Создание дочерних элементов dataEmploy и присвоение значений атрибутам
-            for (int i = 0; i < model.getRowCount(); i++) {
-                Element dataManager = doc.createElement("dataManager");
+            for (int i = 0; i < model.getRowCount(); i++)
+            {
+                Element dataManager = doc.createElement("dataManagers");
                 window.appendChild(dataManager);
-                dataManager.setAttribute("name", (String) model.getValueAt(i, 0));
-                dataManager.setAttribute("surname", (String) model.getValueAt(i, 1));
+                dataManager.setAttribute("name", (String) model.getValueAt(i, 1));
+                dataManager.setAttribute("surname", (String) model.getValueAt(i, 2));
             }
             try {
                 // Создание преобразователя документа

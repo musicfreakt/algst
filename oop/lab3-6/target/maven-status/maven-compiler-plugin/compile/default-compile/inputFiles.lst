@@ -17,6 +17,7 @@
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/EditDialogManager.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/AddDialogContract.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/dao/ClientDAO.java
+/home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/DialogTimePeriodSelection.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/EditDialogClient.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/service/EmployeeService.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/model/Specialisation.java
@@ -42,4 +43,5 @@
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/util/HibernateSessionFactoryUtil.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/Ref.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/AddDialogWorkerContract.java
+/home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/exceptions/UnacceptableTimePeriod.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/DialogManager.java

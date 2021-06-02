@@ -52,6 +52,9 @@ public class ClientWindow
     /** Печать */
     private JButton print;
 
+    /** Кнопка контрактов */
+    private JButton contract;
+
     /** Панель инструментов */
     private JToolBar toolBar;
 
@@ -99,18 +102,21 @@ public class ClientWindow
         delete = new JButton("Удалить");
         edit = new JButton("Редактировать");
         print = new JButton("Печать");
+        contract = new JButton("Контракты");
 
         // Настройка подсказок
-        add.setToolTipText("Добавить информацию о рабочих");
-        delete.setToolTipText("Удалить информацию о рабочих");
-        edit.setToolTipText("Изменить информацию о рабочих");
-        print.setToolTipText("Распечатать информацию о рабочих");
+        add.setToolTipText("Добавить информацию о клиентах");
+        delete.setToolTipText("Удалить информацию о клиентах");
+        edit.setToolTipText("Изменить информацию о клиентах");
+        print.setToolTipText("Распечатать информацию о клиентах");
+        contract.setToolTipText("Показать контракты клиентов");
         // Добавление кнопок на панель инструментов
         toolBar = new JToolBar("Панель инструментов");
         toolBar.add(add);
         toolBar.add(delete);
         toolBar.add(edit);
         toolBar.add(print);
+        toolBar.add(contract);
         // Размещение панели инструментов
         window.setLayout(new BorderLayout());
         window.add(toolBar,BorderLayout.NORTH);
@@ -145,6 +151,14 @@ public class ClientWindow
                 return this;
             }
 
+        });
+
+        // Если не выделена строка, то прячем кнопки
+        dataClients.getSelectionModel().addListSelectionListener((e) -> {
+            boolean check = !dataClients.getSelectionModel().isSelectionEmpty();
+            edit.setVisible(check);
+            delete.setVisible(check);
+            contract.setVisible(check);
         });
 
         scroll = new JScrollPane(this.dataClients);
@@ -239,12 +253,33 @@ public class ClientWindow
             }
         });
 
-        // Если не выделена строка, то прячем кнопки
-        dataClients.getSelectionModel().addListSelectionListener((e) -> {
-            boolean check = !dataClients.getSelectionModel().isSelectionEmpty();
-            edit.setVisible(check);
-            delete.setVisible(check);
+        print.setMnemonic(KeyEvent.VK_E);
+
+        contract.addActionListener((e)-> {
+            log.info("Старт contract listener");
+            if (model.getRowCount() != 0) {
+                if (dataClients.getSelectedRow() != -1)
+                {
+                    try {
+                        
+                        JOptionPane.showMessageDialog(window, "Вы удалили строку");
+                        log.info("Была удалена строка данных");
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, "Ошибка:" + ex.toString());
+                        log.log(Level.SEVERE, "Исключение: ", ex);
+                    }
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(null, "Не выбрана строка. Нечего показывать");
+                    log.log(Level.WARNING, "Исключение: не выбрана строка");
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего показывать");
+                log.log(Level.WARNING, "Исключение: нет записей. нечего удалять");
+            }
         });
+        contract.setMnemonic(KeyEvent.VK_E);
 
         search.addActionListener((e) -> {
             if (model.getRowCount() != 0) {
