@@ -4,6 +4,8 @@ import Factory.model.*;
 import Factory.util.HibernateSessionFactoryUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
+
 import java.util.List;
 
 public class ClientDAO
@@ -73,6 +75,14 @@ public class ClientDAO
     @SuppressWarnings("unchecked")
     public List<Client> findAll() {
         return (List<Client>) getCurrentSession().createQuery("SELECT c FROM clients c").list();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Client> findByManagerId(int id)
+    {
+        Query<Client> q = getCurrentSession().createQuery("SELECT c FROM clients c JOIN c.client_contracts s WHERE s.manager.id = :id");
+        q.setParameter("id", id);
+        return q.list();
     }
 
     public void deleteAll() {

@@ -24,15 +24,25 @@ import java.io.*;
 import java.util.List;
 import java.util.logging.*;
 
-
-/** Класс приложения, визуализирующий экранную форму с менеджерами */
+/** Класс приложения, визуализирующий экранную форму с клиентами */
 public class ClientWindow
 {
     /** Стандартный конструктор */
     ClientWindow()
     {
+        this.managerID = -1;
         show();
     }
+
+    /** Конструктор для показа определенных клиентов */
+    ClientWindow(int id)
+    {
+        this.managerID = id;
+        show();
+    }
+
+    /** Идентификатор менеждера, для которого вызвано окно */
+    private int managerID;
 
     /** Окно приложения */
     private JFrame window;
@@ -123,7 +133,12 @@ public class ClientWindow
         // Создание таблицы с данными
         String[] columns = {"ID", "Имя", "Фамилия", "Компания"};
         log.info("Добавление таблицы с данными к окну ClientWindow");
-        List<Client> clientsList = clientService.findAll();
+        List<Client> clientsList;
+        if (managerID == -1)
+            clientsList = clientService.findAll();
+        else
+            clientsList = clientService.findByManagerId(managerID);
+
         String [][] data = new String[clientsList.size()][4];
         for (int i = 0; i < clientsList.size(); i++)
         {

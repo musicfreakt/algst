@@ -387,7 +387,7 @@ public class WorkerWindow
         Employee W = employeeService.findById(Integer.parseInt(arr[0]));
         W.setName(arr[1]);
         W.setSurname(arr[2]);
-        W.setWorkExp(Integer.parseInt(arr[3]));
+        W.setExp(Integer.parseInt(arr[3]));
         W.setSpecialisation(specialisationService.findByName(arr[4]));
         employeeService.update(W);
     }

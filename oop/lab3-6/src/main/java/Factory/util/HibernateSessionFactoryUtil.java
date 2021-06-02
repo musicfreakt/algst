@@ -18,9 +18,9 @@ public class HibernateSessionFactoryUtil
             Configuration configuration = new Configuration()
                     .configure("hibernate.cfg.xml")
                     .addAnnotatedClass(Person.class)
-                    .addAnnotatedClass(Manager.class)
                     .addAnnotatedClass(Specialisation.class)
                     .addAnnotatedClass(Employee.class)
+                    .addAnnotatedClass(Manager.class)
                     .addAnnotatedClass(Client.class)
                     .addAnnotatedClass(Contract.class);
             StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());

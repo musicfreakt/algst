@@ -46,6 +46,13 @@ public class ClientService
         return contracts;
     }
 
+    public List<Client> findByManagerId(int id) {
+        clientDao.openCurrentSession();
+        List<Client> contracts = clientDao.findByManagerId(id);
+        clientDao.closeCurrentSession();
+        return contracts;
+    }
+
     public void deleteAll() {
         clientDao.openCurrentSessionwithTransaction();
         clientDao.deleteAll();

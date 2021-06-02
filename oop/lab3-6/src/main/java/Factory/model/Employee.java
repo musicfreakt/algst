@@ -55,7 +55,7 @@ public class Employee extends Person
      * Функция получения значения поля {@link Employee#exp}
      * @return возвращает опыт работы рабочего
      */
-    public int getWorkExp()
+    public int getExp()
     {
         return exp;
     }
@@ -64,7 +64,7 @@ public class Employee extends Person
      * Процедура определения значения поля {@link Employee#exp}
      * @param newexp - новая фамилия человека
      */
-    public void setWorkExp(int newexp)
+    public void setExp(int newexp)
     {
         exp = newexp;
     }

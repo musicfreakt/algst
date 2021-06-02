@@ -8,12 +8,12 @@ import javax.persistence.*;
  * @version 0.1
  */
 @MappedSuperclass
-public abstract class Person
+public class Person
 {
     /** Поле уникального идентификатора */
     @Id
-    @Column(name="id")
     @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name="id")
     protected int id;
 
     /** Поле имени человека */
@@ -24,6 +24,7 @@ public abstract class Person
     @Column(name="surname")
     protected String surname;
 
+    /** Стандартный контруктор человека */
     public Person() {}
 
     /**
@@ -41,7 +42,7 @@ public abstract class Person
      * Функция получения значения поля {@link Person#id}
      * @return возвращает уникальный идентификатор человека
      */
-    public int getID()
+    public int getId()
     {
         return id;
     }
@@ -50,7 +51,7 @@ public abstract class Person
      * Функция определения значения поля {@link Person#id}
      * @param newID - новый идентификатор пользователя
      */
-    public void setID(int newID)
+    public void setId(int newID)
     {
         id = newID;
     }
@@ -90,10 +91,4 @@ public abstract class Person
     {
         surname = newSurname;
     }
-
-    /**
-     * Функция получения всей информации об объекте
-     * @return  - массив строк с данными
-     */
-    public abstract String[] toTableFormat();
 }

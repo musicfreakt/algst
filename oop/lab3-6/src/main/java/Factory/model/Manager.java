@@ -15,7 +15,7 @@ public class Manager extends Person
 {
     /** Контракты, в которые подписывал менеджер */
     @OneToMany(mappedBy = "manager")
-    private List<Contract> manager_contracts;
+    private List<Contract> contracts;
 
     public Manager() {}
 
@@ -35,17 +35,17 @@ public class Manager extends Person
      */
     public void addContract(Contract newContract)
     {
-        manager_contracts.add(newContract);
+        contracts.add(newContract);
         newContract.setManager(this); // добавляем в контракт рабочего
     }
 
     /**
-     * Функция получения значения поля {@link Manager#manager_contracts}
+     * Функция получения значения поля {@link Manager#contracts}
      * @return возвращает контракты, который выполняет рабочий
      */
     public List<Contract> getContracts()
     {
-        return manager_contracts;
+        return contracts;
     }
 
     /**
@@ -54,8 +54,17 @@ public class Manager extends Person
      */
     public void removeContract(Contract c)
     {
-        manager_contracts.remove(c);
+        contracts.remove(c);
         c.setManager(null);
+    }
+
+    /**
+     * Процедура установки контрактов, которые выполняет рабочий
+     * @param c - список контракт
+     */
+    public void setContract(List<Contract> c)
+    {
+        contracts = c;
     }
 
     /**

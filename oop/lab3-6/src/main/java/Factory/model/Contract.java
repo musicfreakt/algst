@@ -17,8 +17,8 @@ public class Contract
 {
     /** Уникальный идентификатор контракта */
     @Id
-    @Column(name="id")
     @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name="id")
     private int id;
 
     /** Описание условий контракта */
@@ -55,6 +55,7 @@ public class Contract
     @Column(name="is_end")
     private boolean isEnd;
 
+    /** Стандатный конструктор контракта {@link Contract} */
     public Contract() {}
 
     /**
@@ -76,7 +77,7 @@ public class Contract
      * Метод получения значения поля {@link Contract#id}
      * @return возвращает уникальный идентификатор контракта
      */
-    public int getID()
+    public int getId()
     {
         return id;
     }
@@ -85,7 +86,7 @@ public class Contract
      * Функция определения значения поля {@link Contract#id}
      * @param newID - новый идентификатор
      */
-    public void setID(int newID)
+    public void setId(int newID)
     {
         id = newID;
     }
@@ -217,6 +218,15 @@ public class Contract
     }
 
     /**
+     * Метод установки рабочих, которые выполнят контракт {@link Contract#workers}
+     * @param w - список рабочих
+     */
+    public void setWorkers(List<Employee> w)
+    {
+        workers = w;
+    }
+
+    /**
      * Метод получения значения поля {@link Contract#workers}
      * @return возвращает всех рабочих, выполняющих контракт
      */
@@ -255,8 +265,8 @@ public class Contract
                 String.valueOf(id),
                 description,
                 String.valueOf(price),
-                String.valueOf(client.getID()) + " " + client.getName() + " " + client.getSurname(),
-                String.valueOf(manager.getID()) + " " + manager.getName() + " " + manager.getSurname(),
+                String.valueOf(client.getId()) + " " + client.getName() + " " + client.getSurname(),
+                String.valueOf(manager.getId()) + " " + manager.getName() + " " + manager.getSurname(),
                 df.format(dateBegin),
                 df.format(dateEnd),
                 isEnd ? "Выполнено" : "В процессе"

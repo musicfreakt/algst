@@ -15,8 +15,8 @@ public class Specialisation
 
     /** Уникальный идентификатор профессии */
     @Id
-    @Column(name="id")
     @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name="id")
     private int id;
 
     /** Название профессии */

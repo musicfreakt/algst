@@ -581,7 +581,7 @@ public class ContractWindow
         List<Manager> managers = managerService.findAll();
         String [] result = new String[managers.size()];
         for (int i = 0; i < managers.size(); i++)
-            result[i] = managers.get(i).getID() + " " +  managers.get(i).getName() + " " + managers.get(i).getSurname();
+            result[i] = managers.get(i).getId() + " " +  managers.get(i).getName() + " " + managers.get(i).getSurname();
         return result;
     }
 
@@ -590,7 +590,7 @@ public class ContractWindow
         List<Client> clients = clientService.findAll();
         String [] result = new String[clients.size()];
         for (int i = 0; i < clients.size(); i++)
-            result[i] = clients.get(i).getID() + " " + clients.get(i).getName() + " " + clients.get(i).getSurname();
+            result[i] = clients.get(i).getId() + " " + clients.get(i).getName() + " " + clients.get(i).getSurname();
         return result;
     }
 

@@ -23,13 +23,13 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>5.3.7.Final</version>
+            <version>5.4.24.Final</version>
         </dependency>
 
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
-            <version>5.3.3.Final</version>
+            <version>5.4.24.Final</version>
         </dependency>
 
         <dependency>
@@ -49,12 +49,6 @@
             <artifactId>xalan</artifactId>
             <version>2.7.2</version>
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>com.itextpdf</groupId>-->
-<!--            <artifactId>itextpdf</artifactId>-->
-<!--            <version>5.5.13.2</version>-->
-<!--        </dependency>-->
 
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>

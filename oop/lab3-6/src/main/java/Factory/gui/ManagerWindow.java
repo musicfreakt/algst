@@ -51,8 +51,8 @@ public class ManagerWindow
     /** Печать */
     private JButton print;
 
-//    /** Показать всех клиентов */
-//    private JButton clients;
+    /** Показать всех клиентов */
+    private JButton clients;
 
     /** Панель инструментов */
     private JToolBar toolBar;
@@ -100,21 +100,23 @@ public class ManagerWindow
         delete = new JButton("Удалить");
         edit = new JButton("Редактировать");
         print = new JButton("Печать");
-//        clients = new JButton("Клиенты");
+        clients = new JButton("Клиенты");
 
         // Настройка подсказок
         add.setToolTipText("Добавить информацию о менеджерах");
         delete.setToolTipText("Удалить информацию о менеджерах");
         edit.setToolTipText("Изменить информацию о менеджерах");
         print.setToolTipText("Распечатать информацию о менеджерах");
-//        clients.setToolTipText("Показать клиентов менеджера");
+        clients.setToolTipText("Показать клиентов менеджера");
+
         // Добавление кнопок на панель инструментов
         toolBar = new JToolBar("Панель инструментов");
         toolBar.add(add);
         toolBar.add(delete);
         toolBar.add(edit);
         toolBar.add(print);
-//        toolBar.add(clients);
+        toolBar.add(clients);
+
         // Размещение панели инструментов
         window.setLayout(new BorderLayout());
         window.add(toolBar,BorderLayout.NORTH);
@@ -249,30 +251,29 @@ public class ManagerWindow
             }
         });
 
-//        clients.addActionListener(e -> {
-//            log.info("Старт clients listener");
-//            if (model.getRowCount() != 0) {
-//                if (dataManagers.getSelectedRow() != -1) {
-//                    try
-//                    {
-//                        // todo: вывод людей
-//                        new ClientWindow();
-//                    }
-//                    catch (Exception ex)
-//                    {
-//                        JOptionPane.showMessageDialog(null, "Ошибка" + ex.toString());
-//                        log.log(Level.SEVERE, "Исключение: ", ex);
-//                    }
-//                } else {
-//                    JOptionPane.showMessageDialog(null, "Не выбрана строка. Нечего редактировать");
-//                    log.log(Level.WARNING, "Исключение: не выбрана строка для удаление");
-//                }
-//            } else
-//            {
-//                JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего редактировать");
-//                log.log(Level.WARNING, "Исключение: нет записей. нечего удалять");
-//            }
-//        });
+        clients.addActionListener(e -> {
+            log.info("Старт clients listener");
+            if (model.getRowCount() != 0) {
+                if (dataManagers.getSelectedRow() != -1) {
+                    try
+                    {
+                        new ClientWindow(Integer.parseInt(dataManagers.getValueAt(dataManagers.getSelectedRow(), 0).toString()));
+                    }
+                    catch (Exception ex)
+                    {
+                        JOptionPane.showMessageDialog(null, "Ошибка" + ex.toString());
+                        log.log(Level.SEVERE, "Исключение: ", ex);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Не выбрана строка. Нечего показывать");
+                    log.log(Level.WARNING, "Исключение: не выбрана строка");
+                }
+            } else
+            {
+                JOptionPane.showMessageDialog(null, "В данном окне нет записей. Нечего показывать");
+                log.log(Level.WARNING, "Исключение: нет записей. нечего показывать");
+            }
+        });
 
         search.addActionListener((e) -> {
             if (model.getRowCount() != 0) {
