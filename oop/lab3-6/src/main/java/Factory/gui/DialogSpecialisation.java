@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Абстрактный класс Диалогового окна Добавления/Редактирования данных менеджеров
+ * Абстрактный класс диалогового окна Добавления/Редактирования данных профессии
  */
 public abstract class DialogSpecialisation extends JDialog {
     protected JTextField name;
@@ -91,6 +91,10 @@ public abstract class DialogSpecialisation extends JDialog {
                 .put(KeyStroke.getKeyStroke("released ENTER"), "press");
     }
 
+    /**
+     * Проверка поля на корректность введенных данных
+     * @param field - проверяемое поле
+     */
     protected void checker(JTextField field)
     {
         Pattern r = Pattern.compile("^[А-ЯЁ][а-яЁё]{1,10}$");

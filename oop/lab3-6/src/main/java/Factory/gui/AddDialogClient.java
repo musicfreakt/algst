@@ -3,7 +3,7 @@ package Factory.gui;
 import javax.swing.*;
 
 /**
- * Класс окна Добавления данных
+ * Класс окна добавления данных клиента
  */
 public class AddDialogClient extends DialogClient {
 
@@ -25,6 +25,12 @@ public class AddDialogClient extends DialogClient {
         company = new JTextField(20);
     }
 
+    /** Конструктор окна добавления данных клиента
+     *
+     * @param owner - JFrame приложения
+     * @param parent - объект класса приложения
+     * @param title - название окна
+     */
     public AddDialogClient(JFrame owner, ClientWindow parent, String title)
     {
         super(owner,parent,title);

@@ -65,7 +65,6 @@ public class Menu
 
         panel.setSize(350, 100);
 
-        // adds to the GridLayout
         panel.add(specialisationWindow);
         panel.add(workerWindow);
         panel.add(managerWindow);

@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.Properties;
 
 /**
- * Класс Диалогового окна Добавления/Редактирования данных клиентов
+ * Класс диалогового окна получения месяца для отчета по заводу
  */
 public class DialogMonthSelection extends JDialog {
     private JButton ok = new JButton("Принять");

@@ -3,7 +3,7 @@ package Factory.gui;
 import javax.swing.*;
 
 /**
- * Класс окна Изменения данных
+ * Класс окна изменения данных рабочего
  */
 public class EditDialogWorker extends DialogWorker
 {
@@ -33,6 +33,12 @@ public class EditDialogWorker extends DialogWorker
         checkerInt(2, exp);
     }
 
+    /** Конструктор окна изменения данных рабочего
+     *
+     * @param owner - JFrame приложения
+     * @param parent - объект класса приложения
+     * @param title - название окна
+     */
     public EditDialogWorker(JFrame owner, WorkerWindow parent, String title)
     {
         super(owner, parent, title);

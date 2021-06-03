@@ -3,7 +3,7 @@ package Factory.gui;
 import javax.swing.*;
 
 /**
- * Класс окна Изменения данных
+ * Класс окна изменения данных профессии
  */
 public class EditDialogSpecialisation extends DialogSpecialisation
 {
@@ -25,6 +25,12 @@ public class EditDialogSpecialisation extends DialogSpecialisation
         checker(name);
     }
 
+    /** Конструктор окна изменения данных профессии
+     *
+     * @param owner - JFrame приложения
+     * @param parent - объект класса приложения
+     * @param title - название окна
+     */
     public EditDialogSpecialisation(JFrame owner, SpecialisationWindow parent, String title)
     {
         super(owner, parent, title);

@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Абстрактный класс Диалогового окна Добавления/Редактирования данных сотрудников
+ * Абстрактный класс диалогового окна Добавления/Редактирования данных сотрудников
  */
 public abstract class DialogWorker extends JDialog {
     protected JTextField name;
@@ -138,6 +138,13 @@ public abstract class DialogWorker extends JDialog {
                 .put(KeyStroke.getKeyStroke("released ENTER"), "press");
     }
 
+    /**
+     * Проверка поля на корректность введенных данных
+     * Проверяет поля, которые ддолжны быть строками
+     *
+     * @param i - номер поля
+     * @param field - проверяемое поле
+     */
     protected void checker(int i, JTextField field){
         Pattern b = Pattern.compile("^[А-ЯЁ][а-яЁё]{1,10}$");
         Matcher rr = b.matcher(field.getText());
@@ -153,6 +160,13 @@ public abstract class DialogWorker extends JDialog {
         ok.setEnabled(check[0] && check[1] && check[2]);
     }
 
+    /**
+     * Проверка поля на корректность введенных данных
+     * Проверяет поля, которые ддолжны быть целыми числами
+     *
+     * @param i - номер поля
+     * @param field - проверяемое поле
+     */
     protected void checkerInt(int i, JTextField field){
         Pattern c = Pattern.compile("^[+-]?(([1-9][0-9]*)|(0))$");
         Matcher rm = c.matcher(field.getText());

@@ -3,7 +3,7 @@ package Factory.gui;
 import javax.swing.*;
 
 /**
- * Класс окна Изменения данных
+ * Класс окна изменения данных менеджера
  */
 public class EditDialogManager extends DialogManager
 {
@@ -28,6 +28,12 @@ public class EditDialogManager extends DialogManager
         checker(1,surname);
     }
 
+    /** Конструктор окна изменения данных менеджера
+     *
+     * @param owner - JFrame приложения
+     * @param parent - объект класса приложения
+     * @param title - название окна
+     */
     public EditDialogManager(JFrame owner, ManagerWindow parent, String title)
     {
         super(owner, parent, title);

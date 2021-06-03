@@ -74,10 +74,10 @@ public class ContractService
         return num;
     }
 
-    public int findFinishIncome(Date date)
+    public float findFinishIncome(Date date)
     {
         contractDao.openCurrentSession();
-        int income = 0;
+        float income = 0;
         for (Contract a : contractDao.findFinish(date))
             income += a.getPrice();
         contractDao.closeCurrentSession();

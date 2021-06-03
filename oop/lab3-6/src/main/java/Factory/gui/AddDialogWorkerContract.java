@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Класс Диалогового окна Добавления контрактов рабочему
+ * Класс Диалогового окна добавления контрактов рабочему
  */
 public class AddDialogWorkerContract extends JDialog
 {
@@ -111,6 +111,10 @@ public class AddDialogWorkerContract extends JDialog
                 .put(KeyStroke.getKeyStroke("released ENTER"), "press");
     }
 
+    /**
+     * Проверка поля на корректность введенных данных
+     * @param field - проверяемое поле
+     */
     protected void checker(JTextField field)
     {
         Pattern r = Pattern.compile("^[+-]?(([1-9][0-9]*)|(0))$");

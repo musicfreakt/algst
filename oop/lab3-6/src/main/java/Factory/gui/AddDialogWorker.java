@@ -3,7 +3,7 @@ package Factory.gui;
 import javax.swing.*;
 
 /**
- * Класс окна Добавления данных
+ * Класс окна добавления данных рабочего
  */
 public class AddDialogWorker extends DialogWorker
 {
@@ -26,6 +26,12 @@ public class AddDialogWorker extends DialogWorker
         specs = new JComboBox(parent.getSpecs());
     }
 
+    /** Конструктор окна добавления данных рабочего
+     *
+     * @param owner - JFrame приложения
+     * @param parent - объект класса приложения
+     * @param title - название окна
+     */
     public AddDialogWorker(JFrame owner, WorkerWindow parent, String title)
     {
         super(owner, parent,title);

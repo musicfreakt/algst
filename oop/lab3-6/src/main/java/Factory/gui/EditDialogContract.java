@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.Properties;
 
 /**
- * Класс окна Изменения данных
+ * Класс окна изменения данных контракта
  */
 public class EditDialogContract extends DialogContract
 {
@@ -68,6 +68,12 @@ public class EditDialogContract extends DialogContract
         checkerFloat(0, price);
     }
 
+    /** Конструктор окна изменения данных контракта
+     *
+     * @param owner - JFrame приложения
+     * @param parent - объект класса приложения
+     * @param title - название окна
+     */
     public EditDialogContract(JFrame owner, ContractWindow parent, String title)
     {
         super(owner, parent, title);

@@ -10,8 +10,10 @@ import java.awt.event.KeyEvent;
 import java.util.List;
 import java.util.logging.*;
 
+/** Класс приложения, визуализирующий экранную форму с профессиями */
 public class SpecialisationWindow
 {
+    /** Стандартный конструктор */
     SpecialisationWindow()
     {
         show();
@@ -52,15 +54,20 @@ public class SpecialisationWindow
 
     /** Поток 1 отвечает за редактирование данных */
     Thread t1 = new Thread();
+
     /** Поток 2 отвечает за формирование отчет */
     Thread t2 = new Thread();
 
     /** Логгер класса */
     private static final Logger log = Logger.getLogger(SpecialisationWindow.class.getName());
 
+    /** Диалог добавления данных */
     private AddDialogSpecialisation addDialogSpecialisation;
+
+    /** Диалог измения данных */
     private EditDialogSpecialisation editDialogSpecialisation;
 
+    /** Метод отображения окна */
     public void show()
     {
         log.info("Открытие окна SpecialisationWindow");
@@ -226,6 +233,10 @@ public class SpecialisationWindow
         window.setVisible(true);
     }
 
+    /**
+     * Вспомогательный метод добавления данных в таблицу
+     * @param name - данные, полученные от пользователя
+     */
     public void addR(String name)
     {
         Specialisation newS = new Specialisation(name);
@@ -233,6 +244,10 @@ public class SpecialisationWindow
         model.addRow(newS.toTableFormat());
     }
 
+    /**
+     * Вспомогательный метод изменения данных в таблице
+     * @param arr - данные, полученные от пользователя
+     */
     public void editR(String[] arr)
     {
         Specialisation M = specialisationService.findById(Integer.parseInt(arr[0]));

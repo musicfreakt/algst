@@ -38,13 +38,17 @@ public class ContractWindow
         show();
     }
 
-    /** Стандартный конструктор */
+    /**
+     * Конструктор с указанием клиента
+     * @param id - уникальный идентификатор клиента
+     */
     ContractWindow(int id)
     {
         this.clientID = id;
         show();
     }
 
+    /** Уникальный идентификатор клиента */
     private int clientID;
 
     /** Окно приложения */

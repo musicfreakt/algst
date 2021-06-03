@@ -8,7 +8,7 @@ import java.util.Properties;
 import javax.swing.*;
 
 /**
- * Класс окна Добавления данных
+ * Класс окна добавления данных контракта
  */
 public class AddDialogContract extends DialogContract {
 
@@ -44,6 +44,12 @@ public class AddDialogContract extends DialogContract {
         dataEnd = new JDatePickerImpl(datePanel2, new DateLabelFormatter());
     }
 
+    /** Конструктор окна добавления данных контракта
+     *
+     * @param owner - JFrame приложения
+     * @param parent - объект класса приложения
+     * @param title - название окна
+     */
     public AddDialogContract(JFrame owner, ContractWindow parent, String title)
     {
         super(owner,parent,title);
