@@ -41,6 +41,7 @@
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/exceptions/EmptyFileException.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/EditDialogSpecialisation.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/util/HibernateSessionFactoryUtil.java
+/home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/MonthReportWindow.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/Ref.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/gui/AddDialogWorkerContract.java
 /home/musicfreakt/Documents/code/eltech/oop/lab3-6/src/main/java/Factory/exceptions/UnacceptableTimePeriod.java

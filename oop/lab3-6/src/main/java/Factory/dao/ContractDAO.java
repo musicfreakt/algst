@@ -84,6 +84,20 @@ public class ContractDAO
         return (List<Contract>) getCurrentSession().createQuery("FROM contracts c WHERE c.isEnd = 0 and c.dateEnd <= current_date").list();
     }
 
+    public int findNew(Date date)
+    {
+        Query<Contract> q = getCurrentSession().createQuery("SELECT c FROM contracts c WHERE month(c.dateBegin) = month(:date) and year(c.dateBegin) = year(:date)");
+        q.setParameter("date", date);
+        return q.list().size();
+    }
+
+    public List<Contract> findFinish(Date date)
+    {
+        Query<Contract> q = getCurrentSession().createQuery("SELECT c FROM contracts c WHERE month(c.dateEnd) = month(:date) and year(c.dateEnd) = year(:date)");
+        q.setParameter("date", date);
+        return q.list();
+    }
+
     public List<Contract> findOutdated(int id)
     {
         Query<Contract> q = getCurrentSession().createQuery("SELECT c FROM contracts c JOIN c.workers w WHERE w.id = :id and c.isEnd = 0 and c.dateEnd <= current_date");

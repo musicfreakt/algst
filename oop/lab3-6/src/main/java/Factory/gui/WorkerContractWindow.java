@@ -110,7 +110,7 @@ public class WorkerContractWindow
     public void show()
     {
         log.info("Открытие окна WorkerContractWindow");
-        window = new JFrame("Список договоров завода");
+        window = new JFrame("factory: Список договоров завода");
         window.setSize(1000,500);
         window.setLocation(310,130);
         window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

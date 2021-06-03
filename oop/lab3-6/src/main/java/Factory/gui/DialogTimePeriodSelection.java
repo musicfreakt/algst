@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.Properties;
 
 /**
- * Абстрактный класс Диалогового окна Добавления/Редактирования данных клиентов
+ * Класс Диалогового окна Добавления/Редактирования данных клиентов
  */
 public class DialogTimePeriodSelection extends JDialog {
     private JButton ok = new JButton("Принять");

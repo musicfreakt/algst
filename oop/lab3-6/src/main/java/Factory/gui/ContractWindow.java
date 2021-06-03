@@ -89,6 +89,9 @@ public class ContractWindow
     /** Показать договоры за указанный период */
     private JButton time;
 
+    /** Отчет за месяц */
+    private JButton month;
+
     /** Сбросить */
     private JButton drop;
 
@@ -122,17 +125,23 @@ public class ContractWindow
     /** Диалог изменения временного промежутка */
     private DialogTimePeriodSelection dialogTimePeriodSelection;
 
+    /** Диалог выбора месяца */
+    private DialogMonthSelection dialogMonthSelection;
+
     /** Начало временного отрезка для сортировки */
     private Date dateBegin;
 
     /** Конец временного отрезка для сортировки */
     private Date dateEnd;
 
+    /** Месяц для отчета */
+    private Date monthDate;
+
     public void show()
     {
         log.info("Открытие окна ContractWindow");
 
-        window = new JFrame("Список договоров завода");
+        window = new JFrame("factory: Список договоров завода");
         window.setSize(1000,500);
         window.setLocation(310,130);
         window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -142,6 +151,7 @@ public class ContractWindow
         delete = new JButton("Удалить");
         edit = new JButton("Редактировать");
         print = new JButton("Печать");
+        month = new JButton("Отчет за месяц");
         description = new JButton("Описание");
         end = new JButton("Завершить");
 
@@ -151,6 +161,7 @@ public class ContractWindow
         delete.setToolTipText("Удалить контракт");
         edit.setToolTipText("Изменить контракт");
         print.setToolTipText("Распечатать контракты");
+        month.setToolTipText("Отчет за месяц");
         description.setToolTipText("Показать описание контракта");
         end.setToolTipText("Завершить выполнение контракта");
 
@@ -161,6 +172,7 @@ public class ContractWindow
         toolBar.add(delete);
         toolBar.add(edit);
         toolBar.add(print);
+        toolBar.add(month);
         toolBar.add(description);
         toolBar.add(end);
         // Размещение панели инструментов
@@ -381,6 +393,21 @@ public class ContractWindow
         });
 
         print.setMnemonic(KeyEvent.VK_D);
+
+        month.addActionListener((e)->{
+            dialogMonthSelection = new DialogMonthSelection(window, ContractWindow.this, "Получение месяца");
+            dialogMonthSelection.setVisible(true);
+            if (monthDate != null)
+            {
+                String msg = " Заключенные договоры за этот месяц: " + contractService.findNew(monthDate) +
+                        "\n Выполненные договоры за этот месяц: " + contractService.findFinish(monthDate) +
+                        "\n Прибыль за этот месяц: " + contractService.findFinishIncome(monthDate);
+                JOptionPane.showMessageDialog(null, msg);
+            }
+        });
+
+        month.setMnemonic(KeyEvent.VK_D);
+
 
         search.addActionListener((e) -> {
             if (model.getRowCount() != 0) {
@@ -605,6 +632,15 @@ public class ContractWindow
     {
         dateBegin = begin;
         dateEnd = end;
+    }
+
+    /**
+     * Вспомогательный метод получения месяца для отчета
+     * @param date - дата с месяцем
+     */
+    public void setMonth(Date date)
+    {
+        monthDate = date;
     }
 
     public String[] getManagers()

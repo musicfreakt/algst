@@ -96,7 +96,7 @@ public class WorkerWindow
     /** Метод отображения окна */
     public void show(){
         log.info("Открытие окна WorkerWindow");
-        window = new JFrame("Список рабочих завода");
+        window = new JFrame("factory: Список рабочих завода");
         window.setSize(1000,500);
         window.setLocation(310,130);
         window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

@@ -65,6 +65,7 @@ Factory/dao/ClientDAO.class
 Factory/exceptions/UnacceptableTimePeriod.class
 Factory/gui/EditDialogManager.class
 Factory/gui/ManagerWindow$3.class
+Factory/gui/DialogMonthSelection.class
 Factory/dao/EmployeeDAO.class
 Factory/gui/DialogWorker$3.class
 Factory/gui/Menu.class

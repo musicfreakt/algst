@@ -58,8 +58,33 @@ public class ContractService
         return contracts;
     }
 
-    public List<Contract> findOutdated()
+    public int findNew(Date date)
     {
+        contractDao.openCurrentSession();
+        int num = contractDao.findNew(date);
+        contractDao.closeCurrentSession();
+        return num;
+    }
+
+    public int findFinish(Date date)
+    {
+        contractDao.openCurrentSession();
+        int num = contractDao.findFinish(date).size();
+        contractDao.closeCurrentSession();
+        return num;
+    }
+
+    public int findFinishIncome(Date date)
+    {
+        contractDao.openCurrentSession();
+        int income = 0;
+        for (Contract a : contractDao.findFinish(date))
+            income += a.getPrice();
+        contractDao.closeCurrentSession();
+        return income;
+    }
+
+    public List<Contract> findOutdated() {
         contractDao.openCurrentSession();
         List<Contract> contracts = contractDao.findOutdated();
         contractDao.closeCurrentSession();

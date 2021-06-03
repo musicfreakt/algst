@@ -64,7 +64,7 @@ public class SpecialisationWindow
     public void show()
     {
         log.info("Открытие окна SpecialisationWindow");
-        window = new JFrame("Список менеджеров завода");
+        window = new JFrame("factory: Список менеджеров завода");
         window.setSize(1000,500);
         window.setLocation(310,130);
         window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

@@ -9,7 +9,7 @@ public class Menu
     /** Метод показа главного меню */
     public void show()
     {
-        JFrame window = new JFrame("Главное окно");
+        JFrame window = new JFrame("factory: Главное окно");
         JButton specialisationWindow = new JButton("Список доступных профессий");
         JButton workerWindow = new JButton("Список работников завода"); // , new ImageIcon("./img/prodList.png")
         JButton managerWindow = new JButton("Список менеджеров завода");
@@ -21,7 +21,7 @@ public class Menu
             try {
                 new SpecialisationWindow();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
+                JOptionPane.showMessageDialog(null, "Ошибка: " + ex);
             }
         });
 
@@ -29,7 +29,7 @@ public class Menu
             try {
                 new WorkerWindow();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
+                JOptionPane.showMessageDialog(null, "Ошибка: " + ex);
             }
         });
 
@@ -37,27 +37,27 @@ public class Menu
             try {
                 new ManagerWindow();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
+                JOptionPane.showMessageDialog(null, "Ошибка: " + ex);
             }
         });
         clientWindow.addActionListener((e) -> {
             try {
                 new ClientWindow();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
+                JOptionPane.showMessageDialog(null, "Ошибка: " + ex);
             }
         });
         contractWindow.addActionListener((e) -> {
             try {
                 new ContractWindow();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(null, "Ошибка: " + ex.toString());
+                JOptionPane.showMessageDialog(null, "Ошибка: " + ex);
             }
         });
 
         refWindow.addActionListener((e) -> new Ref(window, "Справка"));
 
-        window.setLayout(new FlowLayout());
+        window.setLayout(new GridBagLayout());
         JPanel mainp = new JPanel();
 
         JPanel panel = new JPanel();
@@ -73,7 +73,7 @@ public class Menu
         panel.add(contractWindow);
         panel.add(refWindow);
         mainp.add(panel);
-        window.add(BorderLayout.CENTER, mainp);
+        window.add(mainp);
         window.setSize(400, 380);
         window.setLocation(500, 200);
         window.setVisible(true);
