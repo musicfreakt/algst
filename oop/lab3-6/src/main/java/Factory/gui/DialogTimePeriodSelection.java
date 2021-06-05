@@ -14,9 +14,17 @@ import java.util.Properties;
  * Класс Диалогового окна получения временного периода для отображения данных договоров
  */
 public class DialogTimePeriodSelection extends JDialog {
+
+    /** Кнопка принять */
     private JButton ok = new JButton("Принять");
+
+    /** Кнопка отменить */
     private JButton cancel = new JButton("Закрыть");
+
+    /** Дата пикер начала временного отрезка */
     protected JDatePickerImpl dataBegin;
+
+    /** Дата пикер конца временного отрезка */
     protected JDatePickerImpl dataEnd;
 
     /**

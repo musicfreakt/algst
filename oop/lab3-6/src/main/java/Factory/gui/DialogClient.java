@@ -11,15 +11,24 @@ import java.util.regex.Pattern;
  * Абстрактный класс диалогового окна Добавления/Редактирования данных клиентов
  */
 public abstract class DialogClient extends JDialog {
+
+    /** Текстовое поле имени */
     protected JTextField name;
+
+    /** Текстовое поле фамилии */
     protected JTextField surname;
+
+    /** Текстовое поле компании */
     protected JTextField company;
+
+    /** Массив переменных, отвечающих за корректность ввода */
     protected Boolean[] check = {false, false, false};
+
+    /** Кнопка принять */
     private JButton ok = new JButton("Принять");
+
+    /** Кнопка отменить */
     private JButton cancel = new JButton("Закрыть");
-    private JLabel nameLab = new JLabel("Имя");
-    private JLabel surnameLab = new JLabel("Фамилия");
-    private JLabel companyLab = new JLabel("Компания");
 
     /**
      * Выполнение манипуляций с данными
@@ -110,11 +119,11 @@ public abstract class DialogClient extends JDialog {
         panel.setSize(300, 100);
 
         // adds to the GridLayout
-        panel.add(nameLab);
+        panel.add(new JLabel("Имя"));
         panel.add(name);
-        panel.add(surnameLab);
+        panel.add(new JLabel("Фамилия"));
         panel.add(surname);
-        panel.add(companyLab);
+        panel.add(new JLabel("Компания"));
         panel.add(company);
         mainp.add(panel);
         add(BorderLayout.CENTER, mainp);

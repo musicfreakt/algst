@@ -40,7 +40,7 @@ public class Contract
     private Manager manager;
 
     /** Рабочие, выполняющие условия контракта */
-    @ManyToMany(mappedBy = "contracts", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "contracts", fetch = FetchType.EAGER)
     private List<Employee> workers;
 
     /** Дата начала действия контракта */

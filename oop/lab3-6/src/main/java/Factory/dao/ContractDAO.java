@@ -93,7 +93,7 @@ public class ContractDAO
 
     public List<Contract> findFinish(Date date)
     {
-        Query<Contract> q = getCurrentSession().createQuery("SELECT c FROM contracts c WHERE month(c.dateEnd) = month(:date) and year(c.dateEnd) = year(:date)");
+        Query<Contract> q = getCurrentSession().createQuery("SELECT c FROM contracts c WHERE month(c.dateEnd) = month(:date) and year(c.dateEnd) = year(:date) and c.isEnd = 1");
         q.setParameter("date", date);
         return q.list();
     }

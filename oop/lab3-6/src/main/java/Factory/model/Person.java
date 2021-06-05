@@ -3,7 +3,7 @@ package Factory.model;
 import javax.persistence.*;
 
 /**
- * Абстрактный класс человека
+ * Класс человека
  * @author Яловега Никита 9308
  * @version 0.1
  */

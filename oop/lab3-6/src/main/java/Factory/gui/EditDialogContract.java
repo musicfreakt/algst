@@ -65,7 +65,7 @@ public class EditDialogContract extends DialogContract
         JDatePanelImpl datePanel2 = new JDatePanelImpl(model2, p);
         dataBegin = new JDatePickerImpl(datePanel1, new DateLabelFormatter());
         dataEnd = new JDatePickerImpl(datePanel2, new DateLabelFormatter());
-        checkerFloat(0, price);
+        checkerFloat(price);
     }
 
     /** Конструктор окна изменения данных контракта

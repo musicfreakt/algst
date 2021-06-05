@@ -11,17 +11,27 @@ import java.util.regex.Pattern;
  * Абстрактный класс диалогового окна Добавления/Редактирования данных сотрудников
  */
 public abstract class DialogWorker extends JDialog {
+
+    /** Текстовое поле имени */
     protected JTextField name;
+
+    /** Текстовое поле фамилии */
     protected JTextField surname;
+
+    /** Текстовое поле опыта работы */
     protected JTextField exp;
+
+    /** Выпадающий список профессий */
     protected JComboBox specs;
+
+    /** Массив переменных, отвечающих за корректность ввода */
     protected Boolean[] check = {false, false, false};
+
+    /** Кнопка принять */
     private JButton ok = new JButton("Принять");
+
+    /** Кнопка отменить */
     private JButton cancel = new JButton("Закрыть");
-    private JLabel nameLab = new JLabel("Имя");
-    private JLabel surnameLab = new JLabel("Фамилия");
-    private JLabel expLab = new JLabel("Опыт работы");
-    private JLabel specialisationLab = new JLabel("Специализация");
 
     /**
      * Выполнение манипуляций с данными
@@ -113,13 +123,13 @@ public abstract class DialogWorker extends JDialog {
         panel.setSize(300, 300);
 
         // adds to the GridLayout
-        panel.add(nameLab);
+        panel.add(new JLabel("Имя"));
         panel.add(name);
-        panel.add(surnameLab);
+        panel.add(new JLabel("Фамилия"));
         panel.add(surname);
-        panel.add(expLab);
+        panel.add(new JLabel("Опыт работы"));
         panel.add(exp);
-        panel.add(specialisationLab);
+        panel.add(new JLabel("Специализация"));
         panel.add(specs);
         mainp.add(panel);
         add(BorderLayout.CENTER, mainp);

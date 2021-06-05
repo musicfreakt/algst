@@ -13,15 +13,32 @@ import java.util.regex.Pattern;
  */
 public abstract class DialogContract extends JDialog
 {
+
+    /** Текстовое поле описания */
     protected JTextField description;
+
+    /** Текстовое поле цены */
     protected JTextField price;
+
+    /** Выпадающий список клиентов */
     protected JComboBox clients;
+
+    /** Выпадающий список менеджеров */
     protected JComboBox managers;
+
+    /** Дата пикер даты подписания контракта */
     protected JDatePickerImpl dataBegin;
+
+    /** Дата пикер даты окончания контракта */
     protected JDatePickerImpl dataEnd;
 
-    protected Boolean[] check = {false};
+    /** Переменная корректности ввода */
+    protected boolean check = false;
+
+    /** Кнопка принять */
     private JButton ok = new JButton("Принять");
+
+    /** Кнопка отменить */
     private JButton cancel = new JButton("Закрыть");
 
     /**
@@ -64,12 +81,12 @@ public abstract class DialogContract extends JDialog
         price.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                checkerFloat(0,price);
+                checkerFloat(price);
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                checkerFloat(0,price);
+                checkerFloat(price);
             }
 
             @Override
@@ -121,23 +138,22 @@ public abstract class DialogContract extends JDialog
     /**
      * Проверка поля на корректность введенных данных
      *
-     * @param i - номер поля
      * @param field - проверяемое поле
      */
-    protected void checkerFloat(int i, JTextField field)
+    protected void checkerFloat(JTextField field)
     {
         Pattern r = Pattern.compile("^[+-]?(([1-9][0-9]*)|(0))([.,][0-9]+)?$");
         Matcher m = r.matcher(field.getText());
         if (m.matches()) {
             field.setBorder(BorderFactory.createLineBorder(Color.GREEN));
-            check[i] = true;
+            check = true;
         }
         else {
             field.setBorder(BorderFactory.createLineBorder(Color.RED));
-            check[i] = false;
+            check = false;
         }
 
-        ok.setEnabled(check[0]);
+        ok.setEnabled(check);
     }
 
 

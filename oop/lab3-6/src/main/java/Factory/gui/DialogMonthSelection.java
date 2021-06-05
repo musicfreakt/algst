@@ -14,8 +14,14 @@ import java.util.Properties;
  * Класс диалогового окна получения месяца для отчета по заводу
  */
 public class DialogMonthSelection extends JDialog {
+
+    /** Кнопка принять */
     private JButton ok = new JButton("Принять");
+
+    /** Кнопка отменить */
     private JButton cancel = new JButton("Закрыть");
+
+    /** Дата пикер месяца */
     protected JDatePickerImpl month;
 
     /**

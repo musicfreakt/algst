@@ -11,11 +11,18 @@ import java.util.regex.Pattern;
  * Абстрактный класс диалогового окна Добавления/Редактирования данных профессии
  */
 public abstract class DialogSpecialisation extends JDialog {
+
+    /** Текстовое поле названия */
     protected JTextField name;
-    protected Boolean check = false;
+
+    /** Переменная корректности ввода */
+    protected boolean check = false;
+
+    /** Кнопка принять */
     private JButton ok = new JButton("Принять");
+
+    /** Кнопка отменить */
     private JButton cancel = new JButton("Закрыть");
-    private JLabel nameLab = new JLabel("Название профессии");
 
     /**
      * Выполнение манипуляций с данными
@@ -72,7 +79,7 @@ public abstract class DialogSpecialisation extends JDialog {
         panel.setSize(300, 100);
 
         // adds to the GridLayout
-        panel.add(nameLab);
+        panel.add(new JLabel("Название профессии"));
         panel.add(name);
         mainp.add(panel);
         add(BorderLayout.CENTER, mainp);
