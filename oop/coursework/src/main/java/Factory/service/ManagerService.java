@@ -51,9 +51,4 @@ public class ManagerService
         managerDao.deleteAll();
         managerDao.closeCurrentSessionwithTransaction();
     }
-
-    public ManagerDAO managerDao()
-    {
-        return managerDao;
-    }
 }

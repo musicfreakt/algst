@@ -12,9 +12,16 @@ import java.util.regex.Pattern;
  */
 public class AddDialogWorkerContract extends JDialog
 {
+    /** Текстовое поле названия */
     protected JTextField name;
+
+    /** Переменная корректности ввода */
     protected boolean check;
+
+    /** Кнопка принять */
     private JButton ok;
+
+    /** Кнопка отменить */
     private JButton cancel;
 
     /**

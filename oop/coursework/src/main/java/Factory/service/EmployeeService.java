@@ -52,8 +52,4 @@ public class EmployeeService
         employeeDao.closeCurrentSessionwithTransaction();
     }
 
-    public EmployeeDAO employeeDao()
-    {
-        return employeeDao;
-    }
 }

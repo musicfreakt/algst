@@ -2,7 +2,7 @@ package Factory.exceptions;
 
 /**
  * Класс исключения.
- * Запрет на запись в файл пустого списка
+ * Невозможный временной отрезок
  */
 public class UnacceptableTimePeriod extends Exception {
 

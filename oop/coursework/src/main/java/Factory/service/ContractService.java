@@ -129,8 +129,4 @@ public class ContractService
         contractDao.closeCurrentSessionwithTransaction();
     }
 
-    public ContractDAO contractDao()
-    {
-        return contractDao;
-    }
 }
