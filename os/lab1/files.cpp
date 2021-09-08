@@ -1,4 +1,8 @@
-#include "files.h"
+#include <iostream>
+#include <windows.h>
+#include <io.h>
+#include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -396,3 +400,4 @@ void changeCreationTime()
 
     CloseHandle(hFile);
 }
+
