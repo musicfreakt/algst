@@ -64,13 +64,13 @@ int main()
 			moveFile();
 			break;
 		case 8:
-			// fileInfo();
+			fileInfo();
 			break;
 		case 9:
-			// changeFileAttributes();
+			changeFileAttributes();
 			break;
 		case 10:
-			// changeCreationTime();
+			changeCreationTime();
 			break;
 		case 11:
 			// asyncCopyOfFile();

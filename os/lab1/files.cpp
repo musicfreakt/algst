@@ -287,21 +287,21 @@ void fileInfo() {
         GetTimeFormat(LOCALE_USER_DEFAULT, 0, &fileAccessedSystemTime, NULL, accessedLocalTime, 255);
         GetTimeFormat(LOCALE_USER_DEFAULT, 0, &fileWritedSystemTime, NULL, writedLocalTime, 255);
 
-        cout << "Время создания: " << fileCreatedSystemTime.wDay << "." << fileCreatedSystemTime.wMonth << "."
+        cout << "Creation time: " << fileCreatedSystemTime.wDay << "." << fileCreatedSystemTime.wMonth << "."
             << fileCreatedSystemTime.wYear << " " << fileCreatedSystemTime.wHour << ":"
             << fileCreatedSystemTime.wMinute << "\n";
-        cout << "Последнее обращение: " << fileAccessedSystemTime.wDay << "." << fileAccessedSystemTime.wMonth << "."
+        cout << "Last request: " << fileAccessedSystemTime.wDay << "." << fileAccessedSystemTime.wMonth << "."
             << fileAccessedSystemTime.wYear << " " << fileAccessedSystemTime.wHour << ":"
             << fileAccessedSystemTime.wMinute << "\n";
-        cout << "Последнее изменение: " << fileWritedSystemTime.wDay << "." << fileWritedSystemTime.wMonth << "."
+        cout << "Last change: " << fileWritedSystemTime.wDay << "." << fileWritedSystemTime.wMonth << "."
             << fileWritedSystemTime.wYear << " " << fileWritedSystemTime.wHour << ":"
             << fileWritedSystemTime.wMinute << "\n";
     }
 
     BY_HANDLE_FILE_INFORMATION fileinfo;
     if (GetFileInformationByHandle(hFile, &fileinfo)){
-        cout << "\nСерийный номер тома: " << fileinfo.dwVolumeSerialNumber << endl
-            << "Количество ссылок: " << fileinfo.nNumberOfLinks << endl;
+        cout << "\nVolume serial number: " << fileinfo.dwVolumeSerialNumber << endl
+            << "Number of links: " << fileinfo.nNumberOfLinks << endl;
     }
 
     fclose(pfile);

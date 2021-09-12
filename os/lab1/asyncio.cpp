@@ -1,33 +1,37 @@
 int streamCount;
 int numbersOfByteToWrite;
 int bufferMultiplier;
-CHAR **buffersArray;  
+char **buffersArray; 
+
+using namespace std;
+
 OVERLAPPED *overlapIn, *overlapOut;
 HANDLE original, copyFile; 
 LARGE_INTEGER fileSize, endOfFile;
 LONGLONG  doneCount, recordCount; 
 
-void asyncCopyOfFile() {
+void asyncCopyOfFile() 
+{
 	int overlapOperationsCount = 0;
 	numbersOfByteToWrite = 4096;
 	bufferMultiplier = 1;
 
 	char sourceCharFile[250], destinationCharFile[250];
 
-	cout << "Введите путь к файлу (латинскими буквами, без пробелов): ";
+	cout << "Enter the path to the file: ";
 	cin >> sourceCharFile;
-	cout << "Введите путь куда скопировать файл (латинскими буквами, без пробелов): ";
+	cout << "Enter the path where to copy the file: ";
 	cin >> destinationCharFile;
-	cout << "Количество перекрывающих операций: ";
+	cout << "Number of overlapping operations: ";
 	cin >> overlapOperationsCount;
-	cout << "Множитель буфера: ";
+	cout << "Buffer Multiplier: ";
 	cin >> bufferMultiplier;
 	numbersOfByteToWrite *= bufferMultiplier;
-	cout << "Один блок = " << numbersOfByteToWrite << " б." << endl;
+	cout << "Numbers of byte to write = " << numbersOfByteToWrite << "\n";
 
-	buffersArray = new CHAR*[overlapOperationsCount];
+	buffersArray = new char*[overlapOperationsCount];
 	for (int i = 0; i<overlapOperationsCount; i++)
-		buffersArray[i] = new CHAR[numbersOfByteToWrite];
+		buffersArray[i] = new char[numbersOfByteToWrite];
 
 	overlapIn = new OVERLAPPED[overlapOperationsCount];
 	overlapOut = new OVERLAPPED[overlapOperationsCount];
@@ -41,12 +45,12 @@ void asyncCopyOfFile() {
 
 	GetFileSizeEx(original, &fileSize);
 
-	cout << "Размер файла = " << fileSize.QuadPart << " б." << endl;
+	cout << "File size = " << fileSize.QuadPart << "\n";
 
 	recordCount = fileSize.QuadPart / numbersOfByteToWrite;
 	if ((fileSize.QuadPart % numbersOfByteToWrite) != 0) 
 		++recordCount;
-	cout << "Количество блоков = " << recordCount << endl;
+	cout << "Record = " << recordCount << "\n";
 
 	DWORD startCopyTime, endCopyTime;
 	startCopyTime = GetTickCount();
@@ -66,7 +70,7 @@ void asyncCopyOfFile() {
 	while (doneCount < 2 * recordCount)
 		SleepEx(INFINITE, true); 
 
-	cout << "Копирование успешно завершено!" << endl;
+	cout << "Copying completed successfully" << "\n";
 
 	delete[] overlapIn;
 	delete[] overlapOut;
@@ -82,10 +86,11 @@ void asyncCopyOfFile() {
 	CloseHandle(original);
 	CloseHandle(copyFile);
 	endCopyTime = GetTickCount();
-	cout << "Время потрачено: " << endCopyTime - startCopyTime << " мс" << endl;
+	cout << "Time: " << endCopyTime - startCopyTime << " ms\n";
 }
 
-VOID WINAPI asyncRead(DWORD Code, DWORD nBytes, LPOVERLAPPED lpOv) {
+void WINAPI asyncRead(DWORD Code, DWORD nBytes, LPOVERLAPPED lpOv) 
+{
 
 	++doneCount;
 
@@ -103,7 +108,8 @@ VOID WINAPI asyncRead(DWORD Code, DWORD nBytes, LPOVERLAPPED lpOv) {
 	overlapIn[i].OffsetHigh = curPosIn.HighPart;
 }
 
-VOID WINAPI asyncWrite(DWORD Code, DWORD nBytes, LPOVERLAPPED lpOv){
+void WINAPI asyncWrite(DWORD Code, DWORD nBytes, LPOVERLAPPED lpOv)
+{
 
 	++doneCount;
 
@@ -112,7 +118,6 @@ VOID WINAPI asyncWrite(DWORD Code, DWORD nBytes, LPOVERLAPPED lpOv){
 	
 	curPosIn.LowPart = overlapIn[i].Offset;
 	curPosIn.HighPart = overlapIn[i].OffsetHigh;
-	if (curPosIn.QuadPart < fileSize.QuadPart){
+	if (curPosIn.QuadPart < fileSize.QuadPart)
 		ReadFileEx(original, buffersArray[i], numbersOfByteToWrite, &overlapIn[i], asyncRead);
-	}
 }
