@@ -2,25 +2,15 @@
 #include <chrono>
 #include <windows.h>
 
-// int callbackCounter = 0;
-// private unsafe void OperationEndRoutine(uint errorCode,
-//    uint numberOfBytesTransfered, NativeOverlapped* overlapped)
-// {
-//    callbackCounter++;
-// }
-//
-// private readonly IOCompletionCallback callback;
-
 int callbackCounter = 0;
 VOID CALLBACK FileIOCompletionRoutine(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped) {
     // Отслеживаем количество вызовов
     callbackCounter++;
 }
 
-void ReadFileOverlapped(int fileSize, int blockSize, int operationsCount,
-            OVERLAPPED* overlap, char** buffer, HANDLE fileHandle)
+void ReadFileOverlapped(long long fileSize, DWORD blockSize, int operationsCount,
+            LPOVERLAPPED overlap, char** buffer, HANDLE fileHandle)
 {
-    //read via multiple streams
     int operationsStarted = 0;
     for (int i = 0; i < operationsCount; i++)
     {
@@ -31,20 +21,18 @@ void ReadFileOverlapped(int fileSize, int blockSize, int operationsCount,
             fileSize -= blockSize;
         }
     }
-    //wait for all operations to end
+
     while (callbackCounter < operationsStarted)
         SleepEx(-1, true);
 
-    //move to next memory block
     for (int i = 0; i < operationsCount; i++)
-        overlap[i].Offset += (int)blockSize * operationsCount;
+        overlap[i].Offset += blockSize * operationsCount;
     callbackCounter = 0;
 }
 
-void WriteFileOverlapped(int fileSize, int blockSize, int operationsCount,
-            OVERLAPPED* overlap, char** buffer, HANDLE fileHandle)
+void WriteFileOverlapped(long long fileSize, DWORD blockSize, int operationsCount,
+            LPOVERLAPPED overlap, char** buffer, HANDLE fileHandle)
 {
-    //write via multiple streams
     int operationsStarted = 0;
     for (int i = 0; i < operationsCount; i++)
     {
@@ -55,22 +43,21 @@ void WriteFileOverlapped(int fileSize, int blockSize, int operationsCount,
             fileSize -= blockSize;
         }
     }
-    //wait for all operations to end
+
     while (callbackCounter < operationsStarted)
         SleepEx(-1, true);
 
-    //move to next memory block
     for (int i = 0; i < operationsCount; i++)
-        overlap[i].Offset += (int)blockSize * operationsCount;
+        overlap[i].Offset += (long long) blockSize * operationsCount;
     callbackCounter = 0;
 }
 
-void CopyFileOverlapped(HANDLE sourceHandle, HANDLE targetHandle, unsigned int blockSize, int operationsCount)
+void CopyFileOverlapped(HANDLE sourceHandle, HANDLE targetHandle, DWORD blockSize, int operationsCount)
 {
-    int srcSize = 0;
-    int curSize = 0;
-    unsigned int high = 0;
-    // srcSize = curSize = GetFileSize(sourceHandle, ref high);
+    long long srcSize = 0;
+    long long curSize = 0;
+    DWORD high = 0;
+    srcSize = curSize = GetFileSize(sourceHandle, &high);
 
     char** buffer = new char*[operationsCount];
     for (int i = 0; i < operationsCount; ++i)
@@ -78,24 +65,24 @@ void CopyFileOverlapped(HANDLE sourceHandle, HANDLE targetHandle, unsigned int b
 
     try
     {
-        OVERLAPPED* over_1 = new OVERLAPPED[operationsCount];
-        OVERLAPPED* over_2 = new OVERLAPPED[operationsCount];
+        LPOVERLAPPED over_1 = new OVERLAPPED[operationsCount];
+        LPOVERLAPPED over_2 = new OVERLAPPED[operationsCount];
 
         for (int i = 0; i < operationsCount; ++i)
         {
-            over_1[i].Offset = over_2[i].Offset = i * (int)blockSize;
-            over_1[i].OffsetHigh = over_2[i].OffsetHigh = i * (int)high;
+            over_1[i].Offset = over_2[i].Offset = blockSize * i;
+            over_1[i].OffsetHigh = over_2[i].OffsetHigh = high * i;
         }
 
         do
         {
             ReadFileOverlapped(srcSize, blockSize, operationsCount, over_1, buffer, sourceHandle);
             WriteFileOverlapped(srcSize, blockSize, operationsCount, over_2, buffer, targetHandle);
-            curSize -= blockSize * operationsCount;
+            curSize -= (long long) (blockSize * operationsCount);
         }
         while (curSize > 0);
 
-        SetFilePointer(targetHandle, srcSize, NULL, 0);
+        SetFilePointer(targetHandle, srcSize, NULL, FILE_BEGIN);
         SetEndOfFile(targetHandle);
     }
     catch (...)
@@ -107,18 +94,22 @@ void CopyFileOverlapped(HANDLE sourceHandle, HANDLE targetHandle, unsigned int b
 
 int main()
 {
-    unsigned long long blockSize;
+    DWORD blockSize;
     int operations;
     std::string sourcePath, targetPath;
 
-    std::cout << "Enter size of the block:\n";
-    std::cout << "> 4096*";
+    std::cout << "Enter size of the block:\n> 4096*";
     std::cin >> blockSize;
     blockSize *= 4096;
-    //Ввод количества операций
-    std::cout << "Enter number of the operations:\n";
-    std::cout << "> ";
+
+    std::cout << "Enter number of the operations:\n> ";
     std::cin >> operations;
+
+    std::cout << "Enter the directory of first file:\n> ";
+    std::cin >> sourcePath;
+
+    std::cout << "Enter the directory of second file:\n> ";
+    std::cin >> targetPath;
 
     HANDLE sourceHandle = CreateFile(sourcePath.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING,
         FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED, NULL);
@@ -144,7 +135,7 @@ int main()
         auto begin = std::chrono::high_resolution_clock::now(); // ПАРОВОЗИК ЧУХ-ЧУХ!!!
         CopyFileOverlapped(sourceHandle, targetHandle, blockSize, operations);
         auto end = std::chrono::high_resolution_clock::now();
-        auto delta = std::chrono::duration_cast<std::chrono::duration<double>>(begin-end);
+        auto delta = std::chrono::duration_cast<std::chrono::duration<double>>(end-begin);
         std::cout << "File copied successfully. Copy time: " << delta.count() << " milliseconds\n";
     }
     catch (...)
