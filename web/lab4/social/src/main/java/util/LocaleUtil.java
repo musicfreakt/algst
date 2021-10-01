@@ -10,9 +10,16 @@ import java.util.ResourceBundle;
 public class LocaleUtil {
     /** Доступные языки локализации */ 
     private static String[] languages = new String[] {"ru", "en"}; 
-    private static ResourceBundle res = null; 
-    private static DateTimeFormatter localeTimeFormatter = null; 
- 
+    private static ResourceBundle res = null;
+    private static DateTimeFormatter localeTimeFormatter = null;
+    	
+    public static boolean isLocale()
+    {
+    	if (res != null)
+    		return true;
+    	return false;
+    }
+    
     /** Получение локализированного значения через ResourseBundle */ 
     public static String getString(String str) { 
         if (res == null) 
@@ -28,7 +35,8 @@ public class LocaleUtil {
     } 
  
     /** Выбор языка локализации */ 
-    public static boolean setup(String lang) { 
+    public static boolean setup(String lang) 
+    { 
         // по-умолчанию русский язык 
         if(lang == null)
             lang = "ru"; 

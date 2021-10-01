@@ -6,7 +6,7 @@
 
 body
 {
-	width: 50%;
+	background: #edeef0;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -14,55 +14,78 @@ body
 header
 {
 	background: #fff;
+	height: 48px;
+}
+
+#header-content
+{
+	width:50%;
+	height:100%;
+	margin: 0 auto;
 	display: flex;
 }
 
 #header
 {
-	display: block;
 	width: 50%;
-	height: 100%;
+	margin: auto;
 }
 
 #locale
 {
 	width: 50%;
-	height: 100%;
+	margin: auto;
 	text-align: right;
 }
 
 main
 {
-	background: #eeeeee;
+	margin: 0 auto;
+	width:50%;
 	display:flex;
 	flex-direction:column;
-	padding:5px;
-}
-
-#btn
-{
-	width: 100%;
-	background: #fff;
-	margin-top:10px;
-}
-
-#post_btn
-{
-	display: inline-block;
-	font-size: 15px;
-	border-radius:10px;
-    padding: 0 14px;
-    line-height: 36px;
-    color: #3f8ae0;
-    background: rgba(0,28,61,.05);
 }
 
 article
 {
 	background: #fff;
-	margin-top:10px;
+	margin-top: 20px;
 	width: 100%;
 	border-radius:5px;
+}
+
+.article-content
+{
+	margin: 10px;
+}
+
+.post-text
+{
+	word-wrap: break-word;
+}
+
+input, textarea
+{
+	outline: none;
+	resize: none;
+}
+
+textarea
+{
+	margin: 10px 0;
+	width:100%;
+}
+
+#post-btn
+{
+	margin: 10px 0;
+	float:right;
+	display: block;
+	font-size: 15px;
+	border-radius:10px;
+    padding: 0 14px;
+    line-height: 36px;
+    background: #edeef0;
 }
 
 
