@@ -2,6 +2,9 @@
 #include <chrono>
 #include <windows.h>
 
+LARGE_INTEGER shiftRead;
+LARGE_INTEGER shiftWrite;
+
 int callbackCounter = 0;
 VOID CALLBACK FileIOCompletionRoutine(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped) {
     // Отслеживаем количество вызовов
@@ -26,7 +29,12 @@ void ReadFileOverlapped(long long fileSize, DWORD blockSize, int operationsCount
         SleepEx(-1, true);
 
     for (int i = 0; i < operationsCount; i++)
-        overlap[i].Offset += blockSize * operationsCount;
+    {
+        overlap[i].Offset = shiftRead.LowPart;
+        overlap[i].OffsetHigh = shiftRead.HighPart;
+        shiftRead.QuadPart += blockSize;
+    }
+        // overlap[i].Offset += (DWORD) blockSize * operationsCount;
     callbackCounter = 0;
 }
 
@@ -48,7 +56,12 @@ void WriteFileOverlapped(long long fileSize, DWORD blockSize, int operationsCoun
         SleepEx(-1, true);
 
     for (int i = 0; i < operationsCount; i++)
-        overlap[i].Offset += (long long) blockSize * operationsCount;
+    {
+        overlap[i].Offset = shiftWrite.LowPart;
+        overlap[i].OffsetHigh = shiftWrite.HighPart;
+        shiftWrite.QuadPart += blockSize;
+    }
+        // overlap[i].Offset += (DWORD) blockSize * operationsCount;
     callbackCounter = 0;
 }
 
@@ -56,8 +69,9 @@ void CopyFileOverlapped(HANDLE sourceHandle, HANDLE targetHandle, DWORD blockSiz
 {
     long long srcSize = 0;
     long long curSize = 0;
-    DWORD high = 0;
-    srcSize = curSize = GetFileSize(sourceHandle, &high);
+    LARGE_INTEGER fileSizeStruct;
+    GetFileSizeEx(sourceHandle, &fileSizeStruct);
+    srcSize = curSize = fileSizeStruct.QuadPart;
 
     char** buffer = new char*[operationsCount];
     for (int i = 0; i < operationsCount; ++i)
@@ -67,11 +81,15 @@ void CopyFileOverlapped(HANDLE sourceHandle, HANDLE targetHandle, DWORD blockSiz
     {
         LPOVERLAPPED over_1 = new OVERLAPPED[operationsCount];
         LPOVERLAPPED over_2 = new OVERLAPPED[operationsCount];
-
+        shiftRead.QuadPart = 0;
+        shiftWrite.QuadPart = 0;
         for (int i = 0; i < operationsCount; ++i)
         {
-            over_1[i].Offset = over_2[i].Offset = blockSize * i;
-            over_1[i].OffsetHigh = over_2[i].OffsetHigh = high * i;
+            over_1[i].Offset = over_2[i].Offset = shiftRead.LowPart;
+            over_1[i].OffsetHigh = over_2[i].OffsetHigh = shiftRead.HighPart;
+            over_1[i].hEvent = over_2[i].hEvent = NULL;
+            shiftRead.QuadPart += blockSize;
+            shiftWrite.QuadPart += blockSize;
         }
 
         do
@@ -82,7 +100,7 @@ void CopyFileOverlapped(HANDLE sourceHandle, HANDLE targetHandle, DWORD blockSiz
         }
         while (curSize > 0);
 
-        SetFilePointer(targetHandle, srcSize, NULL, FILE_BEGIN);
+        SetFilePointerEx(targetHandle, fileSizeStruct, NULL, FILE_BEGIN);
         SetEndOfFile(targetHandle);
     }
     catch (...)
