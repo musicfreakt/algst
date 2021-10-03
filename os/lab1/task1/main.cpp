@@ -56,7 +56,7 @@ void showDriveInfo()
     char volume_name[255];
     char filesystem_name[100];
     DWORD max_component_length = 0;
-	DWORD system_flags = 0;
+    DWORD system_flags = 0;
     unsigned long drive_serial_number = 0;
 
     GetVolumeInformation(drive.c_str(), volume_name, 255,
@@ -137,7 +137,7 @@ void createFolder()
     string directory_name;
     cout << "Enter the folder name: ";
     cin >> directory_name;
-    if (CreateDirectory(directory_name.c_str(), NULL) != 0) // todo: ДОБАВИТЬ ТЕГИ
+    if (CreateDirectory(directory_name.c_str(), NULL) != 0)
         cout << "The folder has been created\n";
     else
         cout << "Error, the folder was not created!\n";
@@ -190,7 +190,7 @@ void copyFile()
 
 void moveFile() {
     string source;
-	string destination;
+    string destination;
 
     cout << "Enter the path to the file: ";
     cin >> source;
@@ -208,45 +208,49 @@ void fileInfo() {
     cout << "Enter the file name: ";
     cin >> filename;
 
-    DWORD fileAttributes;
-    fileAttributes = GetFileAttributes(filename.c_str());
-    cout << "Attributes: \n";
-    if (fileAttributes & FILE_ATTRIBUTE_ARCHIVE)
-        cout<<"FILE_ATTRIBUTE_ARCHIVE:\nA file or directory that is an archive file or directory. Applications typically use this attribute to mark files for backup or removal.\n--\n";
-    if (fileAttributes & FILE_ATTRIBUTE_COMPRESSED)
-        cout<<"FILE_ATTRIBUTE_COMPRESSED:\nA file or directory that is compressed. For a file, all of the data in the file is compressed. For a directory, compression is the default for newly created files and subdirectories.\n--\n";
-    if (fileAttributes & FILE_ATTRIBUTE_DEVICE)
-        cout<<"FILE_ATTRIBUTE_DEVICE:\nThis value is reserved for system use.\n--\n";
-    if (fileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-        cout<<"FILE_ATTRIBUTE_DIRECTORY:\nThe handle that identifies a directory.\n--\n";
-    if (fileAttributes & FILE_ATTRIBUTE_ENCRYPTED)
-        cout<<"FILE_ATTRIBUTE_ENCRYPTED:\nA file or directory that is encrypted. For a file, all data streams in the file are encrypted. For a directory, encryption is the default for newly created files and subdirectories.\n--\n";
-    if (fileAttributes & FILE_ATTRIBUTE_HIDDEN)
-        cout<<"FILE_ATTRIBUTE_HIDDEN:\nThe file or directory is hidden. It is not included in an ordinary directory listing.\n--\n";
-    if (fileAttributes & FILE_ATTRIBUTE_NORMAL)
-        cout<<"FILE_ATTRIBUTE_NORMAL:\nA file that does not have other attributes set. This attribute is valid only when used alone.\n";
-    if (fileAttributes & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)
-        cout<<"FILE_ATTRIBUTE_NOT_CONTENT_INDEXED:\nThe file or directory is not to be indexed by the content indexing service.\n";
-    if (fileAttributes & FILE_ATTRIBUTE_OFFLINE)
-        cout<<"FILE_ATTRIBUTE_OFFLINE:\nThe data of a file is not available immediately. This attribute indicates that the file data is physically moved to offline storage. This attribute is used by Remote Storage,\
-                 which is the hierarchical storage management software. Applications should not arbitrarily change this attribute.\n--\n";
-    if (fileAttributes & FILE_ATTRIBUTE_READONLY)
-        cout<<"FILE_ATTRIBUTE_READONLY:\nA file that is read-only. Applications can read the file, but cannot write to it or delete it. This attribute is not honored on directories.\n--\n";
-    if (fileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
-        cout<<"FILE_ATTRIBUTE_REPARSE_POINT:\nA file or directory that has an associated reparse point, or a file that is a symbolic link.\n--\n";
-    if (fileAttributes & FILE_ATTRIBUTE_SPARSE_FILE)
-        cout<<"FILE_ATTRIBUTE_SPARSE_FILE:\nA file that is a sparse file.\n--\n";
-    if (fileAttributes & FILE_ATTRIBUTE_SYSTEM)
-        cout<<"FILE_ATTRIBUTE_SYSTEM:\nA file or directory that the operating system uses a part of, or uses exclusively.\n--\n";
-    if (fileAttributes & FILE_ATTRIBUTE_TEMPORARY)
-        cout<<"FILE_ATTRIBUTE_TEMPORARY:\nA file that is being used for temporary storage. File systems avoid writing data back to mass storage if sufficient cache memory is available, because typically, an application\
-                 deletes a temporary file after the handle is closed. In that scenario, the system can entirely avoid writing the data. Otherwise, the data is written after the handle is closed.\n--\n";
-    if (fileAttributes & FILE_ATTRIBUTE_VIRTUAL)
-        cout<<"FILE_ATTRIBUTE_VIRTUAL:\nThis value is reserved for system use.\n--\n";
-
     HANDLE hfile = CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
     if (hfile != NULL)
     {
+        BY_HANDLE_FILE_INFORMATION info;
+        if(GetFileInformationByHandle(hfile, &info))
+        {
+            DWORD file_attributes = info.dwFileAttributes;
+
+            cout << "Attributes: \n";
+            if (file_attributes & FILE_ATTRIBUTE_ARCHIVE)
+                cout<<"FILE_ATTRIBUTE_ARCHIVE:\nA file or directory that is an archive file or directory. Applications typically use this attribute to mark files for backup or removal.\n--\n";
+            if (file_attributes & FILE_ATTRIBUTE_COMPRESSED)
+                cout<<"FILE_ATTRIBUTE_COMPRESSED:\nA file or directory that is compressed. For a file, all of the data in the file is compressed. For a directory, compression is the default for newly created files and subdirectories.\n--\n";
+            if (file_attributes & FILE_ATTRIBUTE_DEVICE)
+                cout<<"FILE_ATTRIBUTE_DEVICE:\nThis value is reserved for system use.\n--\n";
+            if (file_attributes & FILE_ATTRIBUTE_DIRECTORY)
+                cout<<"FILE_ATTRIBUTE_DIRECTORY:\nThe handle that identifies a directory.\n--\n";
+            if (file_attributes & FILE_ATTRIBUTE_ENCRYPTED)
+                cout<<"FILE_ATTRIBUTE_ENCRYPTED:\nA file or directory that is encrypted. For a file, all data streams in the file are encrypted. For a directory, encryption is the default for newly created files and subdirectories.\n--\n";
+            if (file_attributes & FILE_ATTRIBUTE_HIDDEN)
+                cout<<"FILE_ATTRIBUTE_HIDDEN:\nThe file or directory is hidden. It is not included in an ordinary directory listing.\n--\n";
+            if (file_attributes & FILE_ATTRIBUTE_NORMAL)
+                cout<<"FILE_ATTRIBUTE_NORMAL:\nA file that does not have other attributes set. This attribute is valid only when used alone.\n";
+            if (file_attributes & FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)
+                cout<<"FILE_ATTRIBUTE_NOT_CONTENT_INDEXED:\nThe file or directory is not to be indexed by the content indexing service.\n";
+            if (file_attributes & FILE_ATTRIBUTE_OFFLINE)
+                cout<<"FILE_ATTRIBUTE_OFFLINE:\nThe data of a file is not available immediately. This attribute indicates that the file data is physically moved to offline storage. This attribute is used by Remote Storage,\
+                         which is the hierarchical storage management software. Applications should not arbitrarily change this attribute.\n--\n";
+            if (file_attributes & FILE_ATTRIBUTE_READONLY)
+                cout<<"FILE_ATTRIBUTE_READONLY:\nA file that is read-only. Applications can read the file, but cannot write to it or delete it. This attribute is not honored on directories.\n--\n";
+            if (file_attributes & FILE_ATTRIBUTE_REPARSE_POINT)
+                cout<<"FILE_ATTRIBUTE_REPARSE_POINT:\nA file or directory that has an associated reparse point, or a file that is a symbolic link.\n--\n";
+            if (file_attributes & FILE_ATTRIBUTE_SPARSE_FILE)
+                cout<<"FILE_ATTRIBUTE_SPARSE_FILE:\nA file that is a sparse file.\n--\n";
+            if (file_attributes & FILE_ATTRIBUTE_SYSTEM)
+                cout<<"FILE_ATTRIBUTE_SYSTEM:\nA file or directory that the operating system uses a part of, or uses exclusively.\n--\n";
+            if (file_attributes & FILE_ATTRIBUTE_TEMPORARY)
+                cout<<"FILE_ATTRIBUTE_TEMPORARY:\nA file that is being used for temporary storage. File systems avoid writing data back to mass storage if sufficient cache memory is available, because typically, an application\
+                         deletes a temporary file after the handle is closed. In that scenario, the system can entirely avoid writing the data. Otherwise, the data is written after the handle is closed.\n--\n";
+            if (file_attributes & FILE_ATTRIBUTE_VIRTUAL)
+                cout<<"FILE_ATTRIBUTE_VIRTUAL:\nThis value is reserved for system use.\n--\n";
+        }
+
         FILETIME file_created_time;
         SYSTEMTIME file_created_system_time;
         char created_local_date[255];
@@ -260,7 +264,8 @@ void fileInfo() {
         char writed_local_date[255];
         char writed_local_time[255];
 
-        if (GetFileTime(hfile, &file_created_time, &file_accessed_time, &file_writed_time) != 0) {
+        if (GetFileTime(hfile, &file_created_time, &file_accessed_time, &file_writed_time) != 0)
+        {
             FileTimeToLocalFileTime(&file_created_time, &file_created_time);
             FileTimeToLocalFileTime(&file_accessed_time, &file_accessed_time);
             FileTimeToLocalFileTime(&file_writed_time, &file_writed_time);
@@ -288,14 +293,11 @@ void fileInfo() {
                 << file_writed_system_time.wMinute << "\n";
         }
 
-        BY_HANDLE_FILE_INFORMATION fileinfo;
-        if (GetFileInformationByHandle(hfile, &fileinfo))
-        {
-            cout << "\nVolume serial number: " << fileinfo.dwVolumeSerialNumber << endl
-                << "Number of links: " << fileinfo.nNumberOfLinks << endl;
-        }
+        cout << "\nVolume serial number: " << info.dwVolumeSerialNumber << endl
+            << "Number of links: " << info.nNumberOfLinks << endl;
     }
-    cout << "Unable to get a file handler!\n";
+    else
+        cout << "Unable to get a file handler!\n";
 }
 
 
@@ -384,7 +386,7 @@ void changeCreationTime()
 
     if (SetFileTime(hfile, &file_time, NULL, NULL))
         cout << "The time was successfully set\n"<< system_time_now.wDay<<"." << system_time_now.wMonth << "."
-        << system_time_now.wYear << " " << system_time_now.wHour << ":" << system_time_now.wMinute << "\n";
+        << system_time_now.wYear << " " << system_time_now.wHour+3 << ":" << system_time_now.wMinute << "\n";
     else
         cout << "An error occurred, the time could not be set\n";
 
