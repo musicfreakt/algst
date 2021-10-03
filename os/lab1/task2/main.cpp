@@ -1,6 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <windows.h>
+#define TEST
 
 LARGE_INTEGER shiftRead;
 LARGE_INTEGER shiftWrite;
@@ -109,60 +110,104 @@ void CopyFileOverlapped(HANDLE sourceHandle, HANDLE targetHandle, DWORD blockSiz
     }
 }
 
-
-int main()
-{
-    DWORD blockSize;
-    int operations;
-    std::string sourcePath, targetPath;
-
-    std::cout << "Enter size of the block:\n> 4096*";
-    std::cin >> blockSize;
-    blockSize *= 4096;
-
-    std::cout << "Enter number of the operations:\n> ";
-    std::cin >> operations;
-
-    std::cout << "Enter the directory of first file:\n> ";
-    std::cin >> sourcePath;
-
-    std::cout << "Enter the directory of second file:\n> ";
-    std::cin >> targetPath;
-
-    HANDLE sourceHandle = CreateFile(sourcePath.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING,
-        FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED, NULL);
-
-    if (sourceHandle == INVALID_HANDLE_VALUE)
+#ifndef TEST
+    int main()
     {
-        std::cout << "Error reading file. Error code:" << GetLastError() << "\n";
-        return -1;
-    }
+        DWORD blockSize;
+        DWORD sectorsPerCluster;
+        DWORD bytesPerSector;
+        GetDiskFreeSpaceA(NULL, &sectorsPerCluster, &bytesPerSector, NULL, NULL);
+        int operations;
+        std::string sourcePath, targetPath;
 
-    HANDLE targetHandle = CreateFile(targetPath.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
-        FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED, NULL);
+        std::cout << "Enter size of the block:\n>" << bytesPerSector*sectorsPerCluster << "*";
+        std::cin >> blockSize;
+        blockSize *= bytesPerSector*sectorsPerCluster;
 
-    if (targetHandle == INVALID_HANDLE_VALUE)
-    {
-        std::cout << "Error creating target file. Error code:" << GetLastError() << "\n";
+        std::cout << "Enter number of the operations:\n> ";
+        std::cin >> operations;
+
+        std::cout << "Enter the directory of first file:\n> ";
+        std::cin >> sourcePath;
+
+        std::cout << "Enter the directory of second file:\n> ";
+        std::cin >> targetPath;
+
+        HANDLE sourceHandle = CreateFile(sourcePath.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING,
+            FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED, NULL);
+
+        if (sourceHandle == INVALID_HANDLE_VALUE)
+        {
+            std::cout << "Error reading file. Error code:" << GetLastError() << "\n";
+            return -1;
+        }
+
+        HANDLE targetHandle = CreateFile(targetPath.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+            FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED, NULL);
+
+        if (targetHandle == INVALID_HANDLE_VALUE)
+        {
+            std::cout << "Error creating target file. Error code:" << GetLastError() << "\n";
+            CloseHandle(sourceHandle);
+            return -1;
+        }
+
+        try
+        {
+            auto begin = std::chrono::high_resolution_clock::now(); // ПАРОВОЗИК ЧУХ-ЧУХ!!!
+            CopyFileOverlapped(sourceHandle, targetHandle, blockSize, operations);
+            auto end = std::chrono::high_resolution_clock::now();
+            auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(end-begin);
+            std::cout << "File copied successfully. Copy time: " << delta.count() << " milliseconds\n";
+        }
+        catch (...)
+        {
+            std::cout << "Error file copy. Error code: " << GetLastError() << " milliseconds\n";
+        }
+
         CloseHandle(sourceHandle);
-        return -1;
-    }
+        CloseHandle(targetHandle);
 
-    try
+        return 0;
+    }
+#else
+    int main()
     {
-        auto begin = std::chrono::high_resolution_clock::now(); // ПАРОВОЗИК ЧУХ-ЧУХ!!!
-        CopyFileOverlapped(sourceHandle, targetHandle, blockSize, operations);
-        auto end = std::chrono::high_resolution_clock::now();
-        auto delta = std::chrono::duration_cast<std::chrono::duration<double>>(end-begin);
-        std::cout << "File copied successfully. Copy time: " << delta.count() << " milliseconds\n";
-    }
-    catch (...)
-    {
-        std::cout << "Error file copy. Error code: " << GetLastError() << " milliseconds\n";
-    }
+        DWORD blockSize;
+        DWORD sectorsPerCluster;
+        DWORD bytesPerSector;
+        GetDiskFreeSpaceA(NULL, &sectorsPerCluster, &bytesPerSector, NULL, NULL);
+        int operations = 1;
+        std::string sourcePath, targetPath;
 
-    CloseHandle(sourceHandle);
-    CloseHandle(targetHandle);
+        std::cout << "Enter the directory of first file:\n> ";
+        std::cin >> sourcePath;
 
-    return 0;
-}
+        std::cout << "Enter the directory of second file:\n> ";
+        std::cin >> targetPath;
+
+        blockSize = 23*sectorsPerCluster*bytesPerSector;
+
+        for (int i = 1; i <= 16; i += i)
+        {
+            operations = i;
+            HANDLE sourceHandle = CreateFile(sourcePath.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING,
+                FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED, NULL);
+
+            HANDLE targetHandle = CreateFile(targetPath.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED, NULL);
+
+            auto begin = std::chrono::high_resolution_clock::now(); // ПАРОВОЗИК ЧУХ-ЧУХ!!!
+            CopyFileOverlapped(sourceHandle, targetHandle, blockSize, operations);
+            auto end = std::chrono::high_resolution_clock::now();
+            auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(end-begin);
+            auto count = delta.count();
+            std::cout << "(" << i << " " << count << "); Operations:" << i << " ;Copy time: " << count << " milliseconds\n";
+
+            CloseHandle(sourceHandle);
+            CloseHandle(targetHandle);
+        }
+
+        return 0;
+    }
+#endif
