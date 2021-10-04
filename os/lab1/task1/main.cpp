@@ -199,6 +199,19 @@ void moveFile() {
 
     if (MoveFile(source.c_str(), destination.c_str()) != 0)
         cout << "The file has been moved!\n";
+    else if (GetLastError() == ERROR_ALREADY_EXISTS)
+    {
+        cout << "File already exists. Do you want to change it? (1 - yes, 0 - no)\n>";
+        int select;
+        cin >> select;
+        if (select)
+        {
+            if (MoveFileEx(source.c_str(), destination.c_str(), MOVEFILE_REPLACE_EXISTING))
+                cout << "The file has been moved!\n";
+            else
+                cout << "An error occurred, the file was not moved!\n";
+        }
+    }
     else
         cout << "An error occurred, the file was not moved!\n";
 }
@@ -251,53 +264,12 @@ void fileInfo() {
                 cout<<"FILE_ATTRIBUTE_VIRTUAL:\nThis value is reserved for system use.\n--\n";
         }
 
-        FILETIME file_created_time;
-        SYSTEMTIME file_created_system_time;
-        char created_local_date[255];
-        char created_local_time[255];
-        FILETIME file_accessed_time;
-        SYSTEMTIME file_accessed_system_time;
-        char accessed_local_date[255];
-        char accessed_local_time[255];
-        FILETIME file_writed_time;
-        SYSTEMTIME file_writed_system_time;
-        char writed_local_date[255];
-        char writed_local_time[255];
-
-        if (GetFileTime(hfile, &file_created_time, &file_accessed_time, &file_writed_time) != 0)
-        {
-            FileTimeToLocalFileTime(&file_created_time, &file_created_time);
-            FileTimeToLocalFileTime(&file_accessed_time, &file_accessed_time);
-            FileTimeToLocalFileTime(&file_writed_time, &file_writed_time);
-
-            FileTimeToSystemTime(&file_created_time, &file_created_system_time);
-            FileTimeToSystemTime(&file_accessed_time, &file_accessed_system_time);
-            FileTimeToSystemTime(&file_writed_time, &file_writed_system_time);
-
-            GetDateFormat(LOCALE_USER_DEFAULT, DATE_LONGDATE, &file_created_system_time, NULL, created_local_date, 255);
-            GetDateFormat(LOCALE_USER_DEFAULT, DATE_LONGDATE, &file_accessed_system_time, NULL, accessed_local_date, 255);
-            GetDateFormat(LOCALE_USER_DEFAULT, DATE_LONGDATE, &file_writed_system_time, NULL, writed_local_date, 255);
-
-            GetTimeFormat(LOCALE_USER_DEFAULT, 0, &file_created_system_time, NULL, created_local_time, 255);
-            GetTimeFormat(LOCALE_USER_DEFAULT, 0, &file_accessed_system_time, NULL, accessed_local_time, 255);
-            GetTimeFormat(LOCALE_USER_DEFAULT, 0, &file_writed_system_time, NULL, writed_local_time, 255);
-
-            cout << "Creation time: " << file_created_system_time.wDay << "." << file_created_system_time.wMonth << "."
-                << file_created_system_time.wYear << " " << file_created_system_time.wHour << ":"
-                << file_created_system_time.wMinute << "\n";
-            cout << "Last request: " << file_accessed_system_time.wDay << "." << file_accessed_system_time.wMonth << "."
-                << file_accessed_system_time.wYear << " " << file_accessed_system_time.wHour << ":"
-                << file_accessed_system_time.wMinute << "\n";
-            cout << "Last change: " << file_writed_system_time.wDay << "." << file_writed_system_time.wMonth << "."
-                << file_writed_system_time.wYear << " " << file_writed_system_time.wHour << ":"
-                << file_writed_system_time.wMinute << "\n";
-        }
-
         cout << "\nVolume serial number: " << info.dwVolumeSerialNumber << endl
             << "Number of links: " << info.nNumberOfLinks << endl;
     }
     else
         cout << "Unable to get a file handler!\n";
+    CloseHandle(hfile);
 }
 
 
@@ -371,6 +343,60 @@ void changeFileAttributes()
         cout<<"An error occurred, the attributes were not set! \n";
 }
 
+void getFileTime()
+{
+    string filename;
+    cout << "Enter the file name: ";
+    cin >> filename;
+
+    HANDLE hfile = CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+    if (hfile != NULL)
+    {
+        FILETIME file_created_time;
+        SYSTEMTIME file_created_system_time;
+        char created_local_date[255];
+        char created_local_time[255];
+        FILETIME file_accessed_time;
+        SYSTEMTIME file_accessed_system_time;
+        char accessed_local_date[255];
+        char accessed_local_time[255];
+        FILETIME file_writed_time;
+        SYSTEMTIME file_writed_system_time;
+        char writed_local_date[255];
+        char writed_local_time[255];
+
+        if (GetFileTime(hfile, &file_created_time, &file_accessed_time, &file_writed_time) != 0)
+        {
+            FileTimeToLocalFileTime(&file_created_time, &file_created_time);
+            FileTimeToLocalFileTime(&file_accessed_time, &file_accessed_time);
+            FileTimeToLocalFileTime(&file_writed_time, &file_writed_time);
+
+            FileTimeToSystemTime(&file_created_time, &file_created_system_time);
+            FileTimeToSystemTime(&file_accessed_time, &file_accessed_system_time);
+            FileTimeToSystemTime(&file_writed_time, &file_writed_system_time);
+
+            GetDateFormat(LOCALE_USER_DEFAULT, DATE_LONGDATE, &file_created_system_time, NULL, created_local_date, 255);
+            GetDateFormat(LOCALE_USER_DEFAULT, DATE_LONGDATE, &file_accessed_system_time, NULL, accessed_local_date, 255);
+            GetDateFormat(LOCALE_USER_DEFAULT, DATE_LONGDATE, &file_writed_system_time, NULL, writed_local_date, 255);
+
+            GetTimeFormat(LOCALE_USER_DEFAULT, 0, &file_created_system_time, NULL, created_local_time, 255);
+            GetTimeFormat(LOCALE_USER_DEFAULT, 0, &file_accessed_system_time, NULL, accessed_local_time, 255);
+            GetTimeFormat(LOCALE_USER_DEFAULT, 0, &file_writed_system_time, NULL, writed_local_time, 255);
+
+            cout << "Creation time: " << file_created_system_time.wDay << "." << file_created_system_time.wMonth << "."
+                << file_created_system_time.wYear << " " << file_created_system_time.wHour << ":"
+                << file_created_system_time.wMinute << "\n";
+            cout << "Last request: " << file_accessed_system_time.wDay << "." << file_accessed_system_time.wMonth << "."
+                << file_accessed_system_time.wYear << " " << file_accessed_system_time.wHour << ":"
+                << file_accessed_system_time.wMinute << "\n";
+            cout << "Last change: " << file_writed_system_time.wDay << "." << file_writed_system_time.wMonth << "."
+                << file_writed_system_time.wYear << " " << file_writed_system_time.wHour << ":"
+                << file_writed_system_time.wMinute << "\n";
+        }
+    }
+    CloseHandle(hfile);
+}
+
 
 void changeCreationTime()
 {
@@ -411,9 +437,10 @@ int menu()
 		cout << "5. Create a file" << endl;
 		cout << "6. Copy a file" << endl;
 		cout << "7. Move a file" << endl;
-		cout << "8. Information about the file" << endl;
+		cout << "8. Get file attributes and information" << endl;
 		cout << "9. Change file attributes" << endl;
-		cout << "10. Change the file creation time" << endl;
+        cout << "10. Get file time" << endl;
+		cout << "11. Change the file creation time" << endl;
 		cout << "0. Exit" << endl;
 		cout << "> ";
 		cin >> menu_item;
@@ -460,8 +487,11 @@ int main()
 			changeFileAttributes();
 			break;
 		case 10:
-			changeCreationTime();
+			getFileTime();
 			break;
+        case 11:
+            changeCreationTime();
+            break;
 		case 0:
 			break;
 		default:
