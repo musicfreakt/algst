@@ -12,16 +12,17 @@ long double calculatePI(const unsigned threadNum, DWORD *millisec)
     DWORD end;
     long double pi = 0;
 
+
     begin = GetTickCount();
 
     #pragma omp parallel shared(begin, end) reduction (+: pi) num_threads(threadNum)
     {
         #pragma omp for schedule(dynamic, BLOCKSIZE) nowait
-        for (size_t i = 0; i < N; ++i)
+        for (int i = 0; i < N; ++i)
         {
             long double x_i;
-            x_i = (i + 0.5) * 1.0 / N;
-            pi += (long double) 4.0 / (1.0 + x_i * x_i);
+            x_i = (i + 0.5) / N;
+            pi += 4 / (1 + x_i * x_i);
         }
     }
 
