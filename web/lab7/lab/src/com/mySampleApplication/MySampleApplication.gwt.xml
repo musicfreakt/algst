@@ -1,0 +1,29 @@
+<!--<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 2.8.0//EN"-->
+<!--        "http://www.gwtproject.org/doctype/2.8.0/gwt-module.dtd">-->
+<!--<module rename-to="MySampleApplication">-->
+
+<!--    &lt;!&ndash; Inherit the core Web Toolkit stuff.                  &ndash;&gt;-->
+<!--    <inherits name='com.google.gwt.user.User'/>-->
+<!--    <inherits name='com.google.gwt.user.theme.standard.Standard'/>-->
+<!--    &lt;!&ndash; Specify the app entry point class.                   &ndash;&gt;-->
+<!--    <entry-point class='com.mySampleApplication.client.MySampleApplication'/>-->
+
+<!--    &lt;!&ndash; Specify the app servlets.                   &ndash;&gt;-->
+<!--    <servlet path='/MySampleApplicationService' class='com.mySampleApplication.server.MySampleApplicationServiceImpl'/>-->
+
+<!--    <source path='client'/>-->
+<!--    <source path='server'/>-->
+<!--</module>-->
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 2.8.0//EN"
+        "http://www.gwtproject.org/doctype/2.8.0/gwt-module.dtd">
+<module rename-to="MySampleApplication">
+
+        <!-- Inherit the core Web Toolkit stuff.                  -->
+        <inherits name='com.google.gwt.user.User'/>
+
+        <!-- Specify the app entry point class.                   -->
+        <entry-point class='com.mySampleApplication.client.MySampleApplication'/>
+
+        <!-- Specify the app servlets.                   -->
+        <servlet path='/MySampleApplicationService' class='com.mySampleApplication.server.MySampleApplicationServiceImpl'/>
+        </module>
