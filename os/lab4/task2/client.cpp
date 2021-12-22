@@ -1,84 +1,50 @@
 #include <windows.h>
 #include <iostream>
 
-//Функция для асинхронного чтения данных
-void WINAPI Callback(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped)
+const size_t BUFFER_SIZE = 1024;
+const std::string PIPE_NAME("\\\\.\\pipe\\lab4");
+const char* EXIT_STR = ":q";
+
+size_t callback;
+void CALLBACK FileIOCompletionRoutine(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped)
 {
-	std::cout << "Information received." << std::endl;
+    ++callback;
 }
 
 int main()
 {
-	system("cls");
+    WaitNamedPipeA(PIPE_NAME.c_str(), NMPWAIT_WAIT_FOREVER);
 
-	CHAR buffer[512]; //Буфер для передачи сообщений
-	BOOL isConnected = FALSE; //Проверка подключения
-	LPCTSTR Pipename = TEXT("\\\\.\\pipe\\lab4"); //Название именованного канала
+    HANDLE hPipe = CreateFileA(PIPE_NAME.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED | FILE_FLAG_NO_BUFFERING, NULL);
 
-	HANDLE Event = CreateEvent(NULL, FALSE, FALSE, NULL); //Создание события для организации асинхронного чтения
-	HANDLE Pipe = CreateFile(Pipename, //Создание именованного канала
-		GENERIC_READ | GENERIC_WRITE,
-		0,
-		NULL,
-		OPEN_EXISTING,
-		FILE_FLAG_OVERLAPPED,
-		NULL
-	);
+    if(hPipe != INVALID_HANDLE_VALUE)
+    {
+        OVERLAPPED over;
+        size_t offset_i = 0;
+		over.Offset = offset_i;
+		over.OffsetHigh = offset_i >> 31;
 
-	int choose;
+        char buffer[BUFFER_SIZE];
+		buffer[0] = '\0';
 
-	OVERLAPPED overlapped = OVERLAPPED(); //Содержит информацию, используемую в асинхронном (или перекрывающем) вводе/выводе данных
+        while(strcmp(buffer, EXIT_STR) != 0)
+        {
+            callback = 0;
 
-	//При успешном создании объектов HANDLE программа начинает свою основную работу
+            ZeroMemory(buffer, BUFFER_SIZE);
 
-	if (Event != INVALID_HANDLE_VALUE && Pipe != INVALID_HANDLE_VALUE)
-	{
-		do
-		{
-			system("cls");
+            ReadFileEx(hPipe, buffer, BUFFER_SIZE, &over, FileIOCompletionRoutine);
+            SleepEx(-1, TRUE);
 
-			std::cout << "1. Receive message" << std::endl;
-			std::cout << "2. Disconnect from a named pipe" << std::endl;
-			std::cout << "0. Exit" << std::endl;
+            std::cout << "Message: \"" << buffer << "\". " <<  std::endl;
+        }
+        CloseHandle(hPipe);
+    }
+    else
+    {
+        std::cout << "Error: Can't connect to the pipe." << std::endl;
+        return GetLastError();
+    }
 
-			std::cin >> choose;
-
-			switch (choose)
-			{
-			case 1:
-				overlapped.hEvent = Event;
-				isConnected = ReadFileEx(Pipe, (LPVOID)buffer, 512, &overlapped, Callback);	//Запуск асинхронного чтения
-
-				if (isConnected)
-				{
-					std::cout << buffer << std::endl;
-					system("pause");
-				}
-				else
-				{
-					std::cout << "Error" << std::endl;
-					system("pause");
-				}
-				break;
-			case 2:
-				isConnected = CloseHandle(Pipe); //Закрытие именованного канала
-
-				if (isConnected)
-					std::cout << "You have been disconnected from the named pipe" << std::endl;
-				else
-					std::cout << "Error" << std::endl;
-
-				isConnected = FALSE;
-				system("pause");
-				break;
-			default:
-				break;
-			}
-		}
-		while (choose);
-	}
-	else
-		std::cout << "Error" << std::endl;
-
-	return 0;
+    return 0;
 }

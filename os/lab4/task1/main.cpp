@@ -1,27 +1,32 @@
 #include <iostream>
 #include <string>
 #include <windows.h>
+#include <vector>
 
 using namespace std;
 
+const int pageSize = 4096; //Размер страницы
+const int Count = 17; //Число страниц буферной памяти
+const int N = Count - 1;  //Количестов семафоров (с учётом нулевого)
+const int writerCount = Count / 2; //Счётчик писателей
+const int readerCount = Count / 2; //Счётчик читателей
+
 int main()
 {
-    const int pageSize = 4096; //Размер страницы
-    const int Count = 17; //Число страниц буферной памяти
-    const int N = Count - 1;  //Количестов семафоров (с учётом нулевого)
-    const int writerCount = Count / 2; //Счётчик писателей
-    const int readerCount = Count / 2; //Счётчик читателей
-
     int fileSize = N * pageSize;
-
+    HANDLE mapHandle;
     HANDLE freeSem = CreateSemaphore(NULL, N, N, "freeSem"); //Создание семафора для неотработанных страниц
     HANDLE usedSem = CreateSemaphore(NULL, 0, N, "usedSem"); //Создание семафора для отработанных страниц
-    HANDLE fileMutex = CreateMutex(NULL, false, "fileMutex"); //Мьютекс
+    std::vector<HANDLE> pageMutex;
+    std::string mutexName = "mutex_a";
+    for(int i = 0;i < Count; i++)
+    {
+        mutexName.back() = '0' + i;
+        pageMutex.push_back(CreateMutexA(nullptr, false, mutexName.c_str()));
+    }
 
-    HANDLE mapHandle;
-
-    cout << "This program will copy data from file named 'file.txt' by using semaphores and mutex.\n";
-    cout << "Wait for a few seconds to see a result\n";
+    // cout << "This program will copy data from file named 'file.txt' by using semaphores and mutex.\n";
+    // cout << "Wait for a few seconds to see a result\n";
 
     //Создаём файл, с которым будет производиться работа
     HANDLE fHandle = CreateFileA("file.txt", GENERIC_READ | GENERIC_WRITE,
@@ -41,7 +46,6 @@ int main()
 
     //Массив HANDLE для процессов
     HANDLE processHandles[Count];
-    HANDLE logHandles[Count];
 
     //Цикл для писателей
     for (int i = 0; i < writerCount; ++i)
@@ -81,10 +85,7 @@ int main()
             &procInfo); // Указатель на структуру PROCESS_INFORMATION
 
         if (mainProcess)
-        {
             processHandles[i] = procInfo.hProcess;
-            logHandles[i] = sysInfo.hStdOutput;
-        }
     }
 
     //Аналогично работаем и с читателями
@@ -120,27 +121,26 @@ int main()
 
 
         if (createProcess != 0)
-        {
             processHandles[writerCount + i] = procInfo.hProcess;
-            logHandles[writerCount + i] = sysInfo.hStdOutput;
-        }
     }
 
     WaitForMultipleObjects(Count, processHandles, true, INFINITE);
 
     for (int i = 0; i < Count; ++i)
     {
-        CloseHandle(logHandles[i]);
         CloseHandle(processHandles[i]);
     }
 
     CloseHandle(mapHandle);
     UnmapViewOfFile(mapView);
     CloseHandle(fHandle);
-    CloseHandle(fileMutex);
+    for(int i = 0;i < Count;i++)
+    {
+        CloseHandle(pageMutex[i]);
+    }
     CloseHandle(freeSem);
     CloseHandle(usedSem);
 
-    cout << endl << "The work is done. Press ENTER to close the program." << endl;
+    cout << endl << "The work is done." << endl;
     system("pause");
 }

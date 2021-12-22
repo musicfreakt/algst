@@ -1,97 +1,69 @@
 #include <windows.h>
 #include <iostream>
 
+const size_t BUFFER_SIZE = 1024;
+const std::string PIPE_NAME("\\\\.\\pipe\\lab4");
+const char* EXIT_STR = ":q";
 
 int main()
 {
-	system("cls");
+    size_t i;
+    HANDLE hPipe = CreateNamedPipeA(PIPE_NAME.c_str(),
+        PIPE_ACCESS_OUTBOUND | FILE_FLAG_OVERLAPPED | WRITE_DAC,
+        PIPE_TYPE_MESSAGE | PIPE_WAIT,
+        1, 0, 0, 0, NULL);
 
-	CHAR buffer[512]; // Буфер для передачи сообщений
-	BOOL isConnected = FALSE; // Проверка подключения
-	OVERLAPPED overlapped = OVERLAPPED(); // Содержит информацию, используемую в асинхронном (или перекрывающем) вводе/выводе данных
-	OVERLAPPED syncPipe = OVERLAPPED();	// Перекрывающаяся структура
+    if(hPipe != INVALID_HANDLE_VALUE)
+    {
+        if(ConnectNamedPipe(hPipe, NULL))
+        {
+            OVERLAPPED over;
+            over.hEvent = CreateEvent(NULL, true, false, NULL);
+            over.Offset = 0;
+            over.OffsetHigh = 0;
 
-	HANDLE Event = CreateEvent(NULL, FALSE, FALSE, NULL);
-	HANDLE Pipe = CreateNamedPipe(TEXT("\\\\.\\pipe\\lab4"),							// Имя канала
-								  PIPE_ACCESS_DUPLEX,										// Канал двунаправленный
-								  PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
-								  PIPE_UNLIMITED_INSTANCES,									// Макс. число запросов
-								  512,														// Выводимый размер буфера
-								  512,														// Вводимый размер буфера
-								  0,														// time-out время, мс
-								  NULL														// Указатель на атрибуты безопасности
-								  );
+            char buffer[BUFFER_SIZE];
+            std::string string_buffer;
+            while(strcmp(buffer, EXIT_STR) != 0)
+            {
+                ZeroMemory(buffer, 0);
+                std::cout << "Enter message (" << EXIT_STR << " to exit): \n> ";
+                getline(std::cin, string_buffer);
 
-	int choose;
+                if(string_buffer.length() - 1 > BUFFER_SIZE)
+                {
+                    std::cout << "Error: Message more than " << BUFFER_SIZE << " bytes." << std::endl;
+                    continue;
+                }
+                else
+                {
+					// CopyMemory(buffer, string_buffer.c_str(), string_buffer.length() * sizeof(char));
+                    for(i = 0; i < string_buffer.length(); ++i)
+                        buffer[i] = string_buffer[i];
+                    buffer[i] = '\0';
+                }
 
-	if (Event != INVALID_HANDLE_VALUE && Pipe != INVALID_HANDLE_VALUE)
-	{
-		do
-		{
-			system("cls");
-			std::cout << "1. Connect to named pipe" << std::endl;
-			std::cout << "2. Send a message" << std::endl;
-			std::cout << "3. Disconnect from a named pipe" << std::endl;
-			std::cout << "0. Exit" << std::endl;
+                WriteFile(hPipe, buffer, strlen(buffer) + 1, NULL, &over);
+                WaitForSingleObject(over.hEvent, INFINITE);
+                std::cout << "Message was sent!" << std::endl;
+            }
 
-			std::cin >> choose;
+            DisconnectNamedPipe(hPipe);
+            CloseHandle(over.hEvent);
+        }
+        else
+        {
+            std::cout << "Error: Can't connect to pipe." << std::endl;
+            return GetLastError();
+        }
 
-			switch (choose)
-			{
-			case 1:
-				syncPipe.hEvent = Event;
-				isConnected = ConnectNamedPipe(Pipe, &syncPipe);
-				WaitForSingleObject(Event, INFINITE);
+        CloseHandle(hPipe);
+    }
+    else
+    {
+        std::cout << "Error: Can't create pipe." << std::endl;
+        return GetLastError();
+    }
 
-				if (isConnected)
-					std::cout << "The connection was successful" << std::endl;
-				else
-					std::cout << "Error" << std::endl;
-
-				system("pause");
-				break;
-			case 2:
-				if (isConnected == FALSE) std::cout << "No connection!" << std::endl;
-				else
-				{
-					std::cout << "Enter a message: ";
-					std::cin >> buffer;
-
-					overlapped.hEvent = Event;
-					isConnected = WriteFile(Pipe, (LPCVOID)buffer, 512, NULL, &overlapped);
-
-					if (WaitForSingleObject(Event, 20000) == WAIT_OBJECT_0 && isConnected)
-						std::cout << "The recording was successful" << std::endl;
-					else
-						std::cout << "Error" << std::endl;
-				}
-
-				std::cout << std::endl;
-				system("pause");
-				break;
-			case 3:
-				isConnected = DisconnectNamedPipe(Pipe);
-
-				if (isConnected)
-					std::cout << "You have been disconnected from the named pipe" << std::endl;
-				else
-					std::cout << "Error" << std::endl;
-
-				isConnected = FALSE;
-				system("pause");
-				break;
-			default:
-				break;
-			}
-		} while (choose);
-	}
-	else
-		std::cout << "Error" << std::endl;
-
-	if (Pipe != INVALID_HANDLE_VALUE)
-		CloseHandle(Pipe);
-	if (Event != INVALID_HANDLE_VALUE)
-		CloseHandle(Event);
-
-	return 0;
+    return 0;
 }

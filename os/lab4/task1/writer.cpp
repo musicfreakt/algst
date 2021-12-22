@@ -3,18 +3,22 @@
 #include <ctime>
 #include <string>
 #include <windows.h>
+#include <vector>
+
+void logFile(std::string signal, HANDLE logOut);
 
 int main()
 {
     HANDLE freeSem = OpenSemaphore(SYNCHRONIZE | SEMAPHORE_MODIFY_STATE, FALSE, "freeSem");
     HANDLE usedSem = OpenSemaphore(SYNCHRONIZE | SEMAPHORE_MODIFY_STATE, FALSE, "usedSem");
-    HANDLE fileMutex = OpenMutex(MUTEX_ALL_ACCESS, FALSE, "fileMutex");
+    HANDLE mutex;
+    LONG page;
+    std::string mutexName = "mutex_a";
+    DWORD waitResult;
 
     std::srand(std::time(nullptr));
 
     HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-
-    LONG page = -1;
     DWORD written = 0;
     std::string outputString = "";
 
@@ -23,17 +27,24 @@ int main()
     {
         for (int i = 0; i < 3; ++i)
         {
+            page = -1;
             WaitForSingleObject(freeSem, INFINITE);
             outputString = std::to_string(GetTickCount()) + " | TAKE | FREE SEMAPHORE\n";
             WriteFile(hStdout, outputString.data(), outputString.length(), &written, NULL);
 
-            WaitForSingleObject(fileMutex, INFINITE);
+            do {
+                page += 1;
+                mutexName.back() = '0' + page;
+                mutex = OpenMutexA(SYNCHRONIZE, false, &mutexName[0]);
+                waitResult = WaitForSingleObject(mutex, 0);
+            } while (waitResult == WAIT_TIMEOUT);
+
             outputString = std::to_string(GetTickCount()) + " | TAKE | MUTEX\n";
             WriteFile(hStdout, outputString.data(), outputString.length(), &written, NULL);
 
             Sleep(std::rand() % 1000 + 500);
 
-            if (ReleaseMutex(fileMutex))
+            if (ReleaseMutex(mutex))
             {
                 outputString = std::to_string(GetTickCount()) + " | FREE | MUTEX\n";
                 WriteFile(hStdout, outputString.data(), outputString.length(), &written, NULL);
@@ -66,4 +77,11 @@ int main()
     CloseHandle(hStdout);
 
     return 0;
+}
+
+void logFile(std::string signal, HANDLE logOut) {
+    DWORD written = 0;
+    std::string outputString = "";
+    outputString = signal + ": " + std::to_string(GetTickCount()) + "\n";
+    WriteFile(logOut, outputString.data(), outputString.length(), &written, NULL);
 }
