@@ -110,6 +110,18 @@ void CopyFileOverlapped(HANDLE sourceHandle, HANDLE targetHandle, DWORD blockSiz
     }
 }
 
+void printArray(unsigned* a, size_t n)
+{
+    std::cout << "[";
+    for(size_t i = 0; i < n; ++i)
+    {
+        std::cout << std::to_string(a[i]);
+        if(i != n-1)
+            std::cout << ", ";
+    }
+    std::cout << "];\n";
+}
+
 #ifndef TEST
     int main()
     {
@@ -171,13 +183,67 @@ void CopyFileOverlapped(HANDLE sourceHandle, HANDLE targetHandle, DWORD blockSiz
         return 0;
     }
 #else
+    // int main()
+    // {
+    //     const unsigned attempts = 5;
+    //     DWORD blockSize;
+    //     DWORD sectorsPerCluster;
+    //     DWORD bytesPerSector;
+    //     GetDiskFreeSpaceA(NULL, &sectorsPerCluster, &bytesPerSector, NULL, NULL);
+    //     int operations = 1;
+    //
+    //     unsigned *results = new unsigned[20];
+    //     unsigned *x = new unsigned[20];
+    //     std::string sourcePath, targetPath;
+    //
+    //     std::cout << "Enter the directory of first file:\n> ";
+    //     std::cin >> sourcePath;
+    //
+    //     std::cout << "Enter the directory of second file:\n> ";
+    //     std::cin >> targetPath;
+    //
+    //     blockSize = sectorsPerCluster*bytesPerSector;
+    //     for (int i = 1; i <= 20; ++i)
+    //     {
+    //         DWORD sumMillis = 0;
+    //         for (int j = 0; j < attempts; ++j)
+    //         {
+    //             HANDLE sourceHandle = CreateFile(sourcePath.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING,
+    //                 FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED, NULL);
+    //
+    //             HANDLE targetHandle = CreateFile(targetPath.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+    //                 FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED, NULL);
+    //
+    //             auto begin = std::chrono::high_resolution_clock::now();
+    //             CopyFileOverlapped(sourceHandle, targetHandle, i*blockSize, operations);
+    //             auto end = std::chrono::high_resolution_clock::now();
+    //             auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(end-begin);
+    //             auto count = delta.count();
+    //             sumMillis += count;
+    //             std::cout << "Attempt " << j << "; BLOCKSIZE:" << i*blockSize << " ;Copy time: " << count << " milliseconds\n";
+    //             CloseHandle(sourceHandle);
+    //             CloseHandle(targetHandle);
+    //         }
+    //         results[i-1] = sumMillis/attempts;
+    //         x[i-1] = i;
+    //     }
+    //     printArray(x, 20);
+    //     printArray(results, 20);
+    //     delete results;
+    //     delete x;
+    //     return 0;
+    // }
     int main()
     {
+        const unsigned attempts = 5;
         DWORD blockSize;
         DWORD sectorsPerCluster;
         DWORD bytesPerSector;
         GetDiskFreeSpaceA(NULL, &sectorsPerCluster, &bytesPerSector, NULL, NULL);
-        int operations = 1;
+        // int operations = 1;
+
+        unsigned *results = new unsigned[16];
+        unsigned *x = new unsigned[16];
         std::string sourcePath, targetPath;
 
         std::cout << "Enter the directory of first file:\n> ";
@@ -186,28 +252,35 @@ void CopyFileOverlapped(HANDLE sourceHandle, HANDLE targetHandle, DWORD blockSiz
         std::cout << "Enter the directory of second file:\n> ";
         std::cin >> targetPath;
 
-        blockSize = 23*sectorsPerCluster*bytesPerSector;
-
-        for (int i = 1; i <= 16; i += i)
+        blockSize = 8*sectorsPerCluster*bytesPerSector;
+        for (int i = 1; i <= 16; ++i)
         {
-            operations = i;
-            HANDLE sourceHandle = CreateFile(sourcePath.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING,
-                FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED, NULL);
+            DWORD sumMillis = 0;
+            for (int j = 0; j < attempts; ++j)
+            {
+                HANDLE sourceHandle = CreateFile(sourcePath.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING,
+                    FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED, NULL);
 
-            HANDLE targetHandle = CreateFile(targetPath.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
-                FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED, NULL);
+                HANDLE targetHandle = CreateFile(targetPath.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,
+                    FILE_FLAG_NO_BUFFERING | FILE_FLAG_OVERLAPPED, NULL);
 
-            auto begin = std::chrono::high_resolution_clock::now(); // ПАРОВОЗИК ЧУХ-ЧУХ!!!
-            CopyFileOverlapped(sourceHandle, targetHandle, blockSize, operations);
-            auto end = std::chrono::high_resolution_clock::now();
-            auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(end-begin);
-            auto count = delta.count();
-            std::cout << "(" << i << " " << count << "); Operations:" << i << " ;Copy time: " << count << " milliseconds\n";
-
-            CloseHandle(sourceHandle);
-            CloseHandle(targetHandle);
+                auto begin = std::chrono::high_resolution_clock::now();
+                CopyFileOverlapped(sourceHandle, targetHandle, blockSize, i);
+                auto end = std::chrono::high_resolution_clock::now();
+                auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(end-begin);
+                auto count = delta.count();
+                sumMillis += count;
+                std::cout << "Attempt " << j << "; Operations:" << i << " ;Copy time: " << count << " milliseconds\n";
+                CloseHandle(sourceHandle);
+                CloseHandle(targetHandle);
+            }
+            results[i-1] = sumMillis/attempts;
+            x[i-1] = i;
         }
-
+        printArray(x, 16);
+        printArray(results, 16);
+        delete results;
+        delete x;
         return 0;
     }
 #endif
