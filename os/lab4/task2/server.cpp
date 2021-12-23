@@ -18,7 +18,7 @@ int main()
         if(ConnectNamedPipe(hPipe, NULL))
         {
             OVERLAPPED over;
-            over.hEvent = CreateEvent(NULL, true, false, NULL);
+            over.hEvent = CreateEvent(NULL, false, false, NULL);
             over.Offset = 0;
             over.OffsetHigh = 0;
 
