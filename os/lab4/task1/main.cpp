@@ -1,97 +1,49 @@
 #include <iostream>
 #include <string>
 #include <windows.h>
+#include <cstdlib>
+#include <ctime>
 #include <vector>
 
-using namespace std;
-
-const int pageSize = 4096; //Размер страницы
-const int Count = 17; //Число страниц буферной памяти
-const int N = Count - 1;  //Количестов семафоров (с учётом нулевого)
-const int writerCount = Count / 2; //Счётчик писателей
-const int readerCount = Count / 2; //Счётчик читателей
+const int PAGESIZE = 4096;
+const int COUNT = 17;
+const int N = COUNT - 1;
+const int WRITERCOUNT = COUNT / 2;
+const int READERCOUNT = COUNT / 2;
 
 int main()
 {
-    int fileSize = N * pageSize;
+    srand(time(nullptr));
+    int fileSize = N * PAGESIZE;
     HANDLE mapHandle;
-    HANDLE freeSem = CreateSemaphore(NULL, N, N, "freeSem"); //Создание семафора для неотработанных страниц
-    HANDLE usedSem = CreateSemaphore(NULL, 0, N, "usedSem"); //Создание семафора для отработанных страниц
+    HANDLE freeSem = CreateSemaphore(NULL, N, N, "freeSem");
+    HANDLE usedSem = CreateSemaphore(NULL, 0, N, "usedSem");
     std::vector<HANDLE> pageMutex;
     std::string mutexName = "mutex_a";
-    for(int i = 0;i < Count; i++)
+
+    for(int i = 0; i < COUNT; i++)
     {
         mutexName.back() = '0' + i;
-        pageMutex.push_back(CreateMutexA(nullptr, false, mutexName.c_str()));
+        pageMutex.push_back(CreateMutexA(nullptr, false, &mutexName[0]));
     }
 
-    // cout << "This program will copy data from file named 'file.txt' by using semaphores and mutex.\n";
-    // cout << "Wait for a few seconds to see a result\n";
-
-    //Создаём файл, с которым будет производиться работа
     HANDLE fHandle = CreateFileA("file.txt", GENERIC_READ | GENERIC_WRITE,
         FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
     SetFilePointer(fHandle, fileSize, 0, FILE_BEGIN);
     SetEndOfFile(fHandle);
 
-    //Создаём проекцию файла
-    mapHandle = CreateFileMapping(fHandle, NULL, PAGE_READWRITE, 0, 0, "filemap");
+    mapHandle = CreateFileMapping(fHandle, NULL, PAGE_READWRITE, 0, 0, (LPCTSTR)"filemap");
 
-    //Отображаем проекцию
     LPVOID mapView = MapViewOfFile(mapHandle, FILE_MAP_ALL_ACCESS, 0, 0, fileSize);
 
-    //Блокируем страницы
     VirtualLock(mapView, fileSize);
 
-    //Массив HANDLE для процессов
-    HANDLE processHandles[Count];
+    HANDLE processHandles[COUNT];
 
-    //Цикл для писателей
-    for (int i = 0; i < writerCount; ++i)
+    for (int i = 0; i < WRITERCOUNT; ++i)
     {
-        //Называем очередной файл
-
-        string logName = "writelog_" + to_string(i + 1) + ".txt";
-
-        STARTUPINFO sysInfo; //Информация для создания процесса
-        PROCESS_INFORMATION procInfo;  //Объект для записи информации о процессе
-        SECURITY_ATTRIBUTES secureAttr = { sizeof(secureAttr), NULL, TRUE }; //Атрибуты безопасности
-
-        //Обнуляем нашу информацию о процессе
-        ZeroMemory(&sysInfo, sizeof(sysInfo));
-
-        //Создаём файл для логгирования
-        HANDLE outHandle = CreateFile(logName.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, &secureAttr,
-            OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-
-        sysInfo.cb = sizeof(sysInfo); //Устанавливает размер структуры, в байтах
-        sysInfo.hStdOutput = outHandle; //Определяет дескриптор, который будет использован как стандартный дескриптор вывода для процесса
-        sysInfo.hStdError = NULL;  //Определяет дескриптор, который будет использован как стандартный дескриптор ошибки для процесса
-        sysInfo.hStdInput = NULL; //Определяет дескриптор, который будет использован как стандартный дескриптор ввода для процесса
-        sysInfo.dwFlags |= STARTF_USESTDHANDLES; //Устанавливается стандартный ввод данных, стандартный вывод и стандартная обработка ошибок дескрипторов процесса
-
-        ZeroMemory(&procInfo, sizeof(procInfo));
-
-        int mainProcess = CreateProcess("writer.exe",
-            NULL, // Командная строка
-            NULL, // Дескриптор процесса не наследуется
-            NULL, // Дескриптор потока не наследуется
-            TRUE, // Установить наследование дескрипторов в TRUE
-            0, // Нет флагов создания
-            NULL, // Использовать родительский блок среды
-            NULL, // Использовать начальный каталог родителя
-            &sysInfo, // Указатель на структуру STARTUPINFO
-            &procInfo); // Указатель на структуру PROCESS_INFORMATION
-
-        if (mainProcess)
-            processHandles[i] = procInfo.hProcess;
-    }
-
-    //Аналогично работаем и с читателями
-    for (int i = 0; i < readerCount; ++i)
-    {
-        string fname = "readlog_" + to_string(i + 1) + ".txt";
+        std::string logName = "writelog_" + std::to_string(i + 1) + ".txt";
 
         STARTUPINFO sysInfo;
         PROCESS_INFORMATION procInfo;
@@ -99,7 +51,44 @@ int main()
 
         ZeroMemory(&sysInfo, sizeof(sysInfo));
 
-        sysInfo.hStdOutput = CreateFile(fname.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, &secureAttr,
+        HANDLE outHandle = CreateFile((LPCTSTR)logName.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, &secureAttr,
+            OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+        sysInfo.cb = sizeof(sysInfo);
+        sysInfo.hStdOutput = outHandle;
+        sysInfo.hStdError = NULL;
+        sysInfo.hStdInput = NULL;
+        sysInfo.dwFlags |= STARTF_USESTDHANDLES;
+
+        ZeroMemory(&procInfo, sizeof(procInfo));
+
+        int mainProcess = CreateProcess((LPCTSTR)"writer.exe",
+            NULL,
+            NULL,
+            NULL,
+            TRUE,
+            0,
+            NULL,
+            NULL,
+            &sysInfo,
+            &procInfo);
+
+        if (mainProcess)
+            processHandles[i] = procInfo.hProcess;
+        // Sleep(1);
+    }
+
+    for (int i = 0; i < READERCOUNT; ++i)
+    {
+        std::string fname = "readlog_" + std::to_string(i + 1) + ".txt";
+
+        STARTUPINFO sysInfo;
+        PROCESS_INFORMATION procInfo;
+        SECURITY_ATTRIBUTES secureAttr = { sizeof(secureAttr), NULL, TRUE };
+
+        ZeroMemory(&sysInfo, sizeof(sysInfo));
+
+        sysInfo.hStdOutput = CreateFile((LPCTSTR)fname.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, &secureAttr,
             OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
         sysInfo.cb = sizeof(sysInfo);
@@ -108,39 +97,36 @@ int main()
         sysInfo.dwFlags |= STARTF_USESTDHANDLES;
         ZeroMemory(&procInfo, sizeof(procInfo));
 
-        int createProcess = CreateProcess("reader.exe",
-            NULL, // Командная строка
-            NULL, // Дескриптор процесса не наследуется
-            NULL, // Дескриптор потока не наследуется
-            TRUE, // Установить наследование дескрипторов в TRUE
-            0, // Нет флагов создания
-            NULL, // Использовать родительский блок среды
-            NULL, // Использовать начальный каталог родителя
-            &sysInfo, // Указатель на структуру STARTUPINFO
-            &procInfo); // Указатель на структуру PROCESS_INFORMATION
-
+        int createProcess = CreateProcess((LPCTSTR)"reader.exe",
+            NULL,
+            NULL,
+            NULL,
+            TRUE,
+            0,
+            NULL,
+            NULL,
+            &sysInfo,
+            &procInfo);
 
         if (createProcess != 0)
-            processHandles[writerCount + i] = procInfo.hProcess;
+            processHandles[WRITERCOUNT + i] = procInfo.hProcess;
+
+        // Sleep(1);
     }
 
-    WaitForMultipleObjects(Count, processHandles, true, INFINITE);
+    WaitForMultipleObjects(COUNT, processHandles, true, INFINITE);
 
-    for (int i = 0; i < Count; ++i)
-    {
+    for (int i = 0; i < COUNT; ++i)
         CloseHandle(processHandles[i]);
-    }
 
     CloseHandle(mapHandle);
     UnmapViewOfFile(mapView);
     CloseHandle(fHandle);
-    for(int i = 0;i < Count;i++)
-    {
+    for(int i = 0; i < COUNT; i++)
         CloseHandle(pageMutex[i]);
-    }
     CloseHandle(freeSem);
     CloseHandle(usedSem);
 
-    cout << endl << "The work is done." << endl;
+    std::cout << std::endl << "The work is done." << std::endl;
     system("pause");
 }
