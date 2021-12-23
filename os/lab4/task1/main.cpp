@@ -6,25 +6,24 @@
 #include <vector>
 
 const int PAGESIZE = 4096;
-const int COUNT = 17;
-const int N = COUNT - 1;
-const int WRITERCOUNT = COUNT / 2;
-const int READERCOUNT = COUNT / 2;
+const int PAGECOUNT = 17;
+const int N = PAGECOUNT;
+const int WRITERCOUNT = 5;
+const int READERCOUNT = 5;
+const std::string MUTEXNAME ="mutex_a";
 
 int main()
 {
     srand(time(nullptr));
-    int fileSize = N * PAGESIZE;
-    HANDLE mapHandle;
+    int fileSize = PAGECOUNT * PAGESIZE;
     HANDLE freeSem = CreateSemaphore(NULL, N, N, "freeSem");
     HANDLE usedSem = CreateSemaphore(NULL, 0, N, "usedSem");
     std::vector<HANDLE> pageMutex;
-    std::string mutexName = "mutex_a";
 
-    for(int i = 0; i < COUNT; i++)
+    for(int i = 0; i < PAGECOUNT; i++)
     {
-        mutexName.back() = '0' + i;
-        pageMutex.push_back(CreateMutexA(nullptr, false, &mutexName[0]));
+        std::string mutexName = MUTEXNAME + std::to_string(i);
+        pageMutex.push_back(CreateMutexA(nullptr, false, mutexName.c_str()));
     }
 
     HANDLE fHandle = CreateFileA("file.txt", GENERIC_READ | GENERIC_WRITE,
@@ -33,13 +32,13 @@ int main()
     SetFilePointer(fHandle, fileSize, 0, FILE_BEGIN);
     SetEndOfFile(fHandle);
 
-    mapHandle = CreateFileMapping(fHandle, NULL, PAGE_READWRITE, 0, 0, (LPCTSTR)"filemap");
+    HANDLE mapHandle = CreateFileMapping(fHandle, NULL, PAGE_READWRITE, 0, 0, (LPCTSTR)"filemap");
 
     LPVOID mapView = MapViewOfFile(mapHandle, FILE_MAP_ALL_ACCESS, 0, 0, fileSize);
 
     VirtualLock(mapView, fileSize);
 
-    HANDLE processHandles[COUNT];
+    HANDLE processHandles[WRITERCOUNT+READERCOUNT];
 
     for (int i = 0; i < WRITERCOUNT; ++i)
     {
@@ -52,7 +51,7 @@ int main()
         ZeroMemory(&sysInfo, sizeof(sysInfo));
 
         HANDLE outHandle = CreateFile((LPCTSTR)logName.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, &secureAttr,
-            OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+            CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
         sysInfo.cb = sizeof(sysInfo);
         sysInfo.hStdOutput = outHandle;
@@ -89,7 +88,7 @@ int main()
         ZeroMemory(&sysInfo, sizeof(sysInfo));
 
         sysInfo.hStdOutput = CreateFile((LPCTSTR)fname.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, &secureAttr,
-            OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+            CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 
         sysInfo.cb = sizeof(sysInfo);
         sysInfo.hStdError = NULL;
@@ -114,19 +113,20 @@ int main()
         // Sleep(1);
     }
 
-    WaitForMultipleObjects(COUNT, processHandles, true, INFINITE);
+    WaitForMultipleObjects(WRITERCOUNT+READERCOUNT, processHandles, true, INFINITE);
 
-    for (int i = 0; i < COUNT; ++i)
+    for (int i = 0; i < WRITERCOUNT+READERCOUNT; ++i)
         CloseHandle(processHandles[i]);
 
     CloseHandle(mapHandle);
     UnmapViewOfFile(mapView);
     CloseHandle(fHandle);
-    for(int i = 0; i < COUNT; i++)
+    for(int i = 0; i < PAGECOUNT; i++)
         CloseHandle(pageMutex[i]);
     CloseHandle(freeSem);
     CloseHandle(usedSem);
 
+    // std::cout << GetTickCount()<<e
     std::cout << std::endl << "The work is done." << std::endl;
     system("pause");
 }

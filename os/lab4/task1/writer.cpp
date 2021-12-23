@@ -4,21 +4,17 @@
 #include <cstdlib>
 #include <windows.h>
 #include <vector>
-
-void logFile(std::string signal, HANDLE logOut);
+const std::string MUTEXNAME ="mutex_a";
 
 int main()
 {
-    srand(time(nullptr));
+    srand(time(nullptr) + GetCurrentProcessId()*197);
     HANDLE freeSem = OpenSemaphore(SYNCHRONIZE | SEMAPHORE_MODIFY_STATE, FALSE, (LPCTSTR)"freeSem");
     HANDLE usedSem = OpenSemaphore(SYNCHRONIZE | SEMAPHORE_MODIFY_STATE, FALSE, (LPCTSTR)"usedSem");
     HANDLE mutex;
-    LONG page;
     std::string mutexName = "mutex_a";
     DWORD waitResult;
-
     HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
-    LONG semPrev = -1;
     DWORD written = 0;
     std::string outputString = "";
 
@@ -27,39 +23,42 @@ int main()
     {
         for (int i = 0; i < 8; ++i)
         {
-            page = -1;
+            LONG page = -1;
             WaitForSingleObject(freeSem, INFINITE);
-            outputString = "time = " + std::to_string(GetTickCount()) + "; use semaphore\n";
+            // ReleaseSemaphore(freeSem, -1, nullptr);
+            // outputString = "time = " + std::to_string(GetTickCount()) + "; use semaphore\n";
+            outputString = std::to_string(GetTickCount()) + "\n";
             WriteFile(hStdout, outputString.data(), outputString.length(), &written, NULL);
 
             do {
                 page += 1;
-                mutexName.back() = '0' + page;
-                mutex = OpenMutexA(SYNCHRONIZE, false, &mutexName[0]);
+                mutexName = MUTEXNAME + std::to_string(page);
+                mutex = OpenMutexA(SYNCHRONIZE, false, mutexName.c_str());
                 waitResult = WaitForSingleObject(mutex, 0);
             } while (waitResult == WAIT_TIMEOUT);
 
-            outputString = "time = " + std::to_string(GetTickCount()) + "; take mutex\n";
-            WriteFile(hStdout, outputString.data(), outputString.length(), &written, NULL);
+            // outputString = "time = " + std::to_string(GetTickCount()) + "; take mutex\n";
+            // WriteFile(hStdout, outputString.data(), outputString.length(), &written, NULL);
 
             Sleep(rand() % 1000 + 500); // fake write
 
             if (ReleaseMutex(mutex))
             {
-                outputString = "time = " + std::to_string(GetTickCount()) + "; free mutex\n";
-                WriteFile(hStdout, outputString.data(), outputString.length(), &written, NULL);
+                // outputString = "time = " + std::to_string(GetTickCount()) + "; free mutex\n";
+                // WriteFile(hStdout, outputString.data(), outputString.length(), &written, NULL);
             }
             else
             {
-                std::string str = std::to_string(GetLastError()) + " code\n";
-                WriteFile(hStdout, str.data(), str.length(), &written, NULL);
+                // std::string str = std::to_string(GetLastError()) + " code\n";
+                // WriteFile(hStdout, str.data(), str.length(), &written, NULL);
             }
 
-            if (ReleaseSemaphore(usedSem, 1, &semPrev))
+            if (ReleaseSemaphore(usedSem, 1, nullptr))
             {
-                outputString = "time = " + std::to_string(GetTickCount()) + "; free semaphore\n";
-                WriteFile(hStdout, outputString.data(), outputString.length(), &written, NULL);
-                std::string str = "time = " + std::to_string(GetTickCount()) + "; page number = " + std::to_string(page + 1) + "\n\n";
+                // outputString = "time = " + std::to_string(GetTickCount()) + "; free semaphore\n";
+                // WriteFile(hStdout, outputString.data(), outputString.length(), &written, NULL);
+                // std::string str = "time = " + std::to_string(GetTickCount()) + "; page number = " + std::to_string(page + 1) + "\n\n";
+                std::string str = std::to_string(GetTickCount()) + " " + std::to_string(page + 1) + "\n\n";
                 WriteFile(hStdout, str.data(), str.length(), &written, NULL);
             }
             else
