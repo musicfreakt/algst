@@ -27,7 +27,7 @@ int main()
             while(strcmp(buffer, EXIT_STR) != 0)
             {
                 ZeroMemory(buffer, 0);
-                std::cout << "Enter message (" << EXIT_STR << " to exit): \n> ";
+                std::cout << "Enter message (" << EXIT_STR << " to exit): ";
                 getline(std::cin, string_buffer);
 
                 if(string_buffer.length() - 1 > BUFFER_SIZE)
