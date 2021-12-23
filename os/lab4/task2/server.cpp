@@ -19,8 +19,6 @@ int main()
         {
             OVERLAPPED over;
             over.hEvent = CreateEvent(NULL, false, false, NULL);
-            over.Offset = 0;
-            over.OffsetHigh = 0;
 
             char buffer[BUFFER_SIZE];
             std::string string_buffer;
