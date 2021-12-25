@@ -7,9 +7,9 @@
 
 const int PAGESIZE = 4096;
 const int PAGECOUNT = 17;
-const int N = PAGECOUNT;
-const int WRITERCOUNT = 5;
-const int READERCOUNT = 5;
+const int N = PAGECOUNT - 1;
+const int WRITERCOUNT = 10;
+const int READERCOUNT = 10;
 const std::string MUTEXNAME ="mutex_a";
 
 int main()
@@ -110,7 +110,6 @@ int main()
         if (createProcess != 0)
             processHandles[WRITERCOUNT + i] = procInfo.hProcess;
 
-        // Sleep(1);
     }
 
     WaitForMultipleObjects(WRITERCOUNT+READERCOUNT, processHandles, true, INFINITE);
