@@ -5,7 +5,7 @@
 #include <sstream>
 
 
-void printAttributes(char* process_name, FILE* file)
+void printAttributes(std::string process_name, FILE* file)
 {
     std::stringstream out;
     pid_t pid = getpid();
@@ -54,17 +54,13 @@ int main(int argc, char* argv[])
 
             pid_t process_vfork = vfork();
             if(process_vfork == 0)
-            { 
-                sleep(vfork_delay);
-                execl("vfork", "vfork", argv[4], NULL);
-            }
+                execl("vfork", "vfork", argv[3], argv[4], NULL);
             if(process_vfork < 0) 
                 std::cout << "vfork process was not created" << std::endl;
             
             sleep(parent_delay);
             printAttributes("Parent", file);
             fclose(file);
-
         }
         else 
             std::cout << "Error opening file " <<  argv[4] << std::endl;

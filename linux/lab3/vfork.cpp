@@ -5,7 +5,7 @@
 #include <sstream>
 
 
-void printAttributes(char* process_name, FILE* file)
+void printAttributes(std::string process_name, FILE* file)
 {
     std::stringstream out;
     pid_t pid = getpid();
@@ -28,8 +28,11 @@ int main(int argc, char* argv[])
 {
     FILE *file;
 
-    if (file = fopen(argv[1], "a"))
+    if (file = fopen(argv[2], "a"))
+    {
+        sleep(atoi(argv[1]));
         printAttributes("vfork", file);
+    }
 
     return 0;
 }
