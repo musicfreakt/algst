@@ -34,5 +34,7 @@ int main(int argc, char* argv[])
         printAttributes("vfork", file);
     }
 
+    fclose(file);
+
     return 0;
 }

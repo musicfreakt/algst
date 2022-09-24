@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
@@ -61,6 +62,8 @@ int main(int argc, char* argv[])
             sleep(parent_delay);
             printAttributes("Parent", file);
             fclose(file);
+
+	    //waitpid(process_vfork, NULL, 0);
         }
         else 
             std::cout << "Error opening file " <<  argv[4] << std::endl;
