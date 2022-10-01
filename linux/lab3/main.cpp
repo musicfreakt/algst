@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
             printAttributes("Parent", file);
             fclose(file);
 
-	    //waitpid(process_vfork, NULL, 0);
+	   // waitpid(process_vfork, NULL, 0);
         }
         else 
             std::cout << "Error opening file " <<  argv[4] << std::endl;
